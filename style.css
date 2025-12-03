@@ -1015,14 +1015,6 @@ tbody tr:last-child {
     border-bottom: none;
 }
 
-/* REMOVIDO: Efeito hover nas linhas da tabela */
-/*
-tbody tr:hover {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    transform: translateX(5px);
-}
-*/
-
 td {
     padding: clamp(1rem, 3vw, 1.5rem) clamp(0.8rem, 2vw, 1.2rem); /* Reduzido padding horizontal */
     text-align: center;
@@ -1082,7 +1074,7 @@ td {
 .lucro-positivo {
     color: #10b981;
     font-weight: 700;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+    background: 0;
     padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
     border-radius: 12px;
     border: 1px solid rgba(16, 185, 129, 0.2);
@@ -1091,7 +1083,7 @@ td {
 .lucro-negativo {
     color: #ef4444;
     font-weight: 700;
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+    background: 0;
     padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
     border-radius: 12px;
     border: 1px solid rgba(239, 68, 68, 0.2);
