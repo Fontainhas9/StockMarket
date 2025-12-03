@@ -1,10 +1,10 @@
-// Dados das ações (investimento inicial e preço de compra)
+// Dados das ações atualizados com nomes corretos
 const acoes = [
-    { id: 'sp', nome: 'S&P', investido: 7957.36, precoCompra: 57.662 },
-    { id: 'ouro', nome: 'Ouro', investido: 7982.18, precoCompra: 234.77 },
-    { id: 'janus', nome: 'Janus', investido: 7999.99, precoCompra: 26.1 },
-    { id: 'jpmorgan', nome: 'JPMorgan', investido: 8000.00, precoCompra: 482.8 },
-    { id: 'imga', nome: 'IMGA', investido: 8000.00, precoCompra: 12.4971 }
+    { id: 'sp', nome: 'S&P 500', investido: 7957.36, precoCompra: 57.662, icon: 'fa-chart-bar' },
+    { id: 'ouro', nome: 'Ouro', investido: 7982.18, precoCompra: 234.77, icon: 'fa-gem' },
+    { id: 'janus', nome: 'Janus', investido: 7999.99, precoCompra: 26.1, icon: 'fa-university' },
+    { id: 'jpmorgan', nome: 'JP Morgan', investido: 8000.00, precoCompra: 482.8, icon: 'fa-landmark' },
+    { id: 'imga', nome: 'IMGA', investido: 8000.00, precoCompra: 12.4971, icon: 'fa-industry' }
 ];
 
 // Referências aos elementos DOM
@@ -18,54 +18,95 @@ const inputsPrecos = {
 
 const calcularBtn = document.getElementById('calcular-btn');
 const limparBtn = document.getElementById('limpar-btn');
+const toggleInvestmentBtn = document.getElementById('toggle-investment');
 const tabelaResultados = document.getElementById('tabela-resultados').getElementsByTagName('tbody')[0];
 const resultadoConsolidado = document.getElementById('resultado-consolidado');
+const investmentSummary = document.getElementById('investment-summary');
+const statsAcoes = document.getElementById('stats-acoes');
+
+// Estado da aplicação
+let mostrarInvestimento = false;
+let resultadosCalculados = [];
+
+// Inicializar a aplicação
+function init() {
+    configurarEventListeners();
+    configurarNavegacaoTeclado();
+    inputsPrecos.sp.focus();
+    
+    // Calcular e mostrar total investido
+    const totalInvestido = acoes.reduce((total, acao) => total + acao.investido, 0);
+    document.getElementById('total-investido').textContent = formatarMoeda(totalInvestido);
+}
+
+// Configurar event listeners
+function configurarEventListeners() {
+    calcularBtn.addEventListener('click', calcularPortfolio);
+    limparBtn.addEventListener('click', limparCampos);
+    toggleInvestmentBtn.addEventListener('click', toggleMostrarInvestimento);
+    
+    // Adicionar evento para Enter em cada input
+    Object.values(inputsPrecos).forEach((input, index, arr) => {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (index < arr.length - 1) {
+                    arr[index + 1].focus();
+                } else {
+                    calcularPortfolio();
+                }
+            }
+        });
+    });
+}
 
 // Configurar navegação por teclado
-Object.values(inputsPrecos).forEach((input, index, arr) => {
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+function configurarNavegacaoTeclado() {
+    document.addEventListener('keydown', (e) => {
+        // Ctrl+Enter para calcular
+        if (e.key === 'Enter' && e.ctrlKey) {
             e.preventDefault();
-            if (index < arr.length - 1) {
-                arr[index + 1].focus();
-            } else {
-                calcularBtn.focus();
-                calcularPortfolio();
-            }
+            calcularPortfolio();
         }
         
+        // Escape para limpar
         if (e.key === 'Escape') {
             limparCampos();
         }
     });
-});
+}
 
-// Adicionar eventos aos botões
-calcularBtn.addEventListener('click', calcularPortfolio);
-limparBtn.addEventListener('click', limparCampos);
-
-// Adicionar evento de teclado global
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-        calcularPortfolio();
-    }
+// Alternar mostrar/ocultar valores investidos
+function toggleMostrarInvestimento() {
+    mostrarInvestimento = !mostrarInvestimento;
     
-    if (e.key === 'Escape') {
-        limparCampos();
+    const investmentValues = document.querySelectorAll('.investment-value');
+    const icon = toggleInvestmentBtn.querySelector('i');
+    const text = toggleInvestmentBtn.querySelector('span');
+    
+    if (mostrarInvestimento) {
+        investmentValues.forEach(el => el.classList.remove('hidden'));
+        investmentSummary.classList.remove('hidden');
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+        text.textContent = 'Ocultar Investidos';
+        toggleInvestmentBtn.style.background = 'rgba(255, 255, 255, 0.25)';
+    } else {
+        investmentValues.forEach(el => el.classList.add('hidden'));
+        investmentSummary.classList.add('hidden');
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+        text.textContent = 'Mostrar Investidos';
+        toggleInvestmentBtn.style.background = 'rgba(255, 255, 255, 0.15)';
     }
-});
-
-// Focar no primeiro campo ao carregar a página
-window.addEventListener('DOMContentLoaded', () => {
-    inputsPrecos.sp.focus();
-});
+}
 
 // Função para calcular o portfólio
 function calcularPortfolio() {
     // Limpar resultados anteriores
+    resultadosCalculados = [];
     limparTabela();
     
-    let resultados = [];
     let totalInvestido = 0;
     let totalAtual = 0;
     let acoesValidas = 0;
@@ -83,7 +124,7 @@ function calcularPortfolio() {
             const percentagem = (lucro / acao.investido) * 100;
             
             // Armazenar resultados
-            resultados.push({
+            resultadosCalculados.push({
                 nome: acao.nome,
                 investido: acao.investido,
                 precoCompra: acao.precoCompra,
@@ -100,12 +141,12 @@ function calcularPortfolio() {
             acoesValidas++;
             
             // Adicionar à tabela
-            adicionarNaTabela(acao.nome, valorAtual, lucro, percentagem);
+            adicionarNaTabela(acao.nome, valorAtual, lucro, percentagem, acao.icon);
         }
     });
     
     if (acoesValidas === 0) {
-        mostrarErro("Nenhum preço atual inserido");
+        mostrarErro("Por favor, insira pelo menos um preço atual válido");
         return;
     }
     
@@ -113,12 +154,15 @@ function calcularPortfolio() {
     const lucroTotal = totalAtual - totalInvestido;
     const percentagemTotal = totalInvestido > 0 ? (lucroTotal / totalInvestido) * 100 : 0;
     
+    // Atualizar estatísticas
+    statsAcoes.textContent = `${acoesValidas}/5 ações calculadas`;
+    
     // Mostrar resultado consolidado
     mostrarResultadoConsolidado(totalInvestido, totalAtual, lucroTotal, percentagemTotal, acoesValidas);
 }
 
 // Função para adicionar linha na tabela
-function adicionarNaTabela(nome, valorAtual, lucro, percentagem) {
+function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     // Remover linha vazia se existir
     const emptyRow = tabelaResultados.querySelector('.empty-row');
     if (emptyRow) {
@@ -127,6 +171,7 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem) {
     
     // Criar nova linha
     const novaLinha = tabelaResultados.insertRow();
+    novaLinha.className = 'resultado-linha';
     
     // Formatar valores
     const valorAtualFormatado = formatarMoeda(valorAtual);
@@ -135,7 +180,7 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem) {
     
     // Adicionar células
     const celulaAcao = novaLinha.insertCell(0);
-    celulaAcao.textContent = nome;
+    celulaAcao.innerHTML = `<i class="fas ${iconClass}"></i> ${nome}`;
     
     const celulaValorAtual = novaLinha.insertCell(1);
     celulaValorAtual.textContent = valorAtualFormatado;
@@ -186,13 +231,14 @@ function mostrarResultadoConsolidado(totalInvestido, totalAtual, lucroTotal, per
             <div class="resultado-emoji">${emoji}</div>
             <div class="resultado-titulo">${situacao} (${acoesValidas}/5 ações)</div>
             <div class="resultado-detalhes">
-                <p>Valor Total: ${totalAtualFormatado}</p>
-                <p>Resultado: ${lucroTotalFormatado} (${percentagemTotalFormatada})</p>
+                <p><i class="fas fa-wallet"></i> Valor Total: <strong>${totalAtualFormatado}</strong></p>
+                <p><i class="fas fa-chart-line"></i> Resultado: <strong>${lucroTotalFormatado}</strong> (${percentagemTotalFormatada})</p>
             </div>
         </div>
     `;
     
     resultadoConsolidado.innerHTML = resultadoHTML;
+    resultadoConsolidado.classList.add('has-result');
 }
 
 // Função para mostrar erro
@@ -201,11 +247,10 @@ function mostrarErro(mensagem) {
         <div class="resultado-info resultado-negativo">
             <div class="resultado-emoji">❌</div>
             <div class="resultado-titulo">${mensagem}</div>
-            <div class="resultado-detalhes">
-                <p>Por favor, insira pelo menos um preço atual válido.</p>
-            </div>
         </div>
     `;
+    resultadoConsolidado.classList.add('has-result');
+    statsAcoes.textContent = '0/5 ações calculadas';
 }
 
 // Função para limpar campos
@@ -221,10 +266,15 @@ function limparCampos() {
     // Restaurar estado inicial
     resultadoConsolidado.innerHTML = `
         <div class="estado-inicial">
-            <i class="fas fa-arrow-circle-right"></i>
+            <div class="estado-icon">
+                <i class="fas fa-arrow-circle-right"></i>
+            </div>
             <p>Insira os preços atuais e clique em Calcular</p>
         </div>
     `;
+    
+    resultadoConsolidado.classList.remove('has-result');
+    statsAcoes.textContent = '0/5 ações calculadas';
     
     // Focar no primeiro campo
     inputsPrecos.sp.focus();
@@ -242,11 +292,18 @@ function limparTabela() {
     novaLinha.className = 'empty-row';
     const celulaVazia = novaLinha.insertCell(0);
     celulaVazia.colSpan = 4;
-    celulaVazia.textContent = 'Nenhum cálculo realizado ainda';
+    celulaVazia.innerHTML = '<i class="fas fa-info-circle"></i> Nenhum cálculo realizado ainda';
 }
 
 // Função para formatar valores monetários
 function formatarMoeda(valor, comSinal = false) {
-    const sinal = comSinal && valor > 0 ? '+' : '';
-    return sinal + '€ ' + valor.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    const sinal = comSinal ? (valor > 0 ? '+' : '') : '';
+    const valorAbsoluto = Math.abs(valor);
+    return sinal + '€ ' + valorAbsoluto.toLocaleString('pt-PT', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }
+
+// Inicializar a aplicação quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', init);

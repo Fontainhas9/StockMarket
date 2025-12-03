@@ -6,58 +6,117 @@
     <title>Calculadora de Portefólio</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-calculator"></i> Calculadora de Portefólio</h1>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <h1>Calculadora de Portefólio</h1>
+                </div>
+                <button id="toggle-investment" class="toggle-investment-btn" title="Mostrar/ocultar valores investidos">
+                    <i class="fas fa-eye"></i>
+                    <span>Mostrar Investidos</span>
+                </button>
+            </div>
             <p class="subtitle">Insira os preços atuais das suas ações para calcular o desempenho do seu portefólio</p>
         </header>
 
         <main>
             <section class="card precos-card">
-                <h2><i class="fas fa-coins"></i> Preços Atuais</h2>
+                <div class="card-header">
+                    <h2><i class="fas fa-coins"></i> Preços Atuais</h2>
+                    <div class="investment-summary hidden" id="investment-summary">
+                        <p><strong>Total Investido:</strong> <span id="total-investido">€39,939.53</span></p>
+                    </div>
+                </div>
                 
                 <div class="acoes-container">
                     <div class="acoes-inputs">
-                        <!-- Campos de entrada para preços atuais -->
+                        <!-- Ação 1: S&P 500 -->
                         <div class="acao-item">
-                            <label for="sp-price">S&P:</label>
+                            <div class="acao-header">
+                                <label for="sp-price">S&P 500:</label>
+                                <div class="investment-value hidden">
+                                    <span class="investment-tag">Investido:</span>
+                                    <span class="investment-amount">€7,957.36</span>
+                                </div>
+                            </div>
                             <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
                                 <input type="number" id="sp-price" step="0.01" min="0" placeholder="Preço atual">
-                                <span class="input-info">Investido: €7,957.36</span>
                             </div>
                         </div>
                         
+                        <!-- Ação 2: Ouro -->
                         <div class="acao-item">
-                            <label for="ouro-price">Ouro:</label>
+                            <div class="acao-header">
+                                <label for="ouro-price">Ouro:</label>
+                                <div class="investment-value hidden">
+                                    <span class="investment-tag">Investido:</span>
+                                    <span class="investment-amount">€7,982.18</span>
+                                </div>
+                            </div>
                             <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-gem"></i>
+                                </div>
                                 <input type="number" id="ouro-price" step="0.01" min="0" placeholder="Preço atual">
-                                <span class="input-info">Investido: €7,982.18</span>
                             </div>
                         </div>
                         
+                        <!-- Ação 3: Janus -->
                         <div class="acao-item">
-                            <label for="janus-price">Janus:</label>
+                            <div class="acao-header">
+                                <label for="janus-price">Janus:</label>
+                                <div class="investment-value hidden">
+                                    <span class="investment-tag">Investido:</span>
+                                    <span class="investment-amount">€7,999.99</span>
+                                </div>
+                            </div>
                             <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-university"></i>
+                                </div>
                                 <input type="number" id="janus-price" step="0.01" min="0" placeholder="Preço atual">
-                                <span class="input-info">Investido: €7,999.99</span>
                             </div>
                         </div>
                         
+                        <!-- Ação 4: JP Morgan -->
                         <div class="acao-item">
-                            <label for="jpmorgan-price">JPMorgan:</label>
+                            <div class="acao-header">
+                                <label for="jpmorgan-price">JP Morgan:</label>
+                                <div class="investment-value hidden">
+                                    <span class="investment-tag">Investido:</span>
+                                    <span class="investment-amount">€8,000.00</span>
+                                </div>
+                            </div>
                             <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-landmark"></i>
+                                </div>
                                 <input type="number" id="jpmorgan-price" step="0.01" min="0" placeholder="Preço atual">
-                                <span class="input-info">Investido: €8,000.00</span>
                             </div>
                         </div>
                         
+                        <!-- Ação 5: IMGA -->
                         <div class="acao-item">
-                            <label for="imga-price">IMGA:</label>
+                            <div class="acao-header">
+                                <label for="imga-price">IMGA:</label>
+                                <div class="investment-value hidden">
+                                    <span class="investment-tag">Investido:</span>
+                                    <span class="investment-amount">€8,000.00</span>
+                                </div>
+                            </div>
                             <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-industry"></i>
+                                </div>
                                 <input type="number" id="imga-price" step="0.01" min="0" placeholder="Preço atual">
-                                <span class="input-info">Investido: €8,000.00</span>
                             </div>
                         </div>
                     </div>
@@ -65,30 +124,37 @@
                     <div class="acoes-botoes">
                         <button id="calcular-btn" class="btn btn-primary">
                             <i class="fas fa-calculator"></i> Calcular
+                            <span class="btn-shortcut">(Enter)</span>
                         </button>
                         <button id="limpar-btn" class="btn btn-secondary">
                             <i class="fas fa-broom"></i> Limpar
+                            <span class="btn-shortcut">(Esc)</span>
                         </button>
                     </div>
-                </div>
-                
-                <div class="atalhos-info">
-                    <p><i class="fas fa-info-circle"></i> Dica: Pressione Enter para calcular ou Tab para navegar entre os campos</p>
                 </div>
             </section>
             
             <section class="card resultado-card">
-                <h2><i class="fas fa-chart-line"></i> Resultado do Portefólio</h2>
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-line"></i> Resultado do Portefólio</h2>
+                </div>
                 <div id="resultado-consolidado" class="resultado-consolidado">
                     <div class="estado-inicial">
-                        <i class="fas fa-arrow-circle-right"></i>
+                        <div class="estado-icon">
+                            <i class="fas fa-arrow-circle-right"></i>
+                        </div>
                         <p>Insira os preços atuais e clique em Calcular</p>
                     </div>
                 </div>
             </section>
             
             <section class="card desempenho-card">
-                <h2><i class="fas fa-table"></i> Desempenho por Ação</h2>
+                <div class="card-header">
+                    <h2><i class="fas fa-table"></i> Desempenho por Ação</h2>
+                    <div class="table-stats">
+                        <span id="stats-acoes">0/5 ações calculadas</span>
+                    </div>
+                </div>
                 <div class="table-container">
                     <table id="tabela-resultados">
                         <thead>
@@ -100,9 +166,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Os resultados serão inseridos aqui via JavaScript -->
                             <tr class="empty-row">
-                                <td colspan="4">Nenhum cálculo realizado ainda</td>
+                                <td colspan="4">
+                                    <i class="fas fa-info-circle"></i>
+                                    Nenhum cálculo realizado ainda
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -111,7 +179,13 @@
         </main>
         
         <footer>
-            <p>Calculadora de Portefólio &copy; 2023 | Desenvolvida com HTML, CSS e JavaScript</p>
+            <div class="footer-content">
+                <p>Calculadora de Portefólio &copy; 2023 | StockMarket</p>
+                <div class="footer-links">
+                    <a href="#" class="footer-link"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="#" class="footer-link"><i class="fas fa-question-circle"></i> Ajuda</a>
+                </div>
+            </div>
         </footer>
     </div>
     
