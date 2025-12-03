@@ -42,6 +42,15 @@ const acoes = [
     }
 ];
 
+// Links para os sites das ações
+const linksAcoes = {
+    'IMGA': 'https://ind.millenniumbcp.pt/pt/Particulares/Investimentos/Pages/FundsDetail.aspx?Isi=PTYAGALM0005',
+    'Janus': 'https://markets.ft.com/data/funds/tearsheet/summary?s=IE0002167009:EUR',
+    'JPMorgan': 'https://pt.investing.com/funds/lu0218171717',
+    'Ouro': 'https://live.euronext.com/en/product/structured-products/PTBCPAYM0053-XMLI',
+    'SP500': 'https://live.euronext.com/en/product/structured-products/PTBITHYM0080-XMLI'
+};
+
 // Referências aos elementos DOM
 const loginScreen = document.getElementById('login-screen');
 const mainContent = document.getElementById('main-content');
@@ -60,24 +69,34 @@ const inputsPrecos = {
 
 const calcularBtn = document.getElementById('calcular-btn');
 const limparBtn = document.getElementById('limpar-btn');
-const toggleInvestmentBtn = document.getElementById('toggle-investment');
+const toggleInvestmentBtn = document.getElementById('toggle-investment'); // Agora no footer
 const tabelaResultados = document.getElementById('tabela-resultados').getElementsByTagName('tbody')[0];
 const resultadoConsolidado = document.getElementById('resultado-consolidado');
 const investmentSummary = document.getElementById('investment-summary');
 const statsAcoes = document.getElementById('stats-acoes');
 const backToTopBtn = document.getElementById('back-to-top');
 const mobileKeyboardHint = document.querySelector('.mobile-keyboard-hint');
+const themeToggleBtn = document.getElementById('theme-toggle');
+const graficoSection = document.getElementById('grafico-section');
+const toggleChartViewBtn = document.getElementById('toggle-chart-view');
+const chartCanvas = document.getElementById('portfolio-chart');
+const chartLegend = document.getElementById('chart-legend');
+const desempenhoSection = document.getElementById('desempenho-section');
+const resultadoSection = document.getElementById('resultado-section');
 
 // Estado da aplicação
 let mostrarInvestimento = false;
 let resultadosCalculados = [];
 let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let lastScrollTop = 0;
+let chartInstance = null;
+let isDarkMode = false;
 
 // Configuração da palavra-passe
 const CORRECT_PASSWORD = "Fontainhas#9"; 
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
+const THEME_KEY = 'portfolio_calculator_theme';
 
 // Verificar se o usuário já está autenticado
 function checkAuthentication() {
@@ -199,6 +218,23 @@ function initCalculator() {
     calcularTotalInvestido();
     configurarScrollToTop();
     configurarFocusMobile();
+    configurarModoEscuro();
+    configurarGrafico();
+    
+    // Configurar o botão de mostrar investimentos (agora no footer)
+    toggleInvestmentBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleMostrarInvestimento();
+    });
+    
+    // Configurar o botão de sair no header
+    const logoutHeaderBtn = document.getElementById('logout-header-btn');
+    if (logoutHeaderBtn) {
+        logoutHeaderBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    }
     
     // Focar no primeiro campo
     setTimeout(() => {
@@ -286,8 +322,6 @@ function configurarEventListeners() {
         this.classList.remove('active');
         limparCampos();
     });
-    
-    toggleInvestmentBtn.addEventListener('click', toggleMostrarInvestimento);
     
     // Eventos para inputs - melhorar experiência mobile e decimal
     Object.values(inputsPrecos).forEach((input, index, arr) => {
@@ -377,6 +411,12 @@ function configurarNavegacaoTeclado() {
             toggleMostrarInvestimento();
         }
         
+        // Alt+T para alternar tema
+        if (e.key === 't' && e.altKey) {
+            e.preventDefault();
+            toggleModoEscuro();
+        }
+        
         // Ctrl+Alt+L para logout (atalho secreto)
         if (e.key === 'l' && e.ctrlKey && e.altKey) {
             e.preventDefault();
@@ -460,32 +500,225 @@ function calcularTotalInvestido() {
     document.getElementById('total-investido').textContent = formatarMoeda(totalInvestido);
 }
 
-// Alternar mostrar/ocultar valores investidos
+// Alternar mostrar/ocultar valores investidos (agora no footer)
 function toggleMostrarInvestimento() {
     mostrarInvestimento = !mostrarInvestimento;
     
     const investmentValues = document.querySelectorAll('.investment-value');
     const icon = toggleInvestmentBtn.querySelector('i');
-    const text = toggleInvestmentBtn.querySelector('span');
     
     if (mostrarInvestimento) {
         investmentValues.forEach(el => el.classList.remove('hidden'));
         investmentSummary.classList.remove('hidden');
         icon.classList.remove('fa-eye');
         icon.classList.add('fa-eye-slash');
-        text.textContent = 'Ocultar Valores Investidos';
-        toggleInvestmentBtn.style.background = 'linear-gradient(135deg, #1e56c7 0%, #6b3af2 100%)';
+        toggleInvestmentBtn.style.background = 'rgba(255, 255, 255, 0.2)';
     } else {
         investmentValues.forEach(el => el.classList.add('hidden'));
         investmentSummary.classList.add('hidden');
         icon.classList.remove('fa-eye-slash');
         icon.classList.add('fa-eye');
-        text.textContent = 'Mostrar Valores Investidos';
-        toggleInvestmentBtn.style.background = 'var(--gradient-primary)';
+        toggleInvestmentBtn.style.background = 'rgba(255, 255, 255, 0.1)';
     }
 }
 
-// Função para calcular o portfólio (APENAS A LINHA ALTERADA)
+// Configurar Modo Escuro
+function configurarModoEscuro() {
+    // Verificar preferência salva
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        ativarModoEscuro();
+    } else {
+        desativarModoEscuro();
+    }
+    
+    // Configurar botão de toggle
+    themeToggleBtn.addEventListener('click', toggleModoEscuro);
+}
+
+// Ativar Modo Escuro
+function ativarModoEscuro() {
+    document.body.classList.add('dark-mode');
+    isDarkMode = true;
+    
+    // Atualizar ícone do botão
+    const icon = themeToggleBtn.querySelector('i');
+    icon.className = 'fas fa-sun';
+    
+    // Salvar preferência
+    localStorage.setItem(THEME_KEY, 'dark');
+    
+    // Atualizar gráfico se existir
+    if (chartInstance) {
+        atualizarGrafico();
+    }
+}
+
+// Desativar Modo Escuro
+function desativarModoEscuro() {
+    document.body.classList.remove('dark-mode');
+    isDarkMode = false;
+    
+    // Atualizar ícone do botão
+    const icon = themeToggleBtn.querySelector('i');
+    icon.className = 'fas fa-moon';
+    
+    // Salvar preferência
+    localStorage.setItem(THEME_KEY, 'light');
+    
+    // Atualizar gráfico se existir
+    if (chartInstance) {
+        atualizarGrafico();
+    }
+}
+
+// Alternar Modo Escuro
+function toggleModoEscuro() {
+    if (isDarkMode) {
+        desativarModoEscuro();
+    } else {
+        ativarModoEscuro();
+    }
+}
+
+// Configurar Gráfico (SIMPLIFICADA - botão removido)
+function configurarGrafico() {
+    // Botão de mostrar percentagens REMOVIDO
+    // Apenas manter a configuração básica do gráfico
+}
+
+// Atualizar Gráfico
+function atualizarGrafico() {
+    if (!chartInstance || resultadosCalculados.length === 0) return;
+    
+    // Destruir gráfico anterior
+    chartInstance.destroy();
+    
+    // Criar novo gráfico com os dados atualizados
+    criarGrafico();
+}
+
+// Criar Gráfico (SIMPLIFICADA)
+function criarGrafico() {
+    if (resultadosCalculados.length === 0) {
+        graficoSection.style.display = 'none';
+        return;
+    }
+    
+    // Mostrar seção do gráfico
+    graficoSection.style.display = 'block';
+    
+    // Preparar dados para o gráfico
+    const labels = resultadosCalculados.map(r => r.nomeCurto);
+    const valores = resultadosCalculados.map(r => r.valorAtual);
+    const total = valores.reduce((sum, val) => sum + val, 0);
+    // ALTERADO: Agora sempre mostra valores (€) e as percentagens são calculadas apenas para a legenda
+    const porcentagens = valores.map(val => ((val / total) * 100).toFixed(2));
+    
+    // Cores para o gráfico
+    const colors = [
+        '#2d6ae3', // Azul
+        '#7e3af2', // Roxo
+        '#0ea5e9', // Azul claro
+        '#10b981', // Verde
+        '#f59e0b'  // Laranja
+    ];
+    
+    // Configuração do gráfico baseada no modo escuro
+    const textColor = isDarkMode ? '#f1f5f9' : '#1f2937';
+    
+    // Configurações do gráfico de pizza - SEMPRE MOSTRA VALORES (€)
+    const config = {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: valores, // SEMPRE mostra valores em €
+                backgroundColor: colors,
+                borderColor: isDarkMode ? '#1e293b' : '#ffffff',
+                borderWidth: 2,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false,
+                    position: 'bottom',
+                    labels: {
+                        color: textColor,
+                        font: {
+                            size: 12,
+                            family: "'Poppins', sans-serif"
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        // MELHORIA: Remover duplicação do nome no tooltip
+                        title: function(context) {
+                            return context[0].label || '';
+                        },
+                        label: function(context) {
+                            const value = context.raw || 0;
+                            const percentage = ((value / total) * 100).toFixed(2);
+                            return `€${value.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} (${percentage}%)`;
+                        }
+                    },
+                    titleFont: {
+                        family: "'Montserrat', sans-serif"
+                    },
+                    bodyFont: {
+                        family: "'Poppins', sans-serif"
+                    }
+                }
+            }
+        }
+    };
+    
+    // Criar gráfico
+    chartInstance = new Chart(chartCanvas, config);
+    
+    // Atualizar legenda - SEMPRE mostra valores e percentagens
+    atualizarLegenda(labels, valores, porcentagens, colors);
+    
+    // Scroll para gráfico em mobile
+    if (isMobile) {
+        setTimeout(() => {
+            scrollToElement(graficoSection);
+        }, 100);
+    }
+}
+
+// Atualizar Legenda (SIMPLIFICADA - sempre mostra valores e percentagens)
+function atualizarLegenda(labels, valores, porcentagens, colors) {
+    chartLegend.innerHTML = '';
+    
+    labels.forEach((label, index) => {
+        const valor = valores[index];
+        const porcentagem = porcentagens[index];
+        
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        
+        // SEMPRE mostra o valor e a percentagem na legenda
+        legendItem.innerHTML = `
+            <div class="legend-color" style="background-color: ${colors[index]}"></div>
+            <span class="legend-name">${label}</span>
+            <span class="legend-value">
+                €${valor.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} (${porcentagem}%)
+            </span>
+        `;
+        
+        chartLegend.appendChild(legendItem);
+    });
+}
+
+// Função para calcular o portfólio
 function calcularPortfolio() {
     // Limpar resultados anteriores
     resultadosCalculados = [];
@@ -534,13 +767,17 @@ function calcularPortfolio() {
             totalAtual += valorAtual;
             acoesValidas++;
             
-            // Adicionar à tabela
+            // Adicionar à tabela (MELHORIA: nome com link)
             adicionarNaTabela(acao.nomeCurto, valorAtual, lucro, percentagem, acao.icon);
         }
     });
     
     if (acoesValidas === 0) {
         mostrarErro("Por favor, insira pelo menos um preço atual válido");
+        // OCULTAR TODAS AS SEÇÕES (na ordem correta)
+        desempenhoSection.style.display = 'none';
+        resultadoSection.style.display = 'none';
+        graficoSection.style.display = 'none';
         return;
     }
     
@@ -551,19 +788,34 @@ function calcularPortfolio() {
     // Atualizar estatísticas
     statsAcoes.textContent = `${acoesValidas}/5 ações calculadas`;
     
-    // Mostrar resultado consolidado SIMPLIFICADO (apenas com 3 parâmetros agora)
+    // Mostrar resultado consolidado SIMPLIFICADO
     mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal);
     
-    // Scroll para resultados em mobile
+    // MOSTRAR SEÇÕES NA NOVA ORDEM após cálculo:
+    // 1. Desempenho por Ação (tabela)
+    desempenhoSection.style.display = 'block';
+    // 2. Resumo do Portefólio (resultado consolidado)
+    resultadoSection.style.display = 'block';
+    // 3. Distribuição do Portefólio (gráfico)
+    
+    // CORREÇÃO: Destruir o gráfico anterior antes de criar um novo
+    if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+    }
+    
+    // Criar ou atualizar gráfico
+    criarGrafico();
+    
+    // Scroll para a PRIMEIRA seção de resultados (Desempenho por Ação) em mobile
     if (isMobile && acoesValidas > 0) {
         setTimeout(() => {
-            const resultadosSection = document.querySelector('.desempenho-card');
-            scrollToElement(resultadosSection);
+            scrollToElement(desempenhoSection);
         }, 100);
     }
 }
 
-// Função para adicionar linha na tabela
+// Função para adicionar linha na tabela (MELHORIA: nome com link)
 function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     // Remover linha vazia se existir
     const emptyRow = tabelaResultados.querySelector('.empty-row');
@@ -580,9 +832,15 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     const lucroFormatado = formatarMoeda(lucro, true);
     const percentagemFormatada = parseFloat(percentagem).toFixed(2) + '%';
     
-    // Adicionar células
+    // Adicionar células (MELHORIA: nome com link)
     const celulaAcao = novaLinha.insertCell(0);
-    celulaAcao.innerHTML = `<i class="fas ${iconClass}"></i> <span class="acao-nome">${nome}</span>`;
+    const link = document.createElement('a');
+    link.href = linksAcoes[nome];
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.className = 'acao-link';
+    link.innerHTML = `<i class="fas ${iconClass}"></i><span class="acao-nome">${nome}</span>`;
+    celulaAcao.appendChild(link);
     celulaAcao.className = 'acao-cell';
     
     const celulaValorAtual = novaLinha.insertCell(1);
@@ -607,7 +865,7 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     }
 }
 
-// Função para mostrar resultado consolidado SIMPLIFICADO - REMOVIDO O EMOJI
+// Função para mostrar resultado consolidado SIMPLIFICADO
 function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal) {
     // Determinar cor baseado no resultado
     let cor;
@@ -625,7 +883,7 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
     const lucroTotalFormatado = formatarMoeda(lucroTotal, true);
     const percentagemTotalFormatada = parseFloat(percentagemTotal).toFixed(3) + '%';
     
-    // Criar conteúdo HTML SIMPLIFICADO SEM "AÇÕES COM LUCRO"
+    // Criar conteúdo HTML SIMPLIFICADO
     const resultadoHTML = `
         <div class="resultado-info ${cor}">
             <div class="resultado-detalhes">
@@ -668,7 +926,24 @@ function limparCampos() {
     // Limpar tabela
     limparTabela();
     
-    // Restaurar estado inicial
+    // Limpar gráfico - CORREÇÃO: destruir completamente o gráfico anterior
+    if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+    }
+    
+    // Limpar legenda do gráfico
+    chartLegend.innerHTML = '';
+    
+    // OCULTAR SEÇÕES na ordem correta
+    desempenhoSection.style.display = 'none';
+    resultadoSection.style.display = 'none';
+    graficoSection.style.display = 'none';
+    
+    // Limpar resultados
+    resultadosCalculados = [];
+    
+    // Restaurar estado inicial do resultado consolidado
     resultadoConsolidado.innerHTML = `
         <div class="estado-inicial">
             <div class="estado-icon">
@@ -680,6 +955,11 @@ function limparCampos() {
     
     resultadoConsolidado.classList.remove('has-result');
     statsAcoes.textContent = '0/5 ações calculadas';
+    
+    // Esconder valores investidos se estiverem visíveis
+    if (mostrarInvestimento) {
+        toggleMostrarInvestimento();
+    }
     
     // Scroll para topo em mobile
     if (isMobile) {
@@ -707,7 +987,7 @@ function limparTabela() {
     novaLinha.className = 'empty-row';
     const celulaVazia = novaLinha.insertCell(0);
     celulaVazia.colSpan = 4;
-    celulaVazia.innerHTML = '<i class="fas fa-info-circle"></i><span>Nenhum cálculo realizado ainda</span>';
+    celulaVazia.innerHTML = '<i class="fas fa-info-circle"></i><span>Insira os preços e clique em Calcular</span>';
 }
 
 // Função para formatar valores monetários
@@ -749,7 +1029,7 @@ if ('serviceWorker' in navigator) {
 // Inicializar a aplicação quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', init);
 
-// Adicionar botão de logout no footer
+// Adicionar botão de logout no footer (após o botão de mostrar investimentos)
 window.addEventListener('load', function() {
     // Esperar o footer ser carregado
     setTimeout(() => {
@@ -767,7 +1047,7 @@ window.addEventListener('load', function() {
                 logout();
             });
             
-            // Adicionar ao lado do botão "Voltar ao Topo"
+            // Adicionar após o botão de mostrar investimentos
             footerLinks.appendChild(logoutBtn);
         }
     }, 500);

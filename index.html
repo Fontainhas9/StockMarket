@@ -11,6 +11,8 @@
     <meta name="theme-color" content="#2d6ae3">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Tela de Login -->
@@ -37,8 +39,6 @@
                     </button>
                 </div>
                 
-                <!-- DIV DA DICA REMOVIDA AQUI -->
-                
                 <button id="login-btn" class="login-btn">
                     <i class="fas fa-sign-in-alt"></i> Entrar
                 </button>
@@ -57,17 +57,35 @@
 
     <!-- Conteúdo Principal (inicialmente oculto) -->
     <div id="main-content" class="container" style="display: none;">
+        <!-- ALTERADO: Nova estrutura do header com botões fora da área do título -->
         <header>
+            <div class="header-top">
+                <!-- Botões do Header-top (modo escuro e sair) -->
+                <div class="header-top-buttons">
+                    <!-- Botão Modo Escuro (fora da área do título) -->
+                    <button id="theme-toggle" class="theme-toggle-btn" title="Alternar modo claro/escuro">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <!-- Botão Sair (fora da área do título) -->
+                    <button id="logout-header-btn" class="logout-header-btn" title="Sair do sistema">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-chart-line"></i>
+                    <!-- ALTERADO: Título centralizado -->
                     <h1>Calculadora de Portefólio</h1>
                 </div>
+                <!-- ALTERADO: Subtítulo centralizado -->
+                <p class="subtitle">Insira os preços atuais das suas ações para calcular o desempenho do seu portefólio</p>
             </div>
-            <p class="subtitle">Insira os preços atuais das suas ações para calcular o desempenho do seu portefólio</p>
         </header>
 
         <main>
+            <!-- Seção Preços Atuais (mantida no topo) -->
             <section class="card precos-card">
                 <div class="card-header">
                     <h2><i class="fas fa-coins"></i> Preços Atuais</h2>
@@ -163,13 +181,7 @@
                             </div>
                         </div>
                         
-                        <!-- Botão Mostrar Investimentos (agora dentro da seção, após o IMGA) -->
-                        <div class="toggle-investment-container">
-                            <button id="toggle-investment" class="toggle-investment-btn" title="Mostrar/ocultar valores investidos">
-                                <i class="fas fa-eye"></i>
-                                <span>Mostrar Valores Investidos</span>
-                            </button>
-                        </div>
+                        <!-- Botão Mostrar Investimentos REMOVIDO DAQUI -->
                     </div>
                     
                     <div class="acoes-botoes">
@@ -189,8 +201,9 @@
                 </div>
             </section>
             
-            <!-- Desempenho por Ação agora aparece antes -->
-            <section class="card desempenho-card">
+            <!-- ALTERADO: Nova ordem das seções -->
+            <!-- 1. Desempenho por Ação -->
+            <section class="card desempenho-card" id="desempenho-section" style="display: none;">
                 <div class="card-header">
                     <h2><i class="fas fa-table"></i> Desempenho por Ação</h2>
                     <div class="table-stats">
@@ -211,7 +224,7 @@
                             <tr class="empty-row">
                                 <td colspan="4">
                                     <i class="fas fa-info-circle"></i>
-                                    <span>Nenhum cálculo realizado ainda</span>
+                                    <span>Insira os preços e clique em Calcular</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -219,8 +232,8 @@
                 </div>
             </section>
             
-            <!-- Resultado do Portefólio simplificado -->
-            <section class="card resultado-card">
+            <!-- 2. Resumo do Portefólio -->
+            <section class="card resultado-card" id="resultado-section" style="display: none;">
                 <div class="card-header">
                     <h2><i class="fas fa-chart-pie"></i> Resumo do Portefólio</h2>
                 </div>
@@ -233,6 +246,20 @@
                     </div>
                 </div>
             </section>
+            
+            <!-- 3. Distribuição do Portefólio -->
+            <section class="card grafico-card" id="grafico-section" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-pie"></i> Distribuição do Portefólio</h2>
+                    <!-- REMOVIDO: Botão Mostrar Percentagens -->
+                </div>
+                <div class="graph-container">
+                    <div class="chart-wrapper">
+                        <canvas id="portfolio-chart"></canvas>
+                    </div>
+                    <div class="chart-legend" id="chart-legend"></div>
+                </div>
+            </section>
         </main>
         
         <footer>
@@ -243,7 +270,11 @@
                         <i class="fas fa-arrow-up"></i> 
                         <span class="footer-link-text">Voltar ao Topo</span>
                     </a>
-                    <!-- O botão de logout será adicionado aqui via JavaScript -->
+                    <!-- Botão Mostrar Valores Investidos (apenas ícone) -->
+                    <a href="#" id="toggle-investment" class="footer-link" title="Mostrar/ocultar valores investidos">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <!-- O botão de logout no footer será adicionado aqui via JavaScript -->
                 </div>
             </div>
         </footer>
