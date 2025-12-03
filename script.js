@@ -78,8 +78,6 @@ let lastScrollTop = 0;
 const CORRECT_PASSWORD = "Fontainhas#9"; 
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
-// REMOVIDO: SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 horas em milissegundos
-// AGORA: Sem timeout - a sessão termina quando o navegador é fechado
 
 // Verificar se o usuário já está autenticado
 function checkAuthentication() {
@@ -87,12 +85,7 @@ function checkAuthentication() {
         const authData = sessionStorage.getItem(AUTH_KEY);
         const authTimestamp = sessionStorage.getItem(AUTH_TIMESTAMP_KEY);
         
-        // AGORA: Usamos sessionStorage em vez de localStorage
-        // A sessão expira quando o navegador é fechado
         if (authData && authTimestamp) {
-            // REMOVIDO: Verificação de timeout de 12 horas
-            // AGORA: Apenas verificamos se existe uma sessão ativa
-            // A sessão será limpa automaticamente quando o navegador for fechado
             return true;
         }
     } catch (error) {
@@ -106,6 +99,12 @@ function showMainContent() {
     loginScreen.style.display = 'none';
     mainContent.style.display = 'block';
     document.body.style.background = 'linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%)';
+    
+    // Ajustar altura em dispositivos móveis
+    if (isMobile) {
+        document.body.style.minHeight = '100vh';
+        document.body.style.minHeight = '-webkit-fill-available';
+    }
     
     // Inicializar a calculadora
     initCalculator();
@@ -144,7 +143,6 @@ function setupLoginSystem() {
         if (password === CORRECT_PASSWORD) {
             // Autenticação bem-sucedida
             const currentTime = new Date().getTime();
-            // AGORA: Usamos sessionStorage em vez de localStorage
             sessionStorage.setItem(AUTH_KEY, 'true');
             sessionStorage.setItem(AUTH_TIMESTAMP_KEY, currentTime.toString());
             
@@ -185,9 +183,6 @@ function setupLoginSystem() {
 function init() {
     setupLoginSystem();
     
-    // REMOVIDO: Verificação automática de autenticação
-    // AGORA: Sempre mostrar a tela de login ao carregar a página
-    // Isso garante que a password seja pedida ao fazer refresh
     loginScreen.style.display = 'flex';
     mainContent.style.display = 'none';
     

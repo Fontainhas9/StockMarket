@@ -279,6 +279,17 @@ body {
     backdrop-filter: blur(10px);
 }
 
+/* Garantir que o conteúdo principal ocupe altura disponível */
+#main-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
 /* Header */
 header {
     background: var(--gradient-primary);
@@ -1198,20 +1209,57 @@ footer::before {
     }
 }
 
+/* CORREÇÕES ESPECÍFICAS PARA DISPOSITIVOS MÓVEIS */
 @media (max-width: 768px) {
     body {
-        padding: 10px;
-        padding-bottom: calc(10px + var(--safe-area-inset-bottom));
+        padding: 0 !important;
+        background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+        min-height: 100vh;
+    }
+    
+    .container {
+        margin: 0 !important;
+        border-radius: 0;
+        box-shadow: none;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        width: 100%;
+        max-width: 100%;
     }
     
     .card {
-        margin: 1rem;
-        padding: 1.5rem;
-        border-radius: 16px;
+        margin: 1rem 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 1.5rem 1rem !important;
     }
     
+    /* Ajuste do header em mobile */
     header {
-        padding: 1.5rem;
+        border-radius: 0;
+        margin: 0;
+        padding: 1.5rem 1rem !important;
+    }
+    
+    /* Ajuste do footer em mobile */
+    footer {
+        border-radius: 0;
+        margin: 0;
+        padding: 1.5rem 1rem !important;
+    }
+    
+    /* Ajuste da tabela em mobile */
+    .table-container {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
+    /* Ajuste da dica do teclado móvel */
+    .mobile-keyboard-hint {
+        border-radius: 0;
     }
     
     .logo {
@@ -1353,16 +1401,61 @@ footer::before {
     .login-header h2 {
         font-size: 1.3rem;
     }
+    
+    /* Em mobile, ajustar o layout para melhor uso do espaço */
+    #main-content {
+        min-height: calc(100vh - 20px);
+    }
+    
+    .acoes-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .acoes-botoes {
+        order: -1; /* Coloca os botões no topo em mobile */
+        margin-bottom: 1rem;
+    }
+    
+    .botoes-container {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    
+    .btn {
+        min-height: 60px;
+        font-size: 1rem;
+        padding: 1rem;
+        justify-content: center;
+    }
+    
+    .btn i {
+        font-size: 1.2rem;
+    }
+    
+    /* Melhorar a experiência do teclado em mobile */
+    .preco-input {
+        font-size: 16px !important; /* Prevenir zoom no iOS */
+        inputmode: decimal;
+        enterkeyhint: next;
+    }
+    
+    /* Para o último campo, mudar o enterkeyhint para "go" */
+    #imga-price {
+        enterkeyhint: go;
+    }
 }
 
 @media (max-width: 480px) {
     .card {
-        margin: 0.75rem;
-        padding: 1.25rem;
+        margin: 0.5rem 0 !important;
+        padding: 1.25rem 1rem !important;
     }
     
     header {
-        padding: 1.25rem;
+        padding: 1.25rem 1rem !important;
     }
     
     header h1 {
@@ -1375,7 +1468,7 @@ footer::before {
     }
     
     .acao-item {
-        padding: 1.25rem;
+        padding: 1.25rem 1rem;
     }
     
     .preco-input {
@@ -1524,25 +1617,10 @@ footer::before {
 
 /* Estilos para inputs focados em mobile - MELHORIA PARA TECLADO */
 @media (max-width: 768px) {
-    .preco-input {
-        font-size: 16px !important; /* Prevenir zoom no iOS */
-    }
-    
     /* Garantir que o teclado numérico apareça */
     input[inputmode="decimal"] {
         -webkit-user-select: text;
         user-select: text;
-    }
-    
-    /* Melhorar a experiência do teclado em mobile */
-    .preco-input {
-        inputmode: decimal;
-        enterkeyhint: next;
-    }
-    
-    /* Para o último campo, mudar o enterkeyhint para "go" */
-    #imga-price {
-        enterkeyhint: go;
     }
 }
 
