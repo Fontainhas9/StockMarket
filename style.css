@@ -943,7 +943,6 @@ th:not(:last-child)::after {
 }
 
 tbody tr {
-    transition: var(--transition);
     border-bottom: 1px solid rgba(229, 231, 235, 0.5);
 }
 
@@ -951,10 +950,13 @@ tbody tr:last-child {
     border-bottom: none;
 }
 
+/* REMOVIDO: Efeito hover nas linhas da tabela */
+/*
 tbody tr:hover {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     transform: translateX(5px);
 }
+*/
 
 td {
     padding: clamp(1rem, 3vw, 1.5rem) clamp(0.8rem, 2vw, 1.2rem); /* Reduzido padding horizontal */
@@ -1097,7 +1099,7 @@ td {
     
     /* Ajustar largura das colunas para mobile pequeno */
     th:first-child, .acao-cell {
-        min-width: 65px !important;
+        min-width: 80px !important;
         width: 15% !important;
     }
     

@@ -485,7 +485,7 @@ function toggleMostrarInvestimento() {
     }
 }
 
-// Função para calcular o portfólio
+// Função para calcular o portfólio (APENAS A LINHA ALTERADA)
 function calcularPortfolio() {
     // Limpar resultados anteriores
     resultadosCalculados = [];
@@ -551,8 +551,8 @@ function calcularPortfolio() {
     // Atualizar estatísticas
     statsAcoes.textContent = `${acoesValidas}/5 ações calculadas`;
     
-    // Mostrar resultado consolidado SIMPLIFICADO
-    mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal, acoesComLucro, acoesValidas);
+    // Mostrar resultado consolidado SIMPLIFICADO (apenas com 3 parâmetros agora)
+    mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal);
     
     // Scroll para resultados em mobile
     if (isMobile && acoesValidas > 0) {
@@ -608,7 +608,7 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
 }
 
 // Função para mostrar resultado consolidado SIMPLIFICADO - REMOVIDO O EMOJI
-function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal, acoesComLucro, acoesValidas) {
+function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal) {
     // Determinar cor baseado no resultado
     let cor;
     
@@ -625,15 +625,10 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
     const lucroTotalFormatado = formatarMoeda(lucroTotal, true);
     const percentagemTotalFormatada = parseFloat(percentagemTotal).toFixed(3) + '%';
     
-    // Criar conteúdo HTML SIMPLIFICADO SEM EMOJI
+    // Criar conteúdo HTML SIMPLIFICADO SEM "AÇÕES COM LUCRO"
     const resultadoHTML = `
         <div class="resultado-info ${cor}">
             <div class="resultado-detalhes">
-                <p>
-                    <i class="fas fa-chart-pie"></i>
-                    <span>Ações com Lucro:</span>
-                    <strong>${acoesComLucro}/${acoesValidas}</strong>
-                </p>
                 <p>
                     <i class="fas fa-wallet"></i>
                     <span>Valor Total:</span>
