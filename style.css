@@ -869,7 +869,7 @@ header h1 {
     flex-shrink: 0;
 }
 
-/* Tabela de Desempenho */
+/* Tabela de Desempenho - CORREÇÃO DO ALINHAMENTO */
 .table-container {
     overflow-x: auto;
     border-radius: 18px;
@@ -951,6 +951,31 @@ td {
     margin-bottom: 1rem;
     display: block;
     color: var(--primary);
+}
+
+/* CORREÇÃO ESPECÍFICA PARA AS CÉLULAS DA TABELA */
+.acao-cell {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    padding-left: 1.5rem !important;
+}
+
+.valor-atual-cell, .lucro-cell, .percentagem-cell {
+    text-align: center !important;
+    justify-content: center !important;
+}
+
+.acao-cell i {
+    margin-right: 0.8rem;
+    font-size: 1.2rem;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.acao-cell .acao-nome {
+    text-align: left;
+    word-break: break-word;
+    white-space: normal;
 }
 
 .lucro-positivo {
@@ -1270,6 +1295,21 @@ footer::before {
         font-size: 1.2rem;
     }
     
+    /* CORREÇÃO PARA TABELA EM MOBILE */
+    table {
+        min-width: 600px;
+    }
+    
+    .acao-cell {
+        padding-left: 1rem !important;
+        text-align: left !important;
+    }
+    
+    .acao-cell i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+    
     .footer-content {
         flex-direction: column;
         text-align: center;
@@ -1381,6 +1421,19 @@ footer::before {
     .login-btn {
         padding: 1.2rem;
         font-size: 1.1rem;
+    }
+    
+    /* CORREÇÃO EXTRA PARA TABELA EM TELEMÓVEIS PEQUENOS */
+    table {
+        min-width: 500px;
+    }
+    
+    .acao-cell {
+        padding-left: 0.8rem !important;
+    }
+    
+    .acao-cell .acao-nome {
+        font-size: 0.9rem;
     }
 }
 
