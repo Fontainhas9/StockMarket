@@ -76,14 +76,33 @@ let lastScrollTop = 0;
 
 // Configuração da palavra-passe
 const CORRECT_PASSWORD = "StockMarket2024"; // Você pode alterar esta senha
-const SESSION_KEY = 'portfolio_calculator_authenticated';
+const AUTH_KEY = 'portfolio_calculator_auth';
+const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
+const SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 horas em milissegundos
 
 // Verificar se o usuário já está autenticado
 function checkAuthentication() {
-    const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
-    if (isAuthenticated) {
-        showMainContent();
+    try {
+        const authData = localStorage.getItem(AUTH_KEY);
+        const authTimestamp = localStorage.getItem(AUTH_TIMESTAMP_KEY);
+        
+        if (authData && authTimestamp) {
+            const currentTime = new Date().getTime();
+            const loginTime = parseInt(authTimestamp);
+            
+            // Verificar se a sessão expirou (12 horas)
+            if (currentTime - loginTime < SESSION_TIMEOUT) {
+                showMainContent();
+                return true;
+            } else {
+                // Sessão expirada - limpar dados de login
+                logout();
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
     }
+    return false;
 }
 
 // Mostrar conteúdo principal
@@ -94,6 +113,13 @@ function showMainContent() {
     
     // Inicializar a calculadora
     initCalculator();
+}
+
+// Fazer logout
+function logout() {
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_TIMESTAMP_KEY);
+    location.reload();
 }
 
 // Configurar sistema de login
@@ -121,18 +147,32 @@ function setupLoginSystem() {
         
         if (password === CORRECT_PASSWORD) {
             // Autenticação bem-sucedida
-            sessionStorage.setItem(SESSION_KEY, 'true');
-            showMainContent();
+            const currentTime = new Date().getTime();
+            localStorage.setItem(AUTH_KEY, 'true');
+            localStorage.setItem(AUTH_TIMESTAMP_KEY, currentTime.toString());
+            
+            // Animação de sucesso
+            loginBtn.innerHTML = '<i class="fas fa-check"></i> Autenticado!';
+            loginBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            
+            setTimeout(() => {
+                showMainContent();
+            }, 800);
         } else {
             // Senha incorreta
             loginError.style.display = 'flex';
             passwordInput.value = '';
             passwordInput.focus();
             
-            // Remover a mensagem de erro após 3 segundos
+            // Animar o botão de erro
+            loginBtn.innerHTML = '<i class="fas fa-times"></i> Erro!';
+            loginBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+            
             setTimeout(() => {
                 loginError.style.display = 'none';
-            }, 3000);
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+                loginBtn.style.background = 'var(--gradient-primary)';
+            }, 2000);
         }
     });
     
@@ -147,7 +187,13 @@ function setupLoginSystem() {
 // Inicializar a aplicação
 function init() {
     setupLoginSystem();
-    checkAuthentication();
+    
+    // Verificar autenticação
+    if (!checkAuthentication()) {
+        // Mostrar tela de login
+        loginScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+    }
 }
 
 // Inicializar a calculadora (após login)
@@ -195,6 +241,33 @@ function showMobileKeyboardHint() {
     }
 }
 
+// Função para formatar números com vírgula para ponto
+function formatarNumeroParaCalculo(valor) {
+    if (!valor || valor === '') return null;
+    
+    // Substituir vírgula por ponto
+    let valorFormatado = valor.toString().replace(',', '.');
+    
+    // Remover caracteres não numéricos exceto ponto e números
+    valorFormatado = valorFormatado.replace(/[^\d.]/g, '');
+    
+    // Remover múltiplos pontos (manter apenas o primeiro)
+    const partes = valorFormatado.split('.');
+    if (partes.length > 2) {
+        valorFormatado = partes[0] + '.' + partes.slice(1).join('');
+    }
+    
+    // Limitar a 3 casas decimais
+    if (valorFormatado.includes('.')) {
+        const partesDecimais = valorFormatado.split('.');
+        if (partesDecimais[1].length > 3) {
+            valorFormatado = partesDecimais[0] + '.' + partesDecimais[1].substring(0, 3);
+        }
+    }
+    
+    return parseFloat(valorFormatado);
+}
+
 // Configurar event listeners
 function configurarEventListeners() {
     calcularBtn.addEventListener('click', calcularPortfolio);
@@ -221,7 +294,7 @@ function configurarEventListeners() {
     
     toggleInvestmentBtn.addEventListener('click', toggleMostrarInvestimento);
     
-    // Eventos para inputs - melhorar experiência mobile
+    // Eventos para inputs - melhorar experiência mobile e decimal
     Object.values(inputsPrecos).forEach((input, index, arr) => {
         // Para desktop: navegação com Enter
         input.addEventListener('keydown', (e) => {
@@ -242,27 +315,43 @@ function configurarEventListeners() {
             }
         });
         
-        // Melhorar entrada numérica em mobile
+        // Validação em tempo real para números decimais
         input.addEventListener('input', (e) => {
-            if (isMobile) {
-                // Garantir formato correto para números decimais
-                let value = e.target.value;
-                value = value.replace(/[^\d.,-]/g, '');
-                
-                // Substituir vírgula por ponto para cálculo
-                if (value.includes(',')) {
-                    value = value.replace(',', '.');
-                }
-                
-                // Garantir apenas um ponto decimal
-                const parts = value.split('.');
-                if (parts.length > 2) {
-                    value = parts[0] + '.' + parts.slice(1).join('');
-                }
-                
-                e.target.value = value;
+            let value = e.target.value;
+            
+            // Permitir apenas números, ponto e vírgula
+            value = value.replace(/[^\d,.]/g, '');
+            
+            // Garantir que só haja um separador decimal
+            const commaCount = (value.match(/,/g) || []).length;
+            const dotCount = (value.match(/\./g) || []).length;
+            
+            if (commaCount + dotCount > 1) {
+                // Se houver múltiplos separadores, manter apenas o primeiro
+                const firstSeparatorIndex = Math.min(
+                    value.indexOf(','), 
+                    value.indexOf('.')
+                );
+                value = value.substring(0, firstSeparatorIndex + 1) + 
+                       value.substring(firstSeparatorIndex + 1).replace(/[,.]/g, '');
             }
+            
+            // Limitar a 3 casas decimais
+            if (value.includes(',') || value.includes('.')) {
+                const separator = value.includes(',') ? ',' : '.';
+                const parts = value.split(separator);
+                if (parts[1] && parts[1].length > 3) {
+                    value = parts[0] + separator + parts[1].substring(0, 3);
+                }
+            }
+            
+            e.target.value = value;
         });
+        
+        // Para iOS: garantir que o teclado numérico com decimal apareça
+        if (navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
+            input.setAttribute('pattern', '[0-9]*[.,]?[0-9]*');
+        }
     });
     
     // Prevenir zoom em inputs em iOS
@@ -293,10 +382,10 @@ function configurarNavegacaoTeclado() {
             toggleMostrarInvestimento();
         }
         
-        // Alt+Q para logout (apenas durante o desenvolvimento)
-        if (e.key === 'q' && e.altKey && e.shiftKey) {
-            sessionStorage.removeItem(SESSION_KEY);
-            location.reload();
+        // Ctrl+Alt+L para logout (atalho secreto)
+        if (e.key === 'l' && e.ctrlKey && e.altKey) {
+            e.preventDefault();
+            logout();
         }
     });
 }
@@ -338,11 +427,6 @@ function configurarFocusMobile() {
         inputs.forEach((input, index) => {
             // Adicionar botões de navegação no teclado virtual
             input.setAttribute('enterkeyhint', index < inputs.length - 1 ? 'next' : 'go');
-            
-            // Para iOS: garantir que o teclado numérico apareça
-            if (navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
-                input.setAttribute('pattern', '[0-9]*');
-            }
         });
     }
 }
@@ -406,19 +490,17 @@ function calcularPortfolio() {
     // Calcular cada ação
     acoes.forEach(acao => {
         const input = inputsPrecos[acao.id];
-        let valorInput = input.value.trim();
+        const valorInput = input.value.trim();
         
-        // Substituir vírgula por ponto para compatibilidade
-        valorInput = valorInput.replace(',', '.');
-        
-        const precoAtual = parseFloat(valorInput);
+        // Converter o valor para número (suporta vírgula e ponto)
+        const precoAtual = formatarNumeroParaCalculo(valorInput);
         
         if (valorInput !== '' && !isNaN(precoAtual) && precoAtual >= 0) {
-            // Calcular resultados
+            // Calcular resultados com até 6 casas decimais de precisão
             const numeroAcoes = acao.investido / acao.precoCompra;
-            const valorAtual = numeroAcoes * precoAtual;
-            const lucro = valorAtual - acao.investido;
-            const percentagem = (lucro / acao.investido) * 100;
+            const valorAtual = parseFloat((numeroAcoes * precoAtual).toFixed(6));
+            const lucro = parseFloat((valorAtual - acao.investido).toFixed(6));
+            const percentagem = parseFloat(((lucro / acao.investido) * 100).toFixed(6));
             
             // Armazenar resultados
             resultadosCalculados.push({
@@ -453,9 +535,9 @@ function calcularPortfolio() {
         return;
     }
     
-    // Calcular totais consolidados
-    const lucroTotal = totalAtual - totalInvestido;
-    const percentagemTotal = totalInvestido > 0 ? (lucroTotal / totalInvestido) * 100 : 0;
+    // Calcular totais consolidados com alta precisão
+    const lucroTotal = parseFloat((totalAtual - totalInvestido).toFixed(6));
+    const percentagemTotal = totalInvestido > 0 ? parseFloat(((lucroTotal / totalInvestido) * 100).toFixed(6)) : 0;
     
     // Atualizar estatísticas
     statsAcoes.textContent = `${acoesValidas}/5 ações calculadas`;
@@ -487,7 +569,7 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     // Formatar valores
     const valorAtualFormatado = formatarMoeda(valorAtual);
     const lucroFormatado = formatarMoeda(lucro, true);
-    const percentagemFormatada = percentagem.toFixed(2) + '%';
+    const percentagemFormatada = parseFloat(percentagem).toFixed(2) + '%';
     
     // Adicionar células
     const celulaAcao = novaLinha.insertCell(0);
@@ -535,7 +617,7 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
     // Formatar valores monetários
     const totalAtualFormatado = formatarMoeda(totalAtual);
     const lucroTotalFormatado = formatarMoeda(lucroTotal, true);
-    const percentagemTotalFormatada = percentagemTotal.toFixed(3) + '%';
+    const percentagemTotalFormatada = parseFloat(percentagemTotal).toFixed(3) + '%';
     
     // Criar conteúdo HTML SIMPLIFICADO
     const resultadoHTML = `
@@ -654,10 +736,7 @@ document.addEventListener('touchmove', function(e) {
     }
 }, { passive: false });
 
-// Inicializar a aplicação quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', init);
-
-// Suporte para PWA (se aplicável)
+// Suporte para PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js').then(function(registration) {
@@ -667,3 +746,30 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+
+// Inicializar a aplicação quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', init);
+
+// Adicionar botão de logout no footer
+window.addEventListener('load', function() {
+    // Esperar o footer ser carregado
+    setTimeout(() => {
+        const footerLinks = document.querySelector('.footer-links');
+        if (footerLinks && !document.getElementById('logout-footer-btn')) {
+            // Criar botão de logout para o footer
+            const logoutBtn = document.createElement('a');
+            logoutBtn.id = 'logout-footer-btn';
+            logoutBtn.className = 'footer-link';
+            logoutBtn.href = '#';
+            logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> <span class="footer-link-text">Sair</span>';
+            logoutBtn.title = 'Sair (Ctrl+Alt+L)';
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Adicionar ao lado do botão "Voltar ao Topo"
+            footerLinks.appendChild(logoutBtn);
+        }
+    }, 500);
+});

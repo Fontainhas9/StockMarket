@@ -37,9 +37,7 @@
                     </button>
                 </div>
                 
-                <div class="password-hint">
-                    <p><i class="fas fa-info-circle"></i> Dica: A palavra-passe foi fornecida pelo administrador</p>
-                </div>
+                <!-- DIV DA DICA REMOVIDA AQUI -->
                 
                 <button id="login-btn" class="login-btn">
                     <i class="fas fa-sign-in-alt"></i> Entrar
@@ -93,7 +91,7 @@
                                 <div class="input-icon">
                                     <i class="fas fa-chart-bar"></i>
                                 </div>
-                                <input type="number" id="sp-price" step="0.01" min="0" placeholder="Preço atual" class="preco-input" inputmode="decimal">
+                                <input type="text" id="sp-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 57.662" class="preco-input">
                             </div>
                         </div>
                         
@@ -110,7 +108,7 @@
                                 <div class="input-icon">
                                     <i class="fas fa-gem"></i>
                                 </div>
-                                <input type="number" id="ouro-price" step="0.01" min="0" placeholder="Preço atual" class="preco-input" inputmode="decimal">
+                                <input type="text" id="ouro-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 234.77" class="preco-input">
                             </div>
                         </div>
                         
@@ -127,7 +125,7 @@
                                 <div class="input-icon">
                                     <i class="fas fa-university"></i>
                                 </div>
-                                <input type="number" id="janus-price" step="0.01" min="0" placeholder="Preço atual" class="preco-input" inputmode="decimal">
+                                <input type="text" id="janus-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 26.1" class="preco-input">
                             </div>
                         </div>
                         
@@ -144,7 +142,7 @@
                                 <div class="input-icon">
                                     <i class="fas fa-landmark"></i>
                                 </div>
-                                <input type="number" id="jpmorgan-price" step="0.01" min="0" placeholder="Preço atual" class="preco-input" inputmode="decimal">
+                                <input type="text" id="jpmorgan-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 482.8" class="preco-input">
                             </div>
                         </div>
                         
@@ -161,7 +159,7 @@
                                 <div class="input-icon">
                                     <i class="fas fa-industry"></i>
                                 </div>
-                                <input type="number" id="imga-price" step="0.01" min="0" placeholder="Preço atual" class="preco-input" inputmode="decimal">
+                                <input type="text" id="imga-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 12.497" class="preco-input">
                             </div>
                         </div>
                         
@@ -245,13 +243,14 @@
                         <i class="fas fa-arrow-up"></i> 
                         <span class="footer-link-text">Voltar ao Topo</span>
                     </a>
+                    <!-- O botão de logout será adicionado aqui via JavaScript -->
                 </div>
             </div>
         </footer>
     </div>
     
     <div class="mobile-keyboard-hint">
-        <p>Use o botão "Calcular" quando terminar de inserir os preços</p>
+        <p>Pode usar vírgula ou ponto como separador decimal (ex: 12,497 ou 12.497)</p>
     </div>
     
     <script src="script.js"></script>
