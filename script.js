@@ -1,10 +1,40 @@
-// Dados das ações atualizados com nomes corretos
+// Dados das ações atualizados com os nomes completos
 const acoes = [
-    { id: 'sp', nome: 'S&P 500', investido: 7957.36, precoCompra: 57.662, icon: 'fa-chart-bar' },
-    { id: 'ouro', nome: 'Ouro', investido: 7982.18, precoCompra: 234.77, icon: 'fa-gem' },
-    { id: 'janus', nome: 'Janus', investido: 7999.99, precoCompra: 26.1, icon: 'fa-university' },
-    { id: 'jpmorgan', nome: 'JP Morgan', investido: 8000.00, precoCompra: 482.8, icon: 'fa-landmark' },
-    { id: 'imga', nome: 'IMGA', investido: 8000.00, precoCompra: 12.4971, icon: 'fa-industry' }
+    { 
+        id: 'sp', 
+        nome: 'BCP S&P 500', 
+        investido: 7957.36, 
+        precoCompra: 57.662, 
+        icon: 'fa-chart-bar' 
+    },
+    { 
+        id: 'ouro', 
+        nome: 'BCP Ouro', 
+        investido: 7982.18, 
+        precoCompra: 234.77, 
+        icon: 'fa-gem' 
+    },
+    { 
+        id: 'janus', 
+        nome: 'Janus Henderson Capital Funds plc - Global Technology and Innovation Fund A2 HEUR', 
+        investido: 7999.99, 
+        precoCompra: 26.1, 
+        icon: 'fa-university' 
+    },
+    { 
+        id: 'jpmorgan', 
+        nome: 'JPMorgan Investment Funds - US Select Equity Fund A (acc) - EUR', 
+        investido: 8000.00, 
+        precoCompra: 482.8, 
+        icon: 'fa-landmark' 
+    },
+    { 
+        id: 'imga', 
+        nome: 'IMGA Ações América A – Fundo de Investimento Aberto de Acções', 
+        investido: 8000.00, 
+        precoCompra: 12.4971, 
+        icon: 'fa-industry' 
+    }
 ];
 
 // Referências aos elementos DOM
@@ -23,6 +53,7 @@ const tabelaResultados = document.getElementById('tabela-resultados').getElement
 const resultadoConsolidado = document.getElementById('resultado-consolidado');
 const investmentSummary = document.getElementById('investment-summary');
 const statsAcoes = document.getElementById('stats-acoes');
+const backToTopBtn = document.getElementById('back-to-top');
 
 // Estado da aplicação
 let mostrarInvestimento = false;
@@ -37,6 +68,28 @@ function init() {
     // Calcular e mostrar total investido
     const totalInvestido = acoes.reduce((total, acao) => total + acao.investido, 0);
     document.getElementById('total-investido').textContent = formatarMoeda(totalInvestido);
+    
+    // Configurar botão de voltar ao topo
+    backToTopBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    
+    // Mostrar/ocultar botão de voltar ao topo baseado no scroll
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+            backToTopBtn.style.opacity = '1';
+            backToTopBtn.style.visibility = 'visible';
+            backToTopBtn.style.transform = 'translateY(0)';
+        } else {
+            backToTopBtn.style.opacity = '0';
+            backToTopBtn.style.visibility = 'hidden';
+            backToTopBtn.style.transform = 'translateY(20px)';
+        }
+    });
 }
 
 // Configurar event listeners
@@ -72,6 +125,12 @@ function configurarNavegacaoTeclado() {
         // Escape para limpar
         if (e.key === 'Escape') {
             limparCampos();
+        }
+        
+        // Alt+I para mostrar/ocultar investimento
+        if (e.key === 'i' && e.altKey) {
+            e.preventDefault();
+            toggleMostrarInvestimento();
         }
     });
 }
@@ -110,6 +169,7 @@ function calcularPortfolio() {
     let totalInvestido = 0;
     let totalAtual = 0;
     let acoesValidas = 0;
+    let acoesComLucro = 0;
     
     // Calcular cada ação
     acoes.forEach(acao => {
@@ -135,6 +195,11 @@ function calcularPortfolio() {
                 percentagem: percentagem
             });
             
+            // Contar ações com lucro
+            if (lucro > 0) {
+                acoesComLucro++;
+            }
+            
             // Atualizar totais
             totalInvestido += acao.investido;
             totalAtual += valorAtual;
@@ -157,8 +222,8 @@ function calcularPortfolio() {
     // Atualizar estatísticas
     statsAcoes.textContent = `${acoesValidas}/5 ações calculadas`;
     
-    // Mostrar resultado consolidado
-    mostrarResultadoConsolidado(totalInvestido, totalAtual, lucroTotal, percentagemTotal, acoesValidas);
+    // Mostrar resultado consolidado SIMPLIFICADO
+    mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal, acoesComLucro, acoesValidas);
 }
 
 // Função para adicionar linha na tabela
@@ -178,12 +243,26 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     const lucroFormatado = formatarMoeda(lucro, true);
     const percentagemFormatada = percentagem.toFixed(2) + '%';
     
+    // Nome abreviado para a tabela
+    let nomeAbreviado = nome;
+    if (nome.length > 40) {
+        // Abreviar nomes muito longos
+        if (nome.includes('Janus Henderson')) {
+            nomeAbreviado = 'Janus Henderson Global Tech';
+        } else if (nome.includes('JPMorgan Investment Funds')) {
+            nomeAbreviado = 'JP Morgan US Select Equity';
+        } else if (nome.includes('IMGA Ações América')) {
+            nomeAbreviado = 'IMGA Ações América A';
+        }
+    }
+    
     // Adicionar células
     const celulaAcao = novaLinha.insertCell(0);
-    celulaAcao.innerHTML = `<i class="fas ${iconClass}"></i> ${nome}`;
+    celulaAcao.innerHTML = `<i class="fas ${iconClass}"></i> <span class="acao-nome">${nomeAbreviado}</span>`;
     
     const celulaValorAtual = novaLinha.insertCell(1);
     celulaValorAtual.textContent = valorAtualFormatado;
+    celulaValorAtual.className = 'valor-atual';
     
     const celulaLucro = novaLinha.insertCell(2);
     celulaLucro.textContent = lucroFormatado;
@@ -201,23 +280,20 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     }
 }
 
-// Função para mostrar resultado consolidado
-function mostrarResultadoConsolidado(totalInvestido, totalAtual, lucroTotal, percentagemTotal, acoesValidas) {
-    // Determinar cor, emoji e situação baseado no resultado
-    let cor, emoji, situacao;
+// Função para mostrar resultado consolidado SIMPLIFICADO
+function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal, acoesComLucro, acoesValidas) {
+    // Determinar cor e emoji baseado no resultado
+    let cor, emoji;
     
     if (lucroTotal > 0) {
         cor = 'resultado-positivo';
         emoji = '📈';
-        situacao = 'LUCRO';
     } else if (lucroTotal < 0) {
         cor = 'resultado-negativo';
         emoji = '📉';
-        situacao = 'PREJUÍZO';
     } else {
         cor = 'resultado-estavel';
         emoji = '➡️';
-        situacao = 'ESTÁVEL';
     }
     
     // Formatar valores monetários
@@ -225,14 +301,26 @@ function mostrarResultadoConsolidado(totalInvestido, totalAtual, lucroTotal, per
     const lucroTotalFormatado = formatarMoeda(lucroTotal, true);
     const percentagemTotalFormatada = percentagemTotal.toFixed(3) + '%';
     
-    // Criar conteúdo HTML
+    // Criar conteúdo HTML SIMPLIFICADO
     const resultadoHTML = `
         <div class="resultado-info ${cor}">
             <div class="resultado-emoji">${emoji}</div>
-            <div class="resultado-titulo">${situacao} (${acoesValidas}/5 ações)</div>
             <div class="resultado-detalhes">
-                <p><i class="fas fa-wallet"></i> Valor Total: <strong>${totalAtualFormatado}</strong></p>
-                <p><i class="fas fa-chart-line"></i> Resultado: <strong>${lucroTotalFormatado}</strong> (${percentagemTotalFormatada})</p>
+                <p>
+                    <i class="fas fa-chart-pie"></i>
+                    Ações com Lucro: 
+                    <strong>${acoesComLucro}/${acoesValidas}</strong>
+                </p>
+                <p>
+                    <i class="fas fa-wallet"></i>
+                    Valor Total: 
+                    <strong>${totalAtualFormatado}</strong>
+                </p>
+                <p>
+                    <i class="fas fa-chart-line"></i>
+                    Resultado: 
+                    <strong>${lucroTotalFormatado} (${percentagemTotalFormatada})</strong>
+                </p>
             </div>
         </div>
     `;
