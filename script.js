@@ -5,35 +5,40 @@ const acoes = [
         nome: 'BCP S&P 500', 
         investido: 7957.36, 
         precoCompra: 57.662, 
-        icon: 'fa-chart-bar' 
+        icon: 'fa-chart-bar',
+        nomeCurto: 'BCP S&P 500'
     },
     { 
         id: 'ouro', 
         nome: 'BCP Ouro', 
         investido: 7982.18, 
         precoCompra: 234.77, 
-        icon: 'fa-gem' 
+        icon: 'fa-gem',
+        nomeCurto: 'BCP Ouro'
     },
     { 
         id: 'janus', 
         nome: 'Janus Henderson Capital Funds plc - Global Technology and Innovation Fund A2 HEUR', 
         investido: 7999.99, 
         precoCompra: 26.1, 
-        icon: 'fa-university' 
+        icon: 'fa-university',
+        nomeCurto: 'Janus Henderson Global Tech'
     },
     { 
         id: 'jpmorgan', 
         nome: 'JPMorgan Investment Funds - US Select Equity Fund A (acc) - EUR', 
         investido: 8000.00, 
         precoCompra: 482.8, 
-        icon: 'fa-landmark' 
+        icon: 'fa-landmark',
+        nomeCurto: 'JP Morgan US Select Equity'
     },
     { 
         id: 'imga', 
         nome: 'IMGA Ações América A – Fundo de Investimento Aberto de Acções', 
         investido: 8000.00, 
         precoCompra: 12.4971, 
-        icon: 'fa-industry' 
+        icon: 'fa-industry',
+        nomeCurto: 'IMGA Ações América A'
     }
 ];
 
@@ -54,52 +59,88 @@ const resultadoConsolidado = document.getElementById('resultado-consolidado');
 const investmentSummary = document.getElementById('investment-summary');
 const statsAcoes = document.getElementById('stats-acoes');
 const backToTopBtn = document.getElementById('back-to-top');
+const mobileKeyboardHint = document.querySelector('.mobile-keyboard-hint');
 
 // Estado da aplicação
 let mostrarInvestimento = false;
 let resultadosCalculados = [];
+let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+let lastScrollTop = 0;
 
 // Inicializar a aplicação
 function init() {
     configurarEventListeners();
     configurarNavegacaoTeclado();
-    inputsPrecos.sp.focus();
+    detectarDispositivo();
+    calcularTotalInvestido();
+    configurarScrollToTop();
+    configurarFocusMobile();
     
-    // Calcular e mostrar total investido
-    const totalInvestido = acoes.reduce((total, acao) => total + acao.investido, 0);
-    document.getElementById('total-investido').textContent = formatarMoeda(totalInvestido);
+    // Focar no primeiro campo
+    setTimeout(() => {
+        inputsPrecos.sp.focus();
+    }, 300);
+}
+
+// Detectar dispositivo e ajustar comportamento
+function detectarDispositivo() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
     
-    // Configurar botão de voltar ao topo
-    backToTopBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
+    // Verificar se é mobile
+    isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
     
-    // Mostrar/ocultar botão de voltar ao topo baseado no scroll
-    window.addEventListener('scroll', function() {
-        if (window.scrollY > 300) {
-            backToTopBtn.style.opacity = '1';
-            backToTopBtn.style.visibility = 'visible';
-            backToTopBtn.style.transform = 'translateY(0)';
-        } else {
-            backToTopBtn.style.opacity = '0';
-            backToTopBtn.style.visibility = 'hidden';
-            backToTopBtn.style.transform = 'translateY(20px)';
-        }
-    });
+    // Adicionar classe CSS para mobile
+    if (isMobile) {
+        document.body.classList.add('is-mobile');
+        
+        // Mostrar dica de teclado móvel
+        setTimeout(() => {
+            showMobileKeyboardHint();
+        }, 2000);
+    }
+}
+
+// Mostrar dica de teclado móvel
+function showMobileKeyboardHint() {
+    if (isMobile && !localStorage.getItem('keyboardHintShown')) {
+        mobileKeyboardHint.classList.add('show');
+        
+        setTimeout(() => {
+            mobileKeyboardHint.classList.remove('show');
+            localStorage.setItem('keyboardHintShown', 'true');
+        }, 5000);
+    }
 }
 
 // Configurar event listeners
 function configurarEventListeners() {
     calcularBtn.addEventListener('click', calcularPortfolio);
+    calcularBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        this.classList.add('active');
+    });
+    calcularBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        this.classList.remove('active');
+        calcularPortfolio();
+    });
+    
     limparBtn.addEventListener('click', limparCampos);
+    limparBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        this.classList.add('active');
+    });
+    limparBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        this.classList.remove('active');
+        limparCampos();
+    });
+    
     toggleInvestmentBtn.addEventListener('click', toggleMostrarInvestimento);
     
-    // Adicionar evento para Enter em cada input
+    // Eventos para inputs - melhorar experiência mobile
     Object.values(inputsPrecos).forEach((input, index, arr) => {
+        // Para desktop: navegação com Enter
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -110,14 +151,50 @@ function configurarEventListeners() {
                 }
             }
         });
+        
+        // Para mobile: mostrar botão de ação quando focado
+        input.addEventListener('focus', () => {
+            if (isMobile) {
+                scrollToElement(input);
+            }
+        });
+        
+        // Melhorar entrada numérica em mobile
+        input.addEventListener('input', (e) => {
+            if (isMobile) {
+                // Garantir formato correto para números decimais
+                let value = e.target.value;
+                value = value.replace(/[^\d.,-]/g, '');
+                
+                // Substituir vírgula por ponto para cálculo
+                if (value.includes(',')) {
+                    value = value.replace(',', '.');
+                }
+                
+                // Garantir apenas um ponto decimal
+                const parts = value.split('.');
+                if (parts.length > 2) {
+                    value = parts[0] + '.' + parts.slice(1).join('');
+                }
+                
+                e.target.value = value;
+            }
+        });
     });
+    
+    // Prevenir zoom em inputs em iOS
+    document.addEventListener('touchstart', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            document.body.style.zoom = "100%";
+        }
+    }, { passive: true });
 }
 
 // Configurar navegação por teclado
 function configurarNavegacaoTeclado() {
     document.addEventListener('keydown', (e) => {
-        // Ctrl+Enter para calcular
-        if (e.key === 'Enter' && e.ctrlKey) {
+        // Ctrl+Enter ou Cmd+Enter para calcular
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
             calcularPortfolio();
         }
@@ -133,6 +210,72 @@ function configurarNavegacaoTeclado() {
             toggleMostrarInvestimento();
         }
     });
+}
+
+// Configurar scroll para o topo
+function configurarScrollToTop() {
+    backToTopBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    
+    // Mostrar/ocultar botão baseado no scroll
+    window.addEventListener('scroll', function() {
+        const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (currentScroll > 300) {
+            backToTopBtn.style.opacity = '1';
+            backToTopBtn.style.visibility = 'visible';
+            backToTopBtn.style.transform = 'translateY(0)';
+        } else {
+            backToTopBtn.style.opacity = '0';
+            backToTopBtn.style.visibility = 'hidden';
+            backToTopBtn.style.transform = 'translateY(20px)';
+        }
+        
+        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+    }, { passive: true });
+}
+
+// Configurar foco em mobile
+function configurarFocusMobile() {
+    if (isMobile) {
+        // Adicionar botões de navegação virtual para mobile
+        const inputs = Object.values(inputsPrecos);
+        
+        inputs.forEach((input, index) => {
+            // Adicionar botões de navegação no teclado virtual
+            input.setAttribute('enterkeyhint', index < inputs.length - 1 ? 'next' : 'go');
+            
+            // Para iOS: garantir que o teclado numérico apareça
+            if (navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
+                input.setAttribute('pattern', '[0-9]*');
+            }
+        });
+    }
+}
+
+// Scroll para elemento em mobile
+function scrollToElement(element) {
+    if (isMobile) {
+        const elementRect = element.getBoundingClientRect();
+        const absoluteElementTop = elementRect.top + window.pageYOffset;
+        const middle = absoluteElementTop - (window.innerHeight / 2) + (elementRect.height / 2);
+        
+        window.scrollTo({
+            top: middle,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Calcular e mostrar total investido
+function calcularTotalInvestido() {
+    const totalInvestido = acoes.reduce((total, acao) => total + acao.investido, 0);
+    document.getElementById('total-investido').textContent = formatarMoeda(totalInvestido);
 }
 
 // Alternar mostrar/ocultar valores investidos
@@ -174,9 +317,14 @@ function calcularPortfolio() {
     // Calcular cada ação
     acoes.forEach(acao => {
         const input = inputsPrecos[acao.id];
-        const precoAtual = parseFloat(input.value);
+        let valorInput = input.value.trim();
         
-        if (input.value.trim() !== '' && !isNaN(precoAtual) && precoAtual >= 0) {
+        // Substituir vírgula por ponto para compatibilidade
+        valorInput = valorInput.replace(',', '.');
+        
+        const precoAtual = parseFloat(valorInput);
+        
+        if (valorInput !== '' && !isNaN(precoAtual) && precoAtual >= 0) {
             // Calcular resultados
             const numeroAcoes = acao.investido / acao.precoCompra;
             const valorAtual = numeroAcoes * precoAtual;
@@ -186,6 +334,7 @@ function calcularPortfolio() {
             // Armazenar resultados
             resultadosCalculados.push({
                 nome: acao.nome,
+                nomeCurto: acao.nomeCurto,
                 investido: acao.investido,
                 precoCompra: acao.precoCompra,
                 precoAtual: precoAtual,
@@ -206,7 +355,7 @@ function calcularPortfolio() {
             acoesValidas++;
             
             // Adicionar à tabela
-            adicionarNaTabela(acao.nome, valorAtual, lucro, percentagem, acao.icon);
+            adicionarNaTabela(acao.nomeCurto, valorAtual, lucro, percentagem, acao.icon);
         }
     });
     
@@ -224,6 +373,14 @@ function calcularPortfolio() {
     
     // Mostrar resultado consolidado SIMPLIFICADO
     mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal, acoesComLucro, acoesValidas);
+    
+    // Scroll para resultados em mobile
+    if (isMobile && acoesValidas > 0) {
+        setTimeout(() => {
+            const resultadosSection = document.querySelector('.desempenho-card');
+            scrollToElement(resultadosSection);
+        }, 100);
+    }
 }
 
 // Função para adicionar linha na tabela
@@ -243,40 +400,30 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     const lucroFormatado = formatarMoeda(lucro, true);
     const percentagemFormatada = percentagem.toFixed(2) + '%';
     
-    // Nome abreviado para a tabela
-    let nomeAbreviado = nome;
-    if (nome.length > 40) {
-        // Abreviar nomes muito longos
-        if (nome.includes('Janus Henderson')) {
-            nomeAbreviado = 'Janus Henderson Global Tech';
-        } else if (nome.includes('JPMorgan Investment Funds')) {
-            nomeAbreviado = 'JP Morgan US Select Equity';
-        } else if (nome.includes('IMGA Ações América')) {
-            nomeAbreviado = 'IMGA Ações América A';
-        }
-    }
-    
     // Adicionar células
     const celulaAcao = novaLinha.insertCell(0);
-    celulaAcao.innerHTML = `<i class="fas ${iconClass}"></i> <span class="acao-nome">${nomeAbreviado}</span>`;
+    celulaAcao.innerHTML = `<i class="fas ${iconClass}"></i> <span class="acao-nome">${nome}</span>`;
+    celulaAcao.className = 'acao-cell';
     
     const celulaValorAtual = novaLinha.insertCell(1);
     celulaValorAtual.textContent = valorAtualFormatado;
-    celulaValorAtual.className = 'valor-atual';
+    celulaValorAtual.className = 'valor-atual-cell';
     
     const celulaLucro = novaLinha.insertCell(2);
     celulaLucro.textContent = lucroFormatado;
+    celulaLucro.className = 'lucro-cell';
     
     const celulaPercentagem = novaLinha.insertCell(3);
     celulaPercentagem.textContent = percentagemFormatada;
+    celulaPercentagem.className = 'percentagem-cell';
     
     // Aplicar estilos baseados no resultado
     if (lucro > 0) {
-        celulaLucro.className = 'lucro-positivo';
-        celulaPercentagem.className = 'lucro-positivo';
+        celulaLucro.classList.add('lucro-positivo');
+        celulaPercentagem.classList.add('lucro-positivo');
     } else if (lucro < 0) {
-        celulaLucro.className = 'lucro-negativo';
-        celulaPercentagem.className = 'lucro-negativo';
+        celulaLucro.classList.add('lucro-negativo');
+        celulaPercentagem.classList.add('lucro-negativo');
     }
 }
 
@@ -308,17 +455,17 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
             <div class="resultado-detalhes">
                 <p>
                     <i class="fas fa-chart-pie"></i>
-                    Ações com Lucro: 
+                    <span>Ações com Lucro:</span>
                     <strong>${acoesComLucro}/${acoesValidas}</strong>
                 </p>
                 <p>
                     <i class="fas fa-wallet"></i>
-                    Valor Total: 
+                    <span>Valor Total:</span>
                     <strong>${totalAtualFormatado}</strong>
                 </p>
                 <p>
                     <i class="fas fa-chart-line"></i>
-                    Resultado: 
+                    <span>Resultado:</span>
                     <strong>${lucroTotalFormatado} (${percentagemTotalFormatada})</strong>
                 </p>
             </div>
@@ -364,6 +511,16 @@ function limparCampos() {
     resultadoConsolidado.classList.remove('has-result');
     statsAcoes.textContent = '0/5 ações calculadas';
     
+    // Scroll para topo em mobile
+    if (isMobile) {
+        setTimeout(() => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }, 100);
+    }
+    
     // Focar no primeiro campo
     inputsPrecos.sp.focus();
 }
@@ -380,18 +537,44 @@ function limparTabela() {
     novaLinha.className = 'empty-row';
     const celulaVazia = novaLinha.insertCell(0);
     celulaVazia.colSpan = 4;
-    celulaVazia.innerHTML = '<i class="fas fa-info-circle"></i> Nenhum cálculo realizado ainda';
+    celulaVazia.innerHTML = '<i class="fas fa-info-circle"></i><span>Nenhum cálculo realizado ainda</span>';
 }
 
 // Função para formatar valores monetários
 function formatarMoeda(valor, comSinal = false) {
     const sinal = comSinal ? (valor > 0 ? '+' : '') : '';
     const valorAbsoluto = Math.abs(valor);
+    
+    // Formatar com separador de milhares e 2 casas decimais
     return sinal + '€ ' + valorAbsoluto.toLocaleString('pt-PT', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
 }
 
+// Prevenir comportamento padrão de toque longo
+document.addEventListener('touchstart', function(e) {
+    if (e.touches.length > 1) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+document.addEventListener('touchmove', function(e) {
+    if (e.scale !== 1) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
 // Inicializar a aplicação quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', init);
+
+// Suporte para PWA (se aplicável)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            console.log('ServiceWorker registado com sucesso: ', registration.scope);
+        }, function(err) {
+            console.log('Falha no registo do ServiceWorker: ', err);
+        });
+    });
+}

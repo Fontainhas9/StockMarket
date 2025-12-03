@@ -22,12 +22,18 @@
     --gradient-success: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
     --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    height: -webkit-fill-available;
 }
 
 body {
@@ -36,12 +42,14 @@ body {
     color: var(--dark);
     line-height: 1.7;
     min-height: 100vh;
-    padding: 30px 20px;
+    min-height: -webkit-fill-available;
+    padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
     overflow-x: hidden;
+    padding-bottom: calc(20px + var(--safe-area-inset-bottom));
 }
 
 body::before {
@@ -119,12 +127,16 @@ header::after {
     margin-bottom: 1.5rem;
     position: relative;
     z-index: 2;
+    flex-wrap: wrap;
+    gap: 1.5rem;
 }
 
 .logo {
     display: flex;
     align-items: center;
     gap: 1.25rem;
+    flex: 1;
+    min-width: 300px;
 }
 
 .logo i {
@@ -144,7 +156,7 @@ header::after {
 
 header h1 {
     font-family: 'Montserrat', sans-serif;
-    font-size: 2.4rem;
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
     font-weight: 800;
     margin: 0;
     background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
@@ -152,10 +164,11 @@ header h1 {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
 }
 
 .subtitle {
-    font-size: 1.15rem;
+    font-size: clamp(1rem, 2vw, 1.15rem);
     opacity: 0.9;
     max-width: 700px;
     position: relative;
@@ -178,9 +191,11 @@ header h1 {
     gap: 0.9rem;
     transition: var(--transition);
     backdrop-filter: blur(10px);
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
     position: relative;
     overflow: hidden;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .toggle-investment-btn::before {
@@ -239,16 +254,20 @@ header h1 {
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 2px solid rgba(229, 231, 235, 0.5);
+    flex-wrap: wrap;
+    gap: 1.5rem;
 }
 
 .card-header h2 {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.8rem;
+    font-size: clamp(1.5rem, 3vw, 1.8rem);
     color: var(--dark);
     display: flex;
     align-items: center;
     gap: 1rem;
     font-weight: 700;
+    flex: 1;
+    min-width: 300px;
 }
 
 .card-header h2 i {
@@ -262,9 +281,10 @@ header h1 {
     background: linear-gradient(135deg, #f0f7ff 0%, #e0eeff 100%);
     padding: 1rem 1.8rem;
     border-radius: 15px;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2vw, 1rem);
     border: 1px solid rgba(45, 106, 227, 0.2);
     box-shadow: 0 4px 15px rgba(45, 106, 227, 0.1);
+    flex-shrink: 0;
 }
 
 .investment-summary p {
@@ -273,6 +293,7 @@ header h1 {
     align-items: center;
     gap: 0.8rem;
     color: var(--dark);
+    flex-wrap: wrap;
 }
 
 .table-stats {
@@ -280,22 +301,27 @@ header h1 {
     color: white;
     padding: 0.7rem 1.5rem;
     border-radius: 50px;
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
     font-weight: 600;
     box-shadow: 0 4px 15px rgba(45, 106, 227, 0.3);
+    flex-shrink: 0;
 }
 
-/* Ações Inputs */
+/* Ações Inputs - Layout melhorado */
 .acoes-container {
     display: flex;
     gap: 4rem;
     margin-bottom: 1.5rem;
-    align-items: flex-start;
+    align-items: stretch;
+    min-height: 500px;
 }
 
 .acoes-inputs {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .acao-item {
@@ -308,6 +334,10 @@ header h1 {
     border: 1px solid rgba(226, 232, 240, 0.5);
     position: relative;
     overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .acao-item:hover {
@@ -338,12 +368,13 @@ header h1 {
 
 .acao-label {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.3rem;
+    font-size: clamp(1rem, 2vw, 1.3rem);
     font-weight: 700;
     color: var(--dark);
     flex: 1;
     min-width: 200px;
     line-height: 1.4;
+    word-break: break-word;
 }
 
 .investment-value {
@@ -356,6 +387,7 @@ header h1 {
     border: 1px solid var(--gray-light);
     animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
 }
 
 @keyframes slideIn {
@@ -364,7 +396,7 @@ header h1 {
 }
 
 .investment-tag {
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
     color: var(--gray);
     font-weight: 500;
 }
@@ -372,20 +404,21 @@ header h1 {
 .investment-amount {
     font-weight: 700;
     color: var(--primary);
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 2vw, 1.1rem);
 }
 
 .input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .input-icon {
     position: absolute;
     left: 1.2rem;
     color: var(--primary);
-    font-size: 1.3rem;
+    font-size: clamp(1.1rem, 2vw, 1.3rem);
     z-index: 1;
 }
 
@@ -394,13 +427,16 @@ header h1 {
     padding: 1.2rem 1.2rem 1.2rem 4rem;
     border: 2px solid #e2e8f0;
     border-radius: 14px;
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 2vw, 1.1rem);
     font-family: 'Poppins', sans-serif;
     transition: var(--transition);
     background: white;
     font-weight: 500;
     color: var(--dark);
     position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: 56px;
 }
 
 .preco-input:focus {
@@ -415,33 +451,44 @@ header h1 {
     font-weight: 400;
 }
 
-/* Botões */
+/* Botões - Centralizados verticalmente */
 .acoes-botoes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 280px;
+    padding: 2rem 0;
+}
+
+.botoes-container {
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
-    min-width: 220px;
-    justify-content: center;
+    width: 100%;
+    max-width: 280px;
     position: sticky;
     top: 2rem;
 }
 
 .btn {
-    padding: 1.5rem 2.5rem;
+    padding: 1.5rem 2rem;
     border: none;
     border-radius: 16px;
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.2rem;
+    font-size: clamp(1.1rem, 2vw, 1.2rem);
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 1rem;
     transition: var(--transition);
     position: relative;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    min-height: 70px;
+    touch-action: manipulation;
+    width: 100%;
 }
 
 .btn::after {
@@ -472,7 +519,7 @@ header h1 {
     color: white;
 }
 
-.btn-primary:hover {
+.btn-primary:hover, .btn-primary:active {
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 20px 40px rgba(45, 106, 227, 0.4);
 }
@@ -482,19 +529,24 @@ header h1 {
     color: white;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover, .btn-secondary:active {
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 20px 40px rgba(75, 85, 99, 0.4);
 }
 
+.btn-text {
+    flex: 1;
+    text-align: center;
+}
+
 .btn-shortcut {
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
     opacity: 0.8;
-    margin-left: auto;
-    font-weight: 500;
     background: rgba(255, 255, 255, 0.2);
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
+    font-weight: 500;
+    flex-shrink: 0;
 }
 
 /* Desempenho por Ação */
@@ -532,7 +584,7 @@ header h1 {
 }
 
 .estado-icon {
-    font-size: 4rem;
+    font-size: clamp(3rem, 8vw, 4rem);
     margin-bottom: 1.5rem;
     color: var(--primary);
     opacity: 0.7;
@@ -545,7 +597,7 @@ header h1 {
 }
 
 .estado-inicial p {
-    font-size: 1.3rem;
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
     max-width: 400px;
     margin: 0 auto;
     font-weight: 500;
@@ -563,7 +615,7 @@ header h1 {
 }
 
 .resultado-emoji {
-    font-size: 5rem;
+    font-size: clamp(3rem, 8vw, 5rem);
     margin-bottom: 2rem;
     animation: bounce 2s infinite;
 }
@@ -575,7 +627,7 @@ header h1 {
 
 .resultado-titulo {
     font-family: 'Montserrat', sans-serif;
-    font-size: 2.5rem;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
     font-weight: 800;
     margin-bottom: 1.5rem;
     background: var(--gradient-primary);
@@ -585,24 +637,27 @@ header h1 {
 }
 
 .resultado-detalhes {
-    font-size: 1.4rem;
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
     line-height: 2;
     margin-top: 2rem;
+    width: 100%;
 }
 
 .resultado-detalhes p {
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 1rem;
+    justify-content: space-between;
     background: rgba(255, 255, 255, 0.7);
-    padding: 1.2rem 2rem;
+    padding: clamp(1rem, 3vw, 1.2rem) clamp(1.5rem, 4vw, 2rem);
     border-radius: 15px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
     transition: var(--transition);
+    text-align: left;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .resultado-detalhes p:hover {
@@ -613,12 +668,13 @@ header h1 {
 .resultado-detalhes strong {
     font-weight: 700;
     color: var(--dark);
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
 }
 
 .resultado-detalhes i {
     color: var(--primary);
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    flex-shrink: 0;
 }
 
 /* Tabela de Desempenho */
@@ -629,13 +685,14 @@ header h1 {
     background: white;
     margin-top: 1.5rem;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
     width: 100%;
-    border-collapse: separate;
+    border-collapse: collapse;
     border-spacing: 0;
-    min-width: 800px;
+    min-width: 700px;
 }
 
 thead {
@@ -647,13 +704,14 @@ thead {
 }
 
 th {
-    padding: 1.5rem 1.5rem;
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem);
     text-align: center;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
     position: relative;
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 th:not(:last-child)::after {
@@ -681,10 +739,11 @@ tbody tr:hover {
 }
 
 td {
-    padding: 1.5rem 1.5rem;
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem);
     text-align: center;
-    font-size: 1.05rem;
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
     font-weight: 500;
+    word-break: break-word;
 }
 
 .empty-row td {
@@ -692,11 +751,11 @@ td {
     color: var(--gray);
     padding: 4rem;
     font-style: italic;
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 3vw, 1.2rem);
 }
 
 .empty-row i {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     margin-bottom: 1rem;
     display: block;
     color: var(--primary);
@@ -706,7 +765,7 @@ td {
     color: #10b981;
     font-weight: 700;
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-    padding: 0.8rem 1rem;
+    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
     border-radius: 12px;
     border: 1px solid rgba(16, 185, 129, 0.2);
 }
@@ -715,7 +774,7 @@ td {
     color: #ef4444;
     font-weight: 700;
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
-    padding: 0.8rem 1rem;
+    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
     border-radius: 12px;
     border: 1px solid rgba(239, 68, 68, 0.2);
 }
@@ -728,6 +787,7 @@ footer {
     margin-top: 3rem;
     position: relative;
     overflow: hidden;
+    padding-bottom: calc(2.5rem + var(--safe-area-inset-bottom));
 }
 
 footer::before {
@@ -746,6 +806,13 @@ footer::before {
     align-items: center;
     position: relative;
     z-index: 1;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.footer-content p {
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    opacity: 0.8;
 }
 
 .footer-links {
@@ -766,6 +833,8 @@ footer::before {
     font-weight: 600;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    white-space: nowrap;
 }
 
 .footer-link:hover {
@@ -774,6 +843,33 @@ footer::before {
     background: rgba(255, 255, 255, 0.15);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     border-color: var(--primary);
+}
+
+.footer-link-text {
+    display: inline;
+}
+
+/* Mobile Keyboard Hint */
+.mobile-keyboard-hint {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--gradient-primary);
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    padding-bottom: calc(1rem + var(--safe-area-inset-bottom));
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.mobile-keyboard-hint.show {
+    transform: translateY(0);
 }
 
 /* Utilitários */
@@ -802,26 +898,40 @@ footer::before {
 }
 
 /* Responsividade */
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
     .container {
         max-width: 100%;
         margin: 0;
     }
-    
+}
+
+@media (max-width: 1200px) {
     .acoes-container {
         flex-direction: column;
         gap: 3rem;
+        min-height: auto;
     }
     
     .acoes-botoes {
+        min-width: 100%;
+        padding: 0;
+        margin-top: 2rem;
+    }
+    
+    .botoes-container {
         flex-direction: row;
-        min-width: auto;
+        max-width: 100%;
         position: static;
-        justify-content: center;
     }
     
     .btn {
-        min-width: 200px;
+        flex: 1;
+        min-height: 80px;
+        justify-content: center;
+    }
+    
+    .btn-shortcut {
+        display: none;
     }
 }
 
@@ -835,44 +945,24 @@ footer::before {
         padding: 2rem;
     }
     
-    header h1 {
-        font-size: 2rem;
-    }
-    
-    .acao-label {
-        font-size: 1.1rem;
-    }
-}
-
-@media (max-width: 768px) {
-    body {
-        padding: 15px 10px;
-    }
-    
     .header-content {
         flex-direction: column;
-        gap: 1.5rem;
         align-items: stretch;
     }
     
     .logo {
+        min-width: auto;
         justify-content: center;
         text-align: center;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    header h1 {
-        font-size: 1.8rem;
     }
     
     .toggle-investment-btn {
+        width: 100%;
         justify-content: center;
     }
     
     .card-header {
         flex-direction: column;
-        gap: 1.5rem;
         align-items: stretch;
     }
     
@@ -880,36 +970,220 @@ footer::before {
         width: 100%;
         text-align: center;
     }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        padding-bottom: calc(10px + var(--safe-area-inset-bottom));
+    }
     
-    .footer-content {
+    .card {
+        margin: 1rem;
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    header {
+        padding: 1.5rem;
+    }
+    
+    .logo {
         flex-direction: column;
-        gap: 1.5rem;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .logo i {
+        font-size: 2.5rem;
+        padding: 0.8rem;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
         text-align: center;
     }
     
-    .footer-links {
+    .acao-item {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .acao-label {
+        font-size: 1.1rem;
+        min-width: 100%;
+    }
+    
+    .investment-value {
+        width: 100%;
         justify-content: center;
+    }
+    
+    .preco-input {
+        font-size: 1.1rem;
+        min-height: 60px;
+        padding-left: 3.5rem;
+    }
+    
+    .input-icon {
+        left: 1rem;
+        font-size: 1.2rem;
+    }
+    
+    .botoes-container {
+        flex-direction: column;
+    }
+    
+    .btn {
+        min-height: 70px;
+        font-size: 1.2rem;
+        padding: 1.2rem;
+    }
+    
+    .btn-text {
+        font-size: 1.1rem;
+    }
+    
+    .resultado-detalhes p {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .resultado-detalhes strong, .resultado-detalhes i {
+        font-size: 1.2rem;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .footer-links {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .footer-link {
+        width: 100%;
+        justify-content: center;
+        padding: 1rem;
+    }
+    
+    .mobile-keyboard-hint {
+        display: block;
     }
 }
 
 @media (max-width: 480px) {
     .card {
-        margin: 1rem;
-        padding: 1.5rem;
+        margin: 0.75rem;
+        padding: 1.25rem;
+    }
+    
+    header {
+        padding: 1.25rem;
+    }
+    
+    header h1 {
+        font-size: 1.6rem;
+    }
+    
+    .card-header h2 {
+        font-size: 1.3rem;
+        min-width: 100%;
     }
     
     .acao-item {
-        padding: 1.5rem;
+        padding: 1.25rem;
+    }
+    
+    .preco-input {
+        font-size: 1rem;
+        padding: 1rem 1rem 1rem 3rem;
     }
     
     .btn {
-        padding: 1.2rem;
+        min-height: 65px;
+        font-size: 1.1rem;
+    }
+    
+    .resultado-consolidado {
+        padding: 1.5rem;
+    }
+    
+    .estado-icon {
+        font-size: 2.5rem;
+    }
+    
+    .resultado-emoji {
+        font-size: 3rem;
+    }
+    
+    .resultado-titulo {
+        font-size: 1.5rem;
+    }
+    
+    .footer-link-text {
+        display: inline;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo i {
+        font-size: 2rem;
+        padding: 0.6rem;
+    }
+    
+    header h1 {
+        font-size: 1.4rem;
+    }
+    
+    .btn {
+        min-height: 60px;
         font-size: 1rem;
     }
     
-    .resultado-detalhes p {
-        flex-direction: column;
-        gap: 0.5rem;
-        text-align: center;
+    .btn i {
+        font-size: 1rem;
+    }
+}
+
+/* Suporte para modo paisagem em mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .acoes-container {
+        min-height: auto;
+    }
+    
+    .acao-item {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        min-height: 50px;
+        padding: 0.8rem;
+    }
+}
+
+/* Suporte para dispositivos com notch */
+@supports (padding: max(0px)) {
+    body, header, footer, .mobile-keyboard-hint {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
     }
 }
