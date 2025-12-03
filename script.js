@@ -78,26 +78,14 @@ let lastScrollTop = 0;
 const CORRECT_PASSWORD = "Fontainhas#9"; 
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
-const SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 horas em milissegundos
 
 // Verificar se o usuário já está autenticado
 function checkAuthentication() {
     try {
-        const authData = localStorage.getItem(AUTH_KEY);
-        const authTimestamp = localStorage.getItem(AUTH_TIMESTAMP_KEY);
-        
+        const authData = sessionStorage.getItem(AUTH_KEY);
+        const authTimestamp = sessionStorage.getItem(AUTH_TIMESTAMP_KEY);
         if (authData && authTimestamp) {
-            const currentTime = new Date().getTime();
-            const loginTime = parseInt(authTimestamp);
-            
-            // Verificar se a sessão expirou (12 horas)
-            if (currentTime - loginTime < SESSION_TIMEOUT) {
-                showMainContent();
-                return true;
-            } else {
-                // Sessão expirada - limpar dados de login
-                logout();
-            }
+            return true;
         }
     } catch (error) {
         console.error('Erro ao verificar autenticação:', error);
@@ -117,8 +105,8 @@ function showMainContent() {
 
 // Fazer logout
 function logout() {
-    localStorage.removeItem(AUTH_KEY);
-    localStorage.removeItem(AUTH_TIMESTAMP_KEY);
+    sessionStorage.removeItem(AUTH_KEY);
+    sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
     location.reload();
 }
 
@@ -146,12 +134,9 @@ function setupLoginSystem() {
         const password = passwordInput.value.trim();
         
         if (password === CORRECT_PASSWORD) {
-            // Autenticação bem-sucedida
             const currentTime = new Date().getTime();
-            localStorage.setItem(AUTH_KEY, 'true');
-            localStorage.setItem(AUTH_TIMESTAMP_KEY, currentTime.toString());
-            
-            // Animação de sucesso
+            sessionStorage.setItem(AUTH_KEY, 'true');
+            sessionStorage.setItem(AUTH_TIMESTAMP_KEY, currentTime.toString());
             loginBtn.innerHTML = '<i class="fas fa-check"></i> Autenticado!';
             loginBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
             
@@ -159,12 +144,9 @@ function setupLoginSystem() {
                 showMainContent();
             }, 800);
         } else {
-            // Senha incorreta
             loginError.style.display = 'flex';
             passwordInput.value = '';
             passwordInput.focus();
-            
-            // Animar o botão de erro
             loginBtn.innerHTML = '<i class="fas fa-times"></i> Erro!';
             loginBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
             
@@ -187,13 +169,12 @@ function setupLoginSystem() {
 // Inicializar a aplicação
 function init() {
     setupLoginSystem();
+    loginScreen.style.display = 'flex';
+    mainContent.style.display = 'none';
     
-    // Verificar autenticação
-    if (!checkAuthentication()) {
-        // Mostrar tela de login
-        loginScreen.style.display = 'flex';
-        mainContent.style.display = 'none';
-    }
+    // Limpar qualquer sessão anterior (para garantir)
+    sessionStorage.removeItem(AUTH_KEY);
+    sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
 }
 
 // Inicializar a calculadora (após login)
@@ -231,12 +212,12 @@ function detectarDispositivo() {
 
 // Mostrar dica de teclado móvel
 function showMobileKeyboardHint() {
-    if (isMobile && !localStorage.getItem('keyboardHintShown')) {
+    if (isMobile && !sessionStorage.getItem('keyboardHintShown')) {
         mobileKeyboardHint.classList.add('show');
         
         setTimeout(() => {
             mobileKeyboardHint.classList.remove('show');
-            localStorage.setItem('keyboardHintShown', 'true');
+            sessionStorage.setItem('keyboardHintShown', 'true');
         }, 5000);
     }
 }
@@ -747,7 +728,6 @@ document.addEventListener('DOMContentLoaded', init);
 
 // Adicionar botão de logout no footer
 window.addEventListener('load', function() {
-    // Esperar o footer ser carregado
     setTimeout(() => {
         const footerLinks = document.querySelector('.footer-links');
         if (footerLinks && !document.getElementById('logout-footer-btn')) {
