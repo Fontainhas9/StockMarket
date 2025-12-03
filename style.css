@@ -1074,19 +1074,11 @@ td {
 .lucro-positivo {
     color: #10b981;
     font-weight: 700;
-    background: 0;
-    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
-    border-radius: 12px;
-    border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .lucro-negativo {
     color: #ef4444;
     font-weight: 700;
-    background: 0;
-    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
-    border-radius: 12px;
-    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 /* Responsividade para tabela em dispositivos móveis */
