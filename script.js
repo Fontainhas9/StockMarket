@@ -75,7 +75,7 @@ let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let lastScrollTop = 0;
 
 // Configuração da palavra-passe
-const CORRECT_PASSWORD = "StockMarket2024"; // Você pode alterar esta senha
+const CORRECT_PASSWORD = "Fontainhas#9"; 
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
 const SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 horas em milissegundos
@@ -257,11 +257,11 @@ function formatarNumeroParaCalculo(valor) {
         valorFormatado = partes[0] + '.' + partes.slice(1).join('');
     }
     
-    // Limitar a 3 casas decimais
+    // Limitar a 4 casas decimais
     if (valorFormatado.includes('.')) {
         const partesDecimais = valorFormatado.split('.');
-        if (partesDecimais[1].length > 3) {
-            valorFormatado = partesDecimais[0] + '.' + partesDecimais[1].substring(0, 3);
+        if (partesDecimais[1].length > 4) {
+            valorFormatado = partesDecimais[0] + '.' + partesDecimais[1].substring(0, 4);
         }
     }
     
@@ -336,12 +336,12 @@ function configurarEventListeners() {
                        value.substring(firstSeparatorIndex + 1).replace(/[,.]/g, '');
             }
             
-            // Limitar a 3 casas decimais
+            // Limitar a 4 casas decimais
             if (value.includes(',') || value.includes('.')) {
                 const separator = value.includes(',') ? ',' : '.';
                 const parts = value.split(separator);
-                if (parts[1] && parts[1].length > 3) {
-                    value = parts[0] + separator + parts[1].substring(0, 3);
+                if (parts[1] && parts[1].length > 4) {
+                    value = parts[0] + separator + parts[1].substring(0, 4);
                 }
             }
             
