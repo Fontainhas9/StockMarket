@@ -831,18 +831,24 @@ header h1 {
     background-clip: text;
 }
 
+/* ALTERADO: Layout do resultado-detalhes para alinhamento vertical consistente */
 .resultado-detalhes {
     font-size: clamp(1.1rem, 3vw, 1.4rem);
-    line-height: 2;
+    line-height: 1.6;
     margin-top: 2rem;
     width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
+/* ALTERADO: Cada linha com layout de grid para alinhamento consistente */
 .resultado-detalhes p {
-    margin-bottom: 1rem;
-    display: flex;
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    justify-content: space-between;
+    gap: 1.5rem;
     background: rgba(255, 255, 255, 0.7);
     padding: clamp(1rem, 3vw, 1.2rem) clamp(1.5rem, 4vw, 2rem);
     border-radius: 15px;
@@ -851,8 +857,6 @@ header h1 {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
     transition: var(--transition);
     text-align: left;
-    gap: 1rem;
-    flex-wrap: wrap;
 }
 
 .resultado-detalhes p:hover {
@@ -860,16 +864,77 @@ header h1 {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
-.resultado-detalhes strong {
-    font-weight: 700;
-    color: var(--dark);
-    font-size: clamp(1.2rem, 3vw, 1.5rem);
-}
-
+/* ALTERADO: Ícones alinhados à esquerda */
 .resultado-detalhes i {
     color: var(--primary);
     font-size: clamp(1.2rem, 3vw, 1.5rem);
     flex-shrink: 0;
+    text-align: left;
+    min-width: 40px;
+}
+
+/* ALTERADO: Rótulos (span) alinhados à esquerda */
+.resultado-detalhes span {
+    text-align: left;
+    font-weight: 500;
+    color: var(--dark);
+    white-space: nowrap;
+}
+
+/* ALTERADO: Valores (strong) alinhados à direita */
+.resultado-detalhes strong {
+    font-weight: 700;
+    color: var(--dark);
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    text-align: right;
+    min-width: 200px; /* Garante espaço mínimo para os valores */
+    white-space: nowrap;
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+    .resultado-detalhes p {
+        grid-template-columns: auto 1fr; /* 2 colunas em mobile */
+        gap: 1rem;
+    }
+    
+    .resultado-detalhes strong {
+        grid-column: 1 / -1; /* Valores ocupam toda a linha */
+        text-align: center;
+        margin-top: 0.5rem;
+        min-width: auto;
+        font-size: 1.3rem;
+    }
+    
+    .resultado-detalhes i {
+        font-size: 1.3rem;
+    }
+    
+    .resultado-detalhes span {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .resultado-detalhes p {
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        padding: 1rem 1.2rem;
+    }
+    
+    .resultado-detalhes strong {
+        font-size: 1.2rem;
+        margin-top: 0.3rem;
+    }
+    
+    .resultado-detalhes i {
+        font-size: 1.2rem;
+        min-width: 35px;
+    }
+    
+    .resultado-detalhes span {
+        font-size: 1rem;
+    }
 }
 
 /* Tabela de Desempenho - LARGURA REDUZIDA PARA NOMES CURTOS */
