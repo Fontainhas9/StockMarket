@@ -598,20 +598,17 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     }
 }
 
-// Função para mostrar resultado consolidado SIMPLIFICADO
+// Função para mostrar resultado consolidado SIMPLIFICADO - REMOVIDO O EMOJI
 function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal, acoesComLucro, acoesValidas) {
-    // Determinar cor e emoji baseado no resultado
-    let cor, emoji;
+    // Determinar cor baseado no resultado
+    let cor;
     
     if (lucroTotal > 0) {
         cor = 'resultado-positivo';
-        emoji = '📈';
     } else if (lucroTotal < 0) {
         cor = 'resultado-negativo';
-        emoji = '📉';
     } else {
         cor = 'resultado-estavel';
-        emoji = '➡️';
     }
     
     // Formatar valores monetários
@@ -619,10 +616,9 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
     const lucroTotalFormatado = formatarMoeda(lucroTotal, true);
     const percentagemTotalFormatada = parseFloat(percentagemTotal).toFixed(3) + '%';
     
-    // Criar conteúdo HTML SIMPLIFICADO
+    // Criar conteúdo HTML SIMPLIFICADO SEM EMOJI
     const resultadoHTML = `
         <div class="resultado-info ${cor}">
-            <div class="resultado-emoji">${emoji}</div>
             <div class="resultado-detalhes">
                 <p>
                     <i class="fas fa-chart-pie"></i>
@@ -651,7 +647,6 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
 function mostrarErro(mensagem) {
     resultadoConsolidado.innerHTML = `
         <div class="resultado-info resultado-negativo">
-            <div class="resultado-emoji">❌</div>
             <div class="resultado-titulo">${mensagem}</div>
         </div>
     `;
