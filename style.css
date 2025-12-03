@@ -872,7 +872,7 @@ header h1 {
     flex-shrink: 0;
 }
 
-/* Tabela de Desempenho - CORREÇÃO DO ALINHAMENTO E LARGURA DA COLUNA AÇÃO */
+/* Tabela de Desempenho - LARGURA REDUZIDA PARA NOMES CURTOS */
 .table-container {
     overflow-x: auto;
     border-radius: 18px;
@@ -888,7 +888,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
-    min-width: 700px;
+    min-width: 650px; /* Reduzido de 700px para 650px */
 }
 
 thead {
@@ -900,7 +900,7 @@ thead {
 }
 
 th {
-    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem);
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(0.8rem, 2vw, 1.2rem); /* Reduzido padding horizontal */
     text-align: center;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
@@ -910,10 +910,26 @@ th {
     white-space: nowrap;
 }
 
-/* Largura específica para a coluna Ação */
+/* Largura específica para a coluna Ação - REDUZIDA */
 th:first-child {
-    min-width: 180px; /* Largura maior para a coluna Ação */
+    min-width: 100px; /* Reduzido de 180px para 100px */
+    width: 15%; /* Reduzido de 25% para 15% */
+}
+
+/* Largura para outras colunas - UM POUCO MAIORES */
+th:nth-child(2) {
+    min-width: 140px; /* Valor Atual */
     width: 25%;
+}
+
+th:nth-child(3) {
+    min-width: 150px; /* Lucro/Prejuízo */
+    width: 30%;
+}
+
+th:nth-child(4) {
+    min-width: 130px; /* Rentabilidade */
+    width: 20%;
 }
 
 th:not(:last-child)::after {
@@ -941,7 +957,7 @@ tbody tr:hover {
 }
 
 td {
-    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem);
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(0.8rem, 2vw, 1.2rem); /* Reduzido padding horizontal */
     text-align: center;
     font-size: clamp(0.9rem, 2vw, 1.05rem);
     font-weight: 500;
@@ -967,9 +983,9 @@ td {
 .acao-cell {
     text-align: left !important;
     justify-content: flex-start !important;
-    padding-left: 1.5rem !important;
-    min-width: 180px; /* Largura maior para a coluna Ação */
-    width: 25%;
+    padding-left: 1.2rem !important; /* Reduzido de 1.5rem */
+    min-width: 100px !important; /* Reduzido de 180px */
+    width: 15% !important; /* Reduzido de 25% */
 }
 
 .valor-atual-cell, .lucro-cell, .percentagem-cell {
@@ -978,8 +994,8 @@ td {
 }
 
 .acao-cell i {
-    margin-right: 0.8rem;
-    font-size: 1.2rem;
+    margin-right: 0.6rem; /* Reduzido de 0.8rem */
+    font-size: 1.1rem; /* Reduzido de 1.2rem */
     color: var(--primary);
     flex-shrink: 0;
 }
@@ -987,12 +1003,13 @@ td {
 .acao-cell .acao-nome {
     text-align: left;
     word-break: break-word;
-    white-space: normal;
-    font-size: clamp(1rem, 2vw, 1.1rem);
+    white-space: nowrap; /* Não quebrar linha para nomes curtos */
+    font-size: clamp(0.95rem, 2vw, 1.05rem); /* Reduzido ligeiramente */
     font-weight: 600;
-    /* Removido a limitação de linhas para nomes curtos */
     display: block;
     max-height: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .lucro-positivo {
@@ -1011,6 +1028,125 @@ td {
     padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
     border-radius: 12px;
     border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Responsividade para tabela em dispositivos móveis */
+@media (max-width: 768px) {
+    /* CORREÇÃO PARA TABELA EM MOBILE */
+    table {
+        min-width: 550px; /* Reduzido de 600px */
+    }
+    
+    .acao-cell {
+        padding-left: 1rem !important;
+        text-align: left !important;
+        min-width: 90px !important; /* Reduzido de 150px */
+    }
+    
+    .acao-cell i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .acao-cell .acao-nome {
+        font-size: 1rem; /* Reduzido de 1.1rem */
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 70px; /* Reduzido de 120px */
+    }
+    
+    /* Ajustar largura das outras colunas em mobile */
+    th:first-child, .acao-cell {
+        min-width: 90px !important;
+        width: 15% !important;
+    }
+    
+    th:nth-child(2), .valor-atual-cell {
+        min-width: 120px !important; /* Reduzido */
+        width: 25% !important;
+    }
+    
+    th:nth-child(3), .lucro-cell {
+        min-width: 130px !important; /* Reduzido */
+        width: 30% !important;
+    }
+    
+    th:nth-child(4), .percentagem-cell {
+        min-width: 110px !important; /* Reduzido */
+        width: 20% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* CORREÇÃO EXTRA PARA TABELA EM TELEMÓVEIS PEQUENOS */
+    table {
+        min-width: 450px; /* Reduzido de 500px */
+    }
+    
+    .acao-cell {
+        padding-left: 0.8rem !important;
+        min-width: 80px !important; /* Reduzido de 130px */
+    }
+    
+    .acao-cell .acao-nome {
+        font-size: 0.9rem;
+        max-width: 60px; /* Reduzido de 100px */
+    }
+    
+    /* Ajustar largura das colunas para mobile pequeno */
+    th:first-child, .acao-cell {
+        min-width: 80px !important;
+        width: 15% !important;
+    }
+    
+    th:nth-child(2), .valor-atual-cell {
+        min-width: 100px !important;
+        width: 25% !important;
+    }
+    
+    th:nth-child(3), .lucro-cell {
+        min-width: 110px !important;
+        width: 30% !important;
+    }
+    
+    th:nth-child(4), .percentagem-cell {
+        min-width: 90px !important;
+        width: 20% !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .acao-cell {
+        min-width: 70px !important;
+    }
+    
+    .acao-cell .acao-nome {
+        font-size: 0.85rem;
+        max-width: 50px; /* Reduzido de 90px */
+    }
+    
+    /* Ajustar largura das colunas para mobile muito pequeno */
+    th:first-child, .acao-cell {
+        min-width: 70px !important;
+        width: 15% !important;
+    }
+    
+    th:nth-child(2), .valor-atual-cell {
+        min-width: 90px !important;
+        width: 25% !important;
+    }
+    
+    th:nth-child(3), .lucro-cell {
+        min-width: 100px !important;
+        width: 30% !important;
+    }
+    
+    th:nth-child(4), .percentagem-cell {
+        min-width: 80px !important;
+        width: 20% !important;
+    }
 }
 
 /* Footer */
