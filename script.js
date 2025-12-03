@@ -78,13 +78,21 @@ let lastScrollTop = 0;
 const CORRECT_PASSWORD = "Fontainhas#9"; 
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
+// REMOVIDO: SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 horas em milissegundos
+// AGORA: Sem timeout - a sessão termina quando o navegador é fechado
 
 // Verificar se o usuário já está autenticado
 function checkAuthentication() {
     try {
         const authData = sessionStorage.getItem(AUTH_KEY);
         const authTimestamp = sessionStorage.getItem(AUTH_TIMESTAMP_KEY);
+        
+        // AGORA: Usamos sessionStorage em vez de localStorage
+        // A sessão expira quando o navegador é fechado
         if (authData && authTimestamp) {
+            // REMOVIDO: Verificação de timeout de 12 horas
+            // AGORA: Apenas verificamos se existe uma sessão ativa
+            // A sessão será limpa automaticamente quando o navegador for fechado
             return true;
         }
     } catch (error) {
@@ -134,9 +142,13 @@ function setupLoginSystem() {
         const password = passwordInput.value.trim();
         
         if (password === CORRECT_PASSWORD) {
+            // Autenticação bem-sucedida
             const currentTime = new Date().getTime();
+            // AGORA: Usamos sessionStorage em vez de localStorage
             sessionStorage.setItem(AUTH_KEY, 'true');
             sessionStorage.setItem(AUTH_TIMESTAMP_KEY, currentTime.toString());
+            
+            // Animação de sucesso
             loginBtn.innerHTML = '<i class="fas fa-check"></i> Autenticado!';
             loginBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
             
@@ -144,9 +156,12 @@ function setupLoginSystem() {
                 showMainContent();
             }, 800);
         } else {
+            // Senha incorreta
             loginError.style.display = 'flex';
             passwordInput.value = '';
             passwordInput.focus();
+            
+            // Animar o botão de erro
             loginBtn.innerHTML = '<i class="fas fa-times"></i> Erro!';
             loginBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
             
@@ -169,6 +184,10 @@ function setupLoginSystem() {
 // Inicializar a aplicação
 function init() {
     setupLoginSystem();
+    
+    // REMOVIDO: Verificação automática de autenticação
+    // AGORA: Sempre mostrar a tela de login ao carregar a página
+    // Isso garante que a password seja pedida ao fazer refresh
     loginScreen.style.display = 'flex';
     mainContent.style.display = 'none';
     
@@ -343,7 +362,7 @@ function configurarEventListeners() {
     }, { passive: true });
 }
 
-// Configurar navegação por teclado
+// Configurar navegação por teclado - MELHORIA PARA MOBILE
 function configurarNavegacaoTeclado() {
     document.addEventListener('keydown', (e) => {
         // Ctrl+Enter ou Cmd+Enter para calcular
@@ -399,15 +418,29 @@ function configurarScrollToTop() {
     }, { passive: true });
 }
 
-// Configurar foco em mobile
+// Configurar foco em mobile - MELHORIA PARA TECLADO
 function configurarFocusMobile() {
     if (isMobile) {
         // Adicionar botões de navegação virtual para mobile
         const inputs = Object.values(inputsPrecos);
         
         inputs.forEach((input, index) => {
-            // Adicionar botões de navegação no teclado virtual
-            input.setAttribute('enterkeyhint', index < inputs.length - 1 ? 'next' : 'go');
+            // Configurar enterkeyhint para melhor navegação no teclado móvel
+            if (index < inputs.length - 1) {
+                // Para todos exceto o último: "next" (ou "próximo")
+                input.setAttribute('enterkeyhint', 'next');
+            } else {
+                // Para o último: "go" (ou "concluir") para calcular
+                input.setAttribute('enterkeyhint', 'go');
+            }
+            
+            // Garantir que o teclado numérico com decimal apareça
+            input.setAttribute('inputmode', 'decimal');
+            
+            // Melhorar a experiência do teclado
+            input.setAttribute('autocomplete', 'off');
+            input.setAttribute('autocorrect', 'off');
+            input.setAttribute('spellcheck', 'false');
         });
     }
 }
@@ -728,6 +761,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 // Adicionar botão de logout no footer
 window.addEventListener('load', function() {
+    // Esperar o footer ser carregado
     setTimeout(() => {
         const footerLinks = document.querySelector('.footer-links');
         if (footerLinks && !document.getElementById('logout-footer-btn')) {
