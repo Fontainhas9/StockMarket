@@ -1097,7 +1097,7 @@ td {
     
     /* Ajustar largura das colunas para mobile pequeno */
     th:first-child, .acao-cell {
-        min-width: 80px !important;
+        min-width: 65px !important;
         width: 15% !important;
     }
     
