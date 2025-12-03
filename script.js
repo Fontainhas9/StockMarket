@@ -6,7 +6,7 @@ const acoes = [
         investido: 7957.36, 
         precoCompra: 57.662, 
         icon: 'fa-chart-bar',
-        nomeCurto: 'BCP S&P 500'
+        nomeCurto: 'SP500'
     },
     { 
         id: 'ouro', 
@@ -14,7 +14,7 @@ const acoes = [
         investido: 7982.18, 
         precoCompra: 234.77, 
         icon: 'fa-gem',
-        nomeCurto: 'BCP Ouro'
+        nomeCurto: 'Ouro'
     },
     { 
         id: 'janus', 
@@ -22,7 +22,7 @@ const acoes = [
         investido: 7999.99, 
         precoCompra: 26.1, 
         icon: 'fa-university',
-        nomeCurto: 'Janus Henderson Global Tech'
+        nomeCurto: 'Janus'
     },
     { 
         id: 'jpmorgan', 
@@ -30,7 +30,7 @@ const acoes = [
         investido: 8000.00, 
         precoCompra: 482.8, 
         icon: 'fa-landmark',
-        nomeCurto: 'JP Morgan US Select Equity'
+        nomeCurto: 'JPMorgan'
     },
     { 
         id: 'imga', 
@@ -38,7 +38,7 @@ const acoes = [
         investido: 8000.00, 
         precoCompra: 12.4971, 
         icon: 'fa-industry',
-        nomeCurto: 'IMGA Ações América A'
+        nomeCurto: 'IMGA'
     }
 ];
 

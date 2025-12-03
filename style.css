@@ -872,7 +872,7 @@ header h1 {
     flex-shrink: 0;
 }
 
-/* Tabela de Desempenho - CORREÇÃO DO ALINHAMENTO */
+/* Tabela de Desempenho - CORREÇÃO DO ALINHAMENTO E LARGURA DA COLUNA AÇÃO */
 .table-container {
     overflow-x: auto;
     border-radius: 18px;
@@ -881,7 +881,6 @@ header h1 {
     margin-top: 1.5rem;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
     -webkit-overflow-scrolling: touch;
-    /* Garantir que a tabela pode rolar horizontalmente */
     overflow-x: scroll;
 }
 
@@ -909,6 +908,12 @@ th {
     position: relative;
     letter-spacing: 0.5px;
     white-space: nowrap;
+}
+
+/* Largura específica para a coluna Ação */
+th:first-child {
+    min-width: 180px; /* Largura maior para a coluna Ação */
+    width: 25%;
 }
 
 th:not(:last-child)::after {
@@ -963,6 +968,8 @@ td {
     text-align: left !important;
     justify-content: flex-start !important;
     padding-left: 1.5rem !important;
+    min-width: 180px; /* Largura maior para a coluna Ação */
+    width: 25%;
 }
 
 .valor-atual-cell, .lucro-cell, .percentagem-cell {
@@ -981,13 +988,11 @@ td {
     text-align: left;
     word-break: break-word;
     white-space: normal;
-    /* LIMITAÇÃO A 3 LINHAS EM MOBILE */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-height: 4.5em; /* Aproximadamente 3 linhas (1.5em por linha) */
+    font-size: clamp(1rem, 2vw, 1.1rem);
+    font-weight: 600;
+    /* Removido a limitação de linhas para nomes curtos */
+    display: block;
+    max-height: none;
 }
 
 .lucro-positivo {
@@ -1143,8 +1148,8 @@ footer::before {
     
     .acoes-botoes {
         min-width: 100%;
-        padding: 0;
-        margin-top: 2rem;
+        padding: 2rem 0 0 0; /* Apenas padding top, sem bottom */
+        margin-top: 0;
     }
     
     .botoes-container {
@@ -1308,14 +1313,24 @@ footer::before {
         font-size: 1.2rem;
     }
     
+    /* REMOVIDO: order: -1 dos botões para ficarem depois dos inputs */
+    .acoes-botoes {
+        order: 0; /* Valor padrão, os botões ficam depois dos inputs */
+        margin-top: 1rem;
+        margin-bottom: 0;
+        padding: 1rem 0 0 0;
+    }
+    
     .botoes-container {
-        flex-direction: column;
+        flex-direction: column; /* Em mobile, botões empilhados verticalmente */
+        gap: 1rem;
     }
     
     .btn {
         min-height: 70px;
         font-size: 1.2rem;
         padding: 1.2rem;
+        width: 100%;
     }
     
     .btn-text {
@@ -1352,6 +1367,7 @@ footer::before {
     .acao-cell {
         padding-left: 1rem !important;
         text-align: left !important;
+        min-width: 150px !important; /* Largura maior para a coluna Ação em mobile */
     }
     
     .acao-cell i {
@@ -1360,9 +1376,12 @@ footer::before {
     }
     
     .acao-cell .acao-nome {
-        -webkit-line-clamp: 3;
-        max-height: 4.5em;
-        line-height: 1.5em;
+        font-size: 1.1rem;
+        font-weight: 600;
+        white-space: nowrap; /* Não quebrar linha para nomes curtos */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 120px;
     }
     
     .footer-content {
@@ -1413,28 +1432,6 @@ footer::before {
         gap: 1.5rem;
     }
     
-    .acoes-botoes {
-        order: -1; /* Coloca os botões no topo em mobile */
-        margin-bottom: 1rem;
-    }
-    
-    .botoes-container {
-        flex-direction: row;
-        justify-content: space-between;
-        gap: 1rem;
-    }
-    
-    .btn {
-        min-height: 60px;
-        font-size: 1rem;
-        padding: 1rem;
-        justify-content: center;
-    }
-    
-    .btn i {
-        font-size: 1.2rem;
-    }
-    
     /* Melhorar a experiência do teclado em mobile */
     .preco-input {
         font-size: 16px !important; /* Prevenir zoom no iOS */
@@ -1479,6 +1476,7 @@ footer::before {
     .btn {
         min-height: 65px;
         font-size: 1.1rem;
+        padding: 1rem;
     }
     
     .resultado-consolidado {
@@ -1526,13 +1524,12 @@ footer::before {
     
     .acao-cell {
         padding-left: 0.8rem !important;
+        min-width: 130px !important;
     }
     
     .acao-cell .acao-nome {
-        font-size: 0.9rem;
-        -webkit-line-clamp: 3;
-        max-height: 4.5em;
-        line-height: 1.5em;
+        font-size: 1rem;
+        max-width: 100px;
     }
 }
 
@@ -1549,10 +1546,20 @@ footer::before {
     .btn {
         min-height: 60px;
         font-size: 1rem;
+        padding: 0.9rem;
     }
     
     .btn i {
         font-size: 1rem;
+    }
+    
+    .acao-cell {
+        min-width: 120px !important;
+    }
+    
+    .acao-cell .acao-nome {
+        font-size: 0.9rem;
+        max-width: 90px;
     }
 }
 
