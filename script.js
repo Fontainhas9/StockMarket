@@ -43,6 +43,13 @@ const acoes = [
 ];
 
 // Referências aos elementos DOM
+const loginScreen = document.getElementById('login-screen');
+const mainContent = document.getElementById('main-content');
+const passwordInput = document.getElementById('password-input');
+const loginBtn = document.getElementById('login-btn');
+const togglePasswordBtn = document.getElementById('toggle-password');
+const loginError = document.getElementById('login-error');
+
 const inputsPrecos = {
     sp: document.getElementById('sp-price'),
     ouro: document.getElementById('ouro-price'),
@@ -67,8 +74,84 @@ let resultadosCalculados = [];
 let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let lastScrollTop = 0;
 
+// Configuração da palavra-passe
+const CORRECT_PASSWORD = "StockMarket2024"; // Você pode alterar esta senha
+const SESSION_KEY = 'portfolio_calculator_authenticated';
+
+// Verificar se o usuário já está autenticado
+function checkAuthentication() {
+    const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
+    if (isAuthenticated) {
+        showMainContent();
+    }
+}
+
+// Mostrar conteúdo principal
+function showMainContent() {
+    loginScreen.style.display = 'none';
+    mainContent.style.display = 'block';
+    document.body.style.background = 'linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%)';
+    
+    // Inicializar a calculadora
+    initCalculator();
+}
+
+// Configurar sistema de login
+function setupLoginSystem() {
+    // Focar no campo de senha
+    passwordInput.focus();
+    
+    // Mostrar/ocultar senha
+    togglePasswordBtn.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+    });
+    
+    // Login com Enter
+    passwordInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            loginBtn.click();
+        }
+    });
+    
+    // Botão de login
+    loginBtn.addEventListener('click', function() {
+        const password = passwordInput.value.trim();
+        
+        if (password === CORRECT_PASSWORD) {
+            // Autenticação bem-sucedida
+            sessionStorage.setItem(SESSION_KEY, 'true');
+            showMainContent();
+        } else {
+            // Senha incorreta
+            loginError.style.display = 'flex';
+            passwordInput.value = '';
+            passwordInput.focus();
+            
+            // Remover a mensagem de erro após 3 segundos
+            setTimeout(() => {
+                loginError.style.display = 'none';
+            }, 3000);
+        }
+    });
+    
+    // Limpar erro ao digitar
+    passwordInput.addEventListener('input', function() {
+        if (loginError.style.display !== 'none') {
+            loginError.style.display = 'none';
+        }
+    });
+}
+
 // Inicializar a aplicação
 function init() {
+    setupLoginSystem();
+    checkAuthentication();
+}
+
+// Inicializar a calculadora (após login)
+function initCalculator() {
     configurarEventListeners();
     configurarNavegacaoTeclado();
     detectarDispositivo();
@@ -209,6 +292,12 @@ function configurarNavegacaoTeclado() {
             e.preventDefault();
             toggleMostrarInvestimento();
         }
+        
+        // Alt+Q para logout (apenas durante o desenvolvimento)
+        if (e.key === 'q' && e.altKey && e.shiftKey) {
+            sessionStorage.removeItem(SESSION_KEY);
+            location.reload();
+        }
     });
 }
 
@@ -291,15 +380,15 @@ function toggleMostrarInvestimento() {
         investmentSummary.classList.remove('hidden');
         icon.classList.remove('fa-eye');
         icon.classList.add('fa-eye-slash');
-        text.textContent = 'Ocultar Investidos';
-        toggleInvestmentBtn.style.background = 'rgba(255, 255, 255, 0.25)';
+        text.textContent = 'Ocultar Valores Investidos';
+        toggleInvestmentBtn.style.background = 'linear-gradient(135deg, #1e56c7 0%, #6b3af2 100%)';
     } else {
         investmentValues.forEach(el => el.classList.add('hidden'));
         investmentSummary.classList.add('hidden');
         icon.classList.remove('fa-eye-slash');
         icon.classList.add('fa-eye');
-        text.textContent = 'Mostrar Investidos';
-        toggleInvestmentBtn.style.background = 'rgba(255, 255, 255, 0.15)';
+        text.textContent = 'Mostrar Valores Investidos';
+        toggleInvestmentBtn.style.background = 'var(--gradient-primary)';
     }
 }
 
