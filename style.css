@@ -544,40 +544,6 @@ header h1 {
     background-clip: text;
 }
 
-/* NOVO: Botões de ocultar € no card-header */
-.toggle-euros-btn {
-    background: var(--gradient-primary);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 0.6rem 1.2rem;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: var(--transition);
-    box-shadow: 0 4px 15px rgba(45, 106, 227, 0.3);
-    display: none; /* Oculto por padrão, aparece após calcular */
-    margin-left: auto;
-    order: 2;
-}
-
-.toggle-euros-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(45, 106, 227, 0.4);
-}
-
-.toggle-euros-btn i {
-    font-size: 1rem;
-}
-
-.toggle-euros-btn .toggle-text {
-    white-space: nowrap;
-}
-
 .investment-summary {
     background: linear-gradient(135deg, #f0f7ff 0%, #e0eeff 100%);
     padding: 1rem 1.8rem;
@@ -586,9 +552,6 @@ header h1 {
     border: 1px solid rgba(45, 106, 227, 0.2);
     box-shadow: 0 4px 15px rgba(45, 106, 227, 0.1);
     flex-shrink: 0;
-    order: 3;
-    width: 100%;
-    margin-top: 1rem;
 }
 
 .investment-summary p {
@@ -609,7 +572,6 @@ header h1 {
     font-weight: 600;
     box-shadow: 0 4px 15px rgba(45, 106, 227, 0.3);
     flex-shrink: 0;
-    order: 1;
 }
 
 /* Ações Inputs - Layout melhorado */
@@ -1476,11 +1438,6 @@ footer::before {
     .comparacao-info {
         gap: 1.5rem;
     }
-    
-    .toggle-euros-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-    }
 }
 
 /* Para ecrãs entre 992px e 1200px (laptops pequenos e tablets grandes) */
@@ -1550,17 +1507,9 @@ footer::before {
         min-width: 100%;
     }
     
-    .toggle-euros-btn {
-        order: 2;
-        margin-left: 0;
-        margin-top: 0.5rem;
-        align-self: flex-start;
-    }
-    
     .investment-summary, .table-stats {
         width: 100%;
         text-align: center;
-        order: 3;
     }
     
     .acao-item {
@@ -1695,11 +1644,6 @@ footer::before {
     .footer-links {
         width: 100%;
         justify-content: center;
-    }
-    
-    .toggle-euros-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
     }
 }
 
@@ -1853,14 +1797,6 @@ footer::before {
     
     .resultado-detalhes strong, .resultado-detalhes i {
         font-size: 1.2rem;
-    }
-    
-    /* Botões de ocultar € em mobile */
-    .toggle-euros-btn {
-        margin-top: 0.5rem;
-        align-self: flex-start;
-        padding: 0.6rem 1rem;
-        font-size: 0.85rem;
     }
     
     /* Comparação em mobile */
@@ -2070,11 +2006,6 @@ footer::before {
         font-size: 1.1rem;
     }
     
-    .toggle-euros-btn {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.8rem;
-    }
-    
     /* CORREÇÃO EXTRA PARA TABELA EM TELEMÓVEIS PEQUENOS */
     table {
         min-width: 500px;
@@ -2157,11 +2088,6 @@ footer::before {
         width: 40px;
         height: 40px;
         padding: 0.5rem;
-    }
-    
-    .toggle-euros-btn {
-        padding: 0.4rem 0.7rem;
-        font-size: 0.75rem;
     }
 }
 

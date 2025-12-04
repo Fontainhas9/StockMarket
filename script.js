@@ -89,11 +89,6 @@ const comparacaoChartCanvas = document.getElementById('comparacao-chart');
 const comparacaoLegend = document.getElementById('comparacao-legend');
 const diferencaTotalSpan = document.getElementById('diferenca-total');
 
-// NOVAS REFERÊNCIAS PARA OS BOTÕES DE OCULTAR €
-const toggleResumoBtn = document.getElementById('toggle-resumo');
-const toggleDesempenhoBtn = document.getElementById('toggle-desempenho');
-const toggleDistribuicaoBtn = document.getElementById('toggle-distribuicao');
-
 // Estado da aplicação
 let mostrarInvestimento = false;
 let resultadosCalculados = [];
@@ -102,9 +97,6 @@ let lastScrollTop = 0;
 let chartInstance = null;
 let comparacaoChartInstance = null; // NOVA INSTÂNCIA DO GRÁFICO DE COMPARAÇÃO
 let isDarkMode = false;
-let mostrarEurosResumo = false; // Por padrão, ocultar € no resumo
-let mostrarEurosDesempenho = false; // Por padrão, ocultar € no desempenho
-let mostrarEurosDistribuicao = false; // Por padrão, ocultar € na distribuição
 
 // Configuração da palavra-passe
 const CORRECT_PASSWORD = "Fontainhas#9"; 
@@ -250,9 +242,6 @@ function initCalculator() {
         e.preventDefault();
         toggleMostrarInvestimento();
     });
-    
-    // Configurar os botões de ocultar €
-    configurarBotoesOcultarEuros();
     
     // Configurar o botão de sair no header
     const logoutHeaderBtn = document.getElementById('logout-header-btn');
@@ -625,142 +614,6 @@ function configurarGrafico() {
     // Apenas manter a configuração básica do gráfico
 }
 
-// Configurar botões de ocultar €
-function configurarBotoesOcultarEuros() {
-    // Configurar botão do Resumo
-    toggleResumoBtn.addEventListener('click', function() {
-        mostrarEurosResumo = !mostrarEurosResumo;
-        atualizarVisibilidadeEurosResumo();
-        atualizarEstadoBotao(toggleResumoBtn, mostrarEurosResumo);
-    });
-    
-    // Configurar botão do Desempenho
-    toggleDesempenhoBtn.addEventListener('click', function() {
-        mostrarEurosDesempenho = !mostrarEurosDesempenho;
-        atualizarVisibilidadeEurosDesempenho();
-        atualizarEstadoBotao(toggleDesempenhoBtn, mostrarEurosDesempenho);
-    });
-    
-    // Configurar botão da Distribuição
-    toggleDistribuicaoBtn.addEventListener('click', function() {
-        mostrarEurosDistribuicao = !mostrarEurosDistribuicao;
-        atualizarVisibilidadeEurosDistribuicao();
-        atualizarEstadoBotao(toggleDistribuicaoBtn, mostrarEurosDistribuicao);
-    });
-}
-
-// Atualizar estado do botão
-function atualizarEstadoBotao(botao, estado) {
-    const icon = botao.querySelector('i');
-    const text = botao.querySelector('.toggle-text');
-    
-    if (estado) {
-        icon.className = 'fas fa-euro-sign';
-        text.textContent = 'Ocultar €';
-    } else {
-        icon.className = 'fas fa-percentage';
-        text.textContent = 'Mostrar €';
-    }
-}
-
-// Mostrar/ocultar botões de ocultar €
-function mostrarBotoesOcultarEuros() {
-    toggleResumoBtn.style.display = 'flex';
-    toggleDesempenhoBtn.style.display = 'flex';
-    toggleDistribuicaoBtn.style.display = 'flex';
-    
-    // Definir estado inicial dos botões (ocultar € por padrão)
-    atualizarEstadoBotao(toggleResumoBtn, mostrarEurosResumo);
-    atualizarEstadoBotao(toggleDesempenhoBtn, mostrarEurosDesempenho);
-    atualizarEstadoBotao(toggleDistribuicaoBtn, mostrarEurosDistribuicao);
-}
-
-// Ocultar botões de ocultar €
-function ocultarBotoesOcultarEuros() {
-    toggleResumoBtn.style.display = 'none';
-    toggleDesempenhoBtn.style.display = 'none';
-    toggleDistribuicaoBtn.style.display = 'none';
-}
-
-// Atualizar visibilidade dos € no Resumo
-function atualizarVisibilidadeEurosResumo() {
-    const resultadoDetalhes = document.querySelector('.resultado-detalhes');
-    if (!resultadoDetalhes) return;
-    
-    const linhas = resultadoDetalhes.querySelectorAll('p');
-    
-    linhas.forEach(linha => {
-        const strong = linha.querySelector('strong');
-        if (strong) {
-            const valorOriginal = strong.getAttribute('data-valor-original') || strong.textContent;
-            strong.setAttribute('data-valor-original', valorOriginal);
-            
-            if (mostrarEurosResumo) {
-                // Mostrar valor original (com €)
-                strong.textContent = valorOriginal;
-            } else {
-                // Mostrar apenas percentagens (se for uma percentagem)
-                if (valorOriginal.includes('%')) {
-                    strong.textContent = valorOriginal;
-                } else {
-                    // Para valores em €, ocultar e mostrar apenas a percentagem se disponível
-                    const span = linha.querySelector('span');
-                    if (span && span.textContent.includes('Rentabilidade')) {
-                        // Manter apenas a percentagem
-                        strong.textContent = valorOriginal;
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Atualizar visibilidade dos € no Desempenho
-function atualizarVisibilidadeEurosDesempenho() {
-    // Ocultar/mostrar colunas de € na tabela
-    const tabela = document.getElementById('tabela-resultados');
-    const cabecalho = tabela.querySelector('thead');
-    const corpo = tabela.querySelector('tbody');
-    
-    // Índices das colunas: 0-Ação, 1-Valor Atual, 2-Lucro/Prejuízo, 3-Rentabilidade
-    const colunasEuros = [1, 2]; // Valor Atual e Lucro/Prejuízo
-    
-    // Alternar visibilidade das colunas de €
-    colunasEuros.forEach(indice => {
-        // Cabeçalho
-        const th = cabecalho.querySelectorAll('th')[indice];
-        if (th) {
-            th.style.display = mostrarEurosDesempenho ? '' : 'none';
-        }
-        
-        // Corpo da tabela
-        const linhas = corpo.querySelectorAll('tr');
-        linhas.forEach(linha => {
-            const td = linha.querySelectorAll('td')[indice];
-            if (td) {
-                td.style.display = mostrarEurosDesempenho ? '' : 'none';
-            }
-        });
-    });
-    
-    // Ocultar/mostrar gráfico de comparação
-    const comparacaoChartWrapper = desempenhoSection.querySelector('.graph-container');
-    if (comparacaoChartWrapper) {
-        comparacaoChartWrapper.style.display = mostrarEurosDesempenho ? 'block' : 'none';
-    }
-}
-
-// Atualizar visibilidade dos € na Distribuição
-function atualizarVisibilidadeEurosDistribuicao() {
-    // Atualizar legenda do gráfico
-    atualizarLegenda();
-    
-    // Atualizar tooltips do gráfico
-    if (chartInstance) {
-        atualizarGrafico();
-    }
-}
-
 // Atualizar Gráfico
 function atualizarGrafico() {
     if (!chartInstance || resultadosCalculados.length === 0) return;
@@ -797,6 +650,7 @@ function criarGrafico() {
     const labels = resultadosCalculados.map(r => r.nomeCurto);
     const valores = resultadosCalculados.map(r => r.valorAtual);
     const total = valores.reduce((sum, val) => sum + val, 0);
+    // ALTERADO: Agora sempre mostra valores (€) e as percentagens são calculadas apenas para a legenda
     const porcentagens = valores.map(val => arredondarPercentagemParaCima(((val / total) * 100)));
     
     // Cores para o gráfico
@@ -811,17 +665,13 @@ function criarGrafico() {
     // Configuração do gráfico baseada no modo escuro
     const textColor = isDarkMode ? '#f1f5f9' : '#1f2937';
     
-    // Determinar que dados mostrar no gráfico
-    const dadosParaMostrar = mostrarEurosDistribuicao ? valores : porcentagens;
-    const labelSufixo = mostrarEurosDistribuicao ? '€' : '%';
-    
-    // Configurações do gráfico de pizza
+    // Configurações do gráfico de pizza - SEMPRE MOSTRA VALORES (€)
     const config = {
         type: 'pie',
         data: {
             labels: labels,
             datasets: [{
-                data: dadosParaMostrar,
+                data: valores, // SEMPRE mostra valores em €
                 backgroundColor: colors,
                 borderColor: isDarkMode ? '#1e293b' : '#ffffff',
                 borderWidth: 2,
@@ -851,10 +701,8 @@ function criarGrafico() {
                         },
                         label: function(context) {
                             const value = context.raw || 0;
-                            const label = mostrarEurosDistribuicao ? 
-                                `${formatarMoeda(value)} (${formatarPercentagem(porcentagens[context.dataIndex])})` :
-                                `${formatarPercentagem(value)} (${formatarMoeda(valores[context.dataIndex])})`;
-                            return label;
+                            const percentage = arredondarPercentagemParaCima((value / total) * 100);
+                            return `${formatarMoeda(value)} (${formatarPercentagem(percentage)})`;
                         }
                     },
                     titleFont: {
@@ -871,7 +719,7 @@ function criarGrafico() {
     // Criar gráfico
     chartInstance = new Chart(chartCanvas, config);
     
-    // Atualizar legenda - mostrar valores apropriados
+    // Atualizar legenda - SEMPRE mostra valores e percentagens COM LINKS
     atualizarLegenda(labels, valores, porcentagens, colors);
     
     // Scroll para gráfico em mobile
@@ -896,27 +744,24 @@ function atualizarLegenda(labels, valores, porcentagens, colors) {
         const legendItem = document.createElement('div');
         legendItem.className = 'legend-item';
         
-        // Mostrar valores apropriados baseados na configuração
-        let valorTexto = '';
-        if (mostrarEurosDistribuicao) {
-            valorTexto = `${formatarMoeda(valor)} (${formatarPercentagem(porcentagem)})`;
-        } else {
-            valorTexto = `${formatarPercentagem(porcentagem)} (${formatarMoeda(valor)})`;
-        }
-        
+        // SEMPRE mostra o valor e a percentagem na legenda COM LINK
         if (linkAcao) {
             legendItem.innerHTML = `
                 <div class="legend-color" style="background-color: ${colors[index]}"></div>
                 <a href="${linkAcao}" target="_blank" rel="noopener noreferrer" class="legend-link">
                     <span class="legend-name">${label}</span>
                 </a>
-                <span class="legend-value">${valorTexto}</span>
+                <span class="legend-value">
+                    ${formatarMoeda(valor)} (${formatarPercentagem(porcentagem)})
+                </span>
             `;
         } else {
             legendItem.innerHTML = `
                 <div class="legend-color" style="background-color: ${colors[index]}"></div>
                 <span class="legend-name">${label}</span>
-                <span class="legend-value">${valorTexto}</span>
+                <span class="legend-value">
+                    ${formatarMoeda(valor)} (${formatarPercentagem(porcentagem)})
+                </span>
             `;
         }
         
@@ -1055,7 +900,7 @@ function calcularPortfolio() {
         const input = inputsPrecos[acao.id];
         const valorInput = input.value.trim();
         
-        // Converter o valor para número (suporta vírgula e ponto) - mantém até 4 casas decimais
+        // Converter o valor para número (suporta vírgula e ponto)
         const precoAtual = formatarNumeroParaCalculo(valorInput);
         
         if (valorInput !== '' && !isNaN(precoAtual) && precoAtual >= 0) {
@@ -1093,18 +938,17 @@ function calcularPortfolio() {
             totalAtual += valorAtual;
             acoesValidas++;
             
-            // Adicionar à tabela (MELHORIA: nome com link)
+            // Adicionar à tabela
             adicionarNaTabela(acao.nomeCurto, valorAtual, lucro, percentagem, acao.icon);
         }
     });
     
     if (acoesValidas === 0) {
         mostrarErro("Por favor, insira pelo menos um preço atual válido");
-        // OCULTAR SEÇÕES (exceto resumo)
+        // CORREÇÃO: OCULTAR TODAS AS SEÇÕES (incluindo resumo)
         resultadoSection.style.display = 'none';
         desempenhoSection.style.display = 'none';
         graficoSection.style.display = 'none';
-        ocultarBotoesOcultarEuros();
         return;
     }
     
@@ -1117,32 +961,15 @@ function calcularPortfolio() {
     // Atualizar estatísticas
     statsAcoes.textContent = `${acoesValidas}/5 ações calculadas`;
     
-    // Mostrar resultado consolidado
+    // Mostrar resultado consolidado SIMPLIFICADO
     mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal);
     
-    // MOSTRAR SEÇÕES NA ORDEM CORRETA:
-    // 1. Resumo do Portefólio (depois dos inputs)
+    // MOSTRAR SEÇÕES APENAS SE HOUVER DADOS VÁLIDOS:
     resultadoSection.style.display = 'block';
-    // 2. Desempenho por Ação (tabela + gráfico de comparação)
     desempenhoSection.style.display = 'block';
-    // 3. Distribuição do Portefólio (gráfico de pizza)
     graficoSection.style.display = 'block';
     
-    // Mostrar botões de ocultar €
-    mostrarBotoesOcultarEuros();
-    
-    // Aplicar configurações iniciais de visibilidade
-    mostrarEurosResumo = false;
-    mostrarEurosDesempenho = false;
-    mostrarEurosDistribuicao = false;
-    atualizarEstadoBotao(toggleResumoBtn, false);
-    atualizarEstadoBotao(toggleDesempenhoBtn, false);
-    atualizarEstadoBotao(toggleDistribuicaoBtn, false);
-    atualizarVisibilidadeEurosResumo();
-    atualizarVisibilidadeEurosDesempenho();
-    atualizarVisibilidadeEurosDistribuicao();
-    
-    // CORREÇÃO: Destruir os gráficos anteriores antes de criar novos
+    // Destruir os gráficos anteriores antes de criar novos
     if (chartInstance) {
         chartInstance.destroy();
         chartInstance = null;
@@ -1155,7 +982,7 @@ function calcularPortfolio() {
     
     // Criar ou atualizar gráficos
     criarGrafico();
-    criarGraficoComparacao(); // Gráfico de barras (sem legenda)
+    criarGraficoComparacao();
     
     // Scroll para a seção de resumo em mobile
     if (isMobile && acoesValidas > 0) {
@@ -1196,17 +1023,14 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     const celulaValorAtual = novaLinha.insertCell(1);
     celulaValorAtual.textContent = valorAtualFormatado;
     celulaValorAtual.className = 'valor-atual-cell';
-    celulaValorAtual.setAttribute('data-valor', valorAtual);
     
     const celulaLucro = novaLinha.insertCell(2);
     celulaLucro.textContent = lucroFormatado;
     celulaLucro.className = 'lucro-cell';
-    celulaLucro.setAttribute('data-valor', lucro);
     
     const celulaPercentagem = novaLinha.insertCell(3);
     celulaPercentagem.textContent = percentagemFormatada;
     celulaPercentagem.className = 'percentagem-cell';
-    celulaPercentagem.setAttribute('data-percentagem', percentagem);
     
     // Aplicar estilos baseados no resultado
     if (lucro > 0) {
@@ -1243,17 +1067,17 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
                 <p>
                     <i class="fas fa-wallet"></i>
                     <span>Valor Total:</span>
-                    <strong data-valor-original="${totalAtualFormatado}">${totalAtualFormatado}</strong>
+                    <strong>${totalAtualFormatado}</strong>
                 </p>
                 <p>
                     <i class="fas fa-chart-line"></i>
                     <span>Resultado:</span>
-                    <strong data-valor-original="${lucroTotalFormatado}">${lucroTotalFormatado}</strong>
+                    <strong>${lucroTotalFormatado}</strong>
                 </p>
                 <p>
                     <i class="fas fa-percentage"></i>
                     <span>Rentabilidade:</span>
-                    <strong data-valor-original="${percentagemTotalFormatada}">${percentagemTotalFormatada}</strong>
+                    <strong>${percentagemTotalFormatada}</strong>
                 </p>
             </div>
         </div>
@@ -1296,7 +1120,7 @@ function limparCampos() {
     // Limpar tabela
     limparTabela();
     
-    // Limpar gráficos - CORREÇÃO: destruir completamente os gráficos anteriores
+    // Limpar gráficos
     if (chartInstance) {
         chartInstance.destroy();
         chartInstance = null;
@@ -1310,13 +1134,10 @@ function limparCampos() {
     // Limpar legendas dos gráficos
     chartLegend.innerHTML = '';
     
-    // OCULTAR TODAS AS SEÇÕES DE RESULTADO
-    resultadoSection.style.display = 'none';
+    // CORREÇÃO: OCULTAR TODAS AS SEÇÕES DE RESULTADO
+    resultadoSection.style.display = 'none'; // ← ALTERADO DE 'block' PARA 'none'
     desempenhoSection.style.display = 'none';
     graficoSection.style.display = 'none';
-    
-    // Ocultar botões de ocultar €
-    ocultarBotoesOcultarEuros();
     
     // Limpar resultados
     resultadosCalculados = [];
