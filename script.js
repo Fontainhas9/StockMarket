@@ -69,7 +69,7 @@ const inputsPrecos = {
 
 const calcularBtn = document.getElementById('calcular-btn');
 const limparBtn = document.getElementById('limpar-btn');
-const toggleInvestmentBtn = document.getElementById('toggle-investment'); // Agora no footer
+const toggleInvestmentBtn = document.getElementById('toggle-investment');
 const tabelaResultados = document.getElementById('tabela-resultados').getElementsByTagName('tbody')[0];
 const resultadoConsolidado = document.getElementById('resultado-consolidado');
 const investmentSummary = document.getElementById('investment-summary');
@@ -78,11 +78,16 @@ const backToTopBtn = document.getElementById('back-to-top');
 const mobileKeyboardHint = document.querySelector('.mobile-keyboard-hint');
 const themeToggleBtn = document.getElementById('theme-toggle');
 const graficoSection = document.getElementById('grafico-section');
-const toggleChartViewBtn = document.getElementById('toggle-chart-view');
 const chartCanvas = document.getElementById('portfolio-chart');
 const chartLegend = document.getElementById('chart-legend');
 const desempenhoSection = document.getElementById('desempenho-section');
 const resultadoSection = document.getElementById('resultado-section');
+
+// NOVAS REFERÊNCIAS PARA A SEÇÃO DE COMPARAÇÃO
+const comparacaoSection = document.getElementById('comparacao-section');
+const comparacaoChartCanvas = document.getElementById('comparacao-chart');
+const comparacaoLegend = document.getElementById('comparacao-legend');
+const diferencaTotalSpan = document.getElementById('diferenca-total');
 
 // Estado da aplicação
 let mostrarInvestimento = false;
@@ -90,6 +95,7 @@ let resultadosCalculados = [];
 let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let lastScrollTop = 0;
 let chartInstance = null;
+let comparacaoChartInstance = null; // NOVA INSTÂNCIA DO GRÁFICO DE COMPARAÇÃO
 let isDarkMode = false;
 
 // Configuração da palavra-passe
@@ -97,6 +103,16 @@ const CORRECT_PASSWORD = "Fontainhas#9";
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
 const THEME_KEY = 'portfolio_calculator_theme';
+
+// Função para arredondar para 2 casas decimais para cima
+function arredondarParaCima(valor) {
+    return Math.ceil(valor * 100) / 100;
+}
+
+// Função para arredondar percentagem para 2 casas decimais para cima
+function arredondarPercentagemParaCima(valor) {
+    return Math.ceil(valor * 100) / 100;
+}
 
 // Verificar se o usuário já está autenticado
 function checkAuthentication() {
@@ -288,7 +304,7 @@ function formatarNumeroParaCalculo(valor) {
         valorFormatado = partes[0] + '.' + partes.slice(1).join('');
     }
     
-    // Limitar a 4 casas decimais
+    // Limitar a 4 casas decimais para os valores inseridos
     if (valorFormatado.includes('.')) {
         const partesDecimais = valorFormatado.split('.');
         if (partesDecimais[1].length > 4) {
@@ -365,7 +381,7 @@ function configurarEventListeners() {
                        value.substring(firstSeparatorIndex + 1).replace(/[,.]/g, '');
             }
             
-            // Limitar a 4 casas decimais
+            // Limitar a 4 casas decimais para os valores inseridos
             if (value.includes(',') || value.includes('.')) {
                 const separator = value.includes(',') ? ',' : '.';
                 const parts = value.split(separator);
@@ -497,7 +513,10 @@ function scrollToElement(element) {
 // Calcular e mostrar total investido
 function calcularTotalInvestido() {
     const totalInvestido = acoes.reduce((total, acao) => total + acao.investido, 0);
-    document.getElementById('total-investido').textContent = formatarMoeda(totalInvestido);
+    document.getElementById('total-investido').textContent = totalInvestido.toLocaleString('pt-PT', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }) + '€';
 }
 
 // Alternar mostrar/ocultar valores investidos (agora no footer)
@@ -550,9 +569,12 @@ function ativarModoEscuro() {
     // Salvar preferência
     localStorage.setItem(THEME_KEY, 'dark');
     
-    // Atualizar gráfico se existir
+    // Atualizar gráficos se existirem
     if (chartInstance) {
         atualizarGrafico();
+    }
+    if (comparacaoChartInstance) {
+        atualizarGraficoComparacao();
     }
 }
 
@@ -568,9 +590,12 @@ function desativarModoEscuro() {
     // Salvar preferência
     localStorage.setItem(THEME_KEY, 'light');
     
-    // Atualizar gráfico se existir
+    // Atualizar gráficos se existirem
     if (chartInstance) {
         atualizarGrafico();
+    }
+    if (comparacaoChartInstance) {
+        atualizarGraficoComparacao();
     }
 }
 
@@ -600,6 +625,17 @@ function atualizarGrafico() {
     criarGrafico();
 }
 
+// NOVA FUNÇÃO: Atualizar Gráfico de Comparação
+function atualizarGraficoComparacao() {
+    if (!comparacaoChartInstance || resultadosCalculados.length === 0) return;
+    
+    // Destruir gráfico anterior
+    comparacaoChartInstance.destroy();
+    
+    // Criar novo gráfico com os dados atualizados
+    criarGraficoComparacao();
+}
+
 // Criar Gráfico (SIMPLIFICADA)
 function criarGrafico() {
     if (resultadosCalculados.length === 0) {
@@ -615,7 +651,7 @@ function criarGrafico() {
     const valores = resultadosCalculados.map(r => r.valorAtual);
     const total = valores.reduce((sum, val) => sum + val, 0);
     // ALTERADO: Agora sempre mostra valores (€) e as percentagens são calculadas apenas para a legenda
-    const porcentagens = valores.map(val => ((val / total) * 100).toFixed(2));
+    const porcentagens = valores.map(val => arredondarPercentagemParaCima(((val / total) * 100)));
     
     // Cores para o gráfico
     const colors = [
@@ -665,8 +701,8 @@ function criarGrafico() {
                         },
                         label: function(context) {
                             const value = context.raw || 0;
-                            const percentage = ((value / total) * 100).toFixed(2);
-                            return `€${value.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} (${percentage}%)`;
+                            const percentage = arredondarPercentagemParaCima((value / total) * 100);
+                            return `${formatarMoeda(value)} (${percentage.toFixed(2)}%)`;
                         }
                     },
                     titleFont: {
@@ -683,7 +719,7 @@ function criarGrafico() {
     // Criar gráfico
     chartInstance = new Chart(chartCanvas, config);
     
-    // Atualizar legenda - SEMPRE mostra valores e percentagens
+    // Atualizar legenda - SEMPRE mostra valores e percentagens COM LINKS
     atualizarLegenda(labels, valores, porcentagens, colors);
     
     // Scroll para gráfico em mobile
@@ -694,7 +730,7 @@ function criarGrafico() {
     }
 }
 
-// Atualizar Legenda (SIMPLIFICADA - sempre mostra valores e percentagens)
+// Atualizar Legenda (SIMPLIFICADA - sempre mostra valores e percentagens com LINKS)
 function atualizarLegenda(labels, valores, porcentagens, colors) {
     chartLegend.innerHTML = '';
     
@@ -702,19 +738,208 @@ function atualizarLegenda(labels, valores, porcentagens, colors) {
         const valor = valores[index];
         const porcentagem = porcentagens[index];
         
+        // Obter o link para esta ação
+        const linkAcao = linksAcoes[label];
+        
         const legendItem = document.createElement('div');
         legendItem.className = 'legend-item';
         
-        // SEMPRE mostra o valor e a percentagem na legenda
-        legendItem.innerHTML = `
-            <div class="legend-color" style="background-color: ${colors[index]}"></div>
-            <span class="legend-name">${label}</span>
-            <span class="legend-value">
-                €${valor.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} (${porcentagem}%)
-            </span>
-        `;
+        // SEMPRE mostra o valor e a percentagem na legenda COM LINK
+        if (linkAcao) {
+            legendItem.innerHTML = `
+                <div class="legend-color" style="background-color: ${colors[index]}"></div>
+                <a href="${linkAcao}" target="_blank" rel="noopener noreferrer" class="legend-link">
+                    <span class="legend-name">${label}</span>
+                </a>
+                <span class="legend-value">
+                    ${formatarMoeda(valor)} (${porcentagem.toFixed(2)}%)
+                </span>
+            `;
+        } else {
+            legendItem.innerHTML = `
+                <div class="legend-color" style="background-color: ${colors[index]}"></div>
+                <span class="legend-name">${label}</span>
+                <span class="legend-value">
+                    ${formatarMoeda(valor)} (${porcentagem.toFixed(2)}%)
+                </span>
+            `;
+        }
         
         chartLegend.appendChild(legendItem);
+    });
+}
+
+// NOVA FUNÇÃO: Criar Gráfico de Comparação (Diferença vs Investido)
+function criarGraficoComparacao() {
+    if (resultadosCalculados.length === 0) {
+        comparacaoSection.style.display = 'none';
+        return;
+    }
+    
+    // Mostrar seção do gráfico
+    comparacaoSection.style.display = 'block';
+    
+    // Preparar dados para o gráfico
+    const labels = resultadosCalculados.map(r => r.nomeCurto);
+    const valoresInvestidos = resultadosCalculados.map(r => r.investido);
+    const valoresAtuais = resultadosCalculados.map(r => r.valorAtual);
+    
+    // Calcular a diferença (excedente) para cada ação
+    const diferencas = valoresAtuais.map((valorAtual, index) => {
+        return valorAtual - valoresInvestidos[index];
+    });
+    
+    // Calcular a diferença total
+    const totalInvestido = valoresInvestidos.reduce((a, b) => a + b, 0);
+    const totalAtual = valoresAtuais.reduce((a, b) => a + b, 0);
+    const diferencaTotal = totalAtual - totalInvestido;
+    
+    // Atualizar estatísticas
+    diferencaTotalSpan.textContent = formatarMoeda(diferencaTotal, true);
+    
+    // Configurar cores baseadas na diferença
+    const cores = diferencas.map(diferenca => 
+        diferenca >= 0 ? '#10b981' : '#ef4444' // Verde para positivo, vermelho para negativo
+    );
+    
+    // Configuração do gráfico baseada no modo escuro
+    const textColor = isDarkMode ? '#f1f5f9' : '#1f2937';
+    const gridColor = isDarkMode ? 'rgba(241, 245, 249, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    
+    // Configurações do gráfico de barras - MOSTRA APENAS A DIFERENÇA
+    const config = {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Excedente (€)',
+                data: diferencas,
+                backgroundColor: cores,
+                borderColor: diferencas.map(diferenca => 
+                    diferenca >= 0 ? '#059669' : '#dc2626'
+                ),
+                borderWidth: 2,
+                borderRadius: 6,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        color: gridColor
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: {
+                            family: "'Poppins', sans-serif",
+                            size: 12
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: gridColor
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: {
+                            family: "'Poppins', sans-serif",
+                            size: 12
+                        },
+                        callback: function(value) {
+                            return (value >= 0 ? '+' : '') + arredondarParaCima(value).toLocaleString('pt-PT', { minimumFractionDigits: 0 }) + '€';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: isDarkMode ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                    titleColor: textColor,
+                    bodyColor: textColor,
+                    borderColor: isDarkMode ? '#475569' : '#e5e7eb',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            const diferenca = context.raw;
+                            const index = context.dataIndex;
+                            const investido = valoresInvestidos[index];
+                            const atual = valoresAtuais[index];
+                            const percentagem = arredondarPercentagemParaCima((diferenca / investido) * 100);
+                            
+                            return [
+                                `Investido: ${formatarMoeda(investido)}`,
+                                `Atual: ${formatarMoeda(atual)}`,
+                                `Excedente: ${diferenca >= 0 ? '+' : ''}${formatarMoeda(Math.abs(diferenca))} (${diferenca >= 0 ? '+' : ''}${percentagem.toFixed(2)}%)`
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+    };
+    
+    // Criar gráfico
+    comparacaoChartInstance = new Chart(comparacaoChartCanvas, config);
+    
+    // Atualizar legenda do gráfico de comparação
+    atualizarLegendaComparacao(labels, diferencas);
+    
+    // Scroll para gráfico de comparação em mobile
+    if (isMobile) {
+        setTimeout(() => {
+            scrollToElement(comparacaoSection);
+        }, 100);
+    }
+}
+
+// Função para atualizar a legenda do gráfico de comparação
+function atualizarLegendaComparacao(labels, diferencas) {
+    if (!comparacaoLegend) return;
+    
+    comparacaoLegend.innerHTML = '';
+    
+    labels.forEach((label, index) => {
+        const diferenca = diferencas[index];
+        const linkAcao = linksAcoes[label];
+        
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        
+        if (linkAcao) {
+            legendItem.innerHTML = `
+                <div class="legend-color" style="background-color: ${diferenca >= 0 ? '#10b981' : '#ef4444'}"></div>
+                <a href="${linkAcao}" target="_blank" rel="noopener noreferrer" class="legend-link">
+                    <span class="legend-name">${label}</span>
+                </a>
+                <span class="legend-value">
+                    ${diferenca >= 0 ? '+' : ''}${formatarMoeda(Math.abs(diferenca))}
+                </span>
+            `;
+        } else {
+            legendItem.innerHTML = `
+                <div class="legend-color" style="background-color: ${diferenca >= 0 ? '#10b981' : '#ef4444'}"></div>
+                <span class="legend-name">${label}</span>
+                <span class="legend-value">
+                    ${diferenca >= 0 ? '+' : ''}${formatarMoeda(Math.abs(diferenca))}
+                </span>
+            `;
+        }
+        
+        comparacaoLegend.appendChild(legendItem);
     });
 }
 
@@ -734,15 +959,20 @@ function calcularPortfolio() {
         const input = inputsPrecos[acao.id];
         const valorInput = input.value.trim();
         
-        // Converter o valor para número (suporta vírgula e ponto)
+        // Converter o valor para número (suporta vírgula e ponto) - mantém até 4 casas decimais
         const precoAtual = formatarNumeroParaCalculo(valorInput);
         
         if (valorInput !== '' && !isNaN(precoAtual) && precoAtual >= 0) {
-            // Calcular resultados com até 6 casas decimais de precisão
+            // Calcular resultados com alta precisão inicial
             const numeroAcoes = acao.investido / acao.precoCompra;
-            const valorAtual = parseFloat((numeroAcoes * precoAtual).toFixed(6));
-            const lucro = parseFloat((valorAtual - acao.investido).toFixed(6));
-            const percentagem = parseFloat(((lucro / acao.investido) * 100).toFixed(6));
+            const valorAtualBruto = numeroAcoes * precoAtual;
+            const lucroBruto = valorAtualBruto - acao.investido;
+            const percentagemBruto = (lucroBruto / acao.investido) * 100;
+            
+            // Arredondar resultados para 2 casas decimais para cima
+            const valorAtual = arredondarParaCima(valorAtualBruto);
+            const lucro = arredondarParaCima(lucroBruto);
+            const percentagem = arredondarPercentagemParaCima(percentagemBruto);
             
             // Armazenar resultados
             resultadosCalculados.push({
@@ -778,12 +1008,15 @@ function calcularPortfolio() {
         desempenhoSection.style.display = 'none';
         resultadoSection.style.display = 'none';
         graficoSection.style.display = 'none';
+        comparacaoSection.style.display = 'none'; // NOVA SEÇÃO
         return;
     }
     
-    // Calcular totais consolidados com alta precisão
-    const lucroTotal = parseFloat((totalAtual - totalInvestido).toFixed(6));
-    const percentagemTotal = totalInvestido > 0 ? parseFloat(((lucroTotal / totalInvestido) * 100).toFixed(6)) : 0;
+    // Calcular totais consolidados com arredondamento para cima
+    const lucroTotalBruto = totalAtual - totalInvestido;
+    const lucroTotal = arredondarParaCima(lucroTotalBruto);
+    const percentagemTotalBruto = totalInvestido > 0 ? (lucroTotal / totalInvestido) * 100 : 0;
+    const percentagemTotal = arredondarPercentagemParaCima(percentagemTotalBruto);
     
     // Atualizar estatísticas
     statsAcoes.textContent = `${acoesValidas}/5 ações calculadas`;
@@ -797,15 +1030,22 @@ function calcularPortfolio() {
     // 2. Resumo do Portefólio (resultado consolidado)
     resultadoSection.style.display = 'block';
     // 3. Distribuição do Portefólio (gráfico)
+    // 4. Comparação: Investido vs Atual (gráfico de barras)
     
-    // CORREÇÃO: Destruir o gráfico anterior antes de criar um novo
+    // CORREÇÃO: Destruir os gráficos anteriores antes de criar novos
     if (chartInstance) {
         chartInstance.destroy();
         chartInstance = null;
     }
     
-    // Criar ou atualizar gráfico
+    if (comparacaoChartInstance) {
+        comparacaoChartInstance.destroy();
+        comparacaoChartInstance = null;
+    }
+    
+    // Criar ou atualizar gráficos
     criarGrafico();
+    criarGraficoComparacao(); // NOVO GRÁFICO
     
     // Scroll para a PRIMEIRA seção de resultados (Desempenho por Ação) em mobile
     if (isMobile && acoesValidas > 0) {
@@ -830,7 +1070,7 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     // Formatar valores
     const valorAtualFormatado = formatarMoeda(valorAtual);
     const lucroFormatado = formatarMoeda(lucro, true);
-    const percentagemFormatada = parseFloat(percentagem).toFixed(2) + '%';
+    const percentagemFormatada = percentagem.toFixed(2) + '%';
     
     // Adicionar células (MELHORIA: nome com link)
     const celulaAcao = novaLinha.insertCell(0);
@@ -881,7 +1121,7 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
     // Formatar valores monetários
     const totalAtualFormatado = formatarMoeda(totalAtual);
     const lucroTotalFormatado = formatarMoeda(lucroTotal, true);
-    const percentagemTotalFormatada = parseFloat(percentagemTotal).toFixed(3) + '%';
+    const percentagemTotalFormatada = percentagemTotal.toFixed(3) + '%';
     
     // Criar conteúdo HTML SIMPLIFICADO
     const resultadoHTML = `
@@ -916,6 +1156,18 @@ function mostrarErro(mensagem) {
     statsAcoes.textContent = '0/5 ações calculadas';
 }
 
+// Função para formatar valores monetários (ALTERADA: símbolo € no final)
+function formatarMoeda(valor, comSinal = false) {
+    const sinal = comSinal ? (valor > 0 ? '+' : '') : '';
+    const valorArredondado = arredondarParaCima(Math.abs(valor));
+    
+    // Formatar com separador de milhares e 2 casas decimais, símbolo € no final
+    return sinal + valorArredondado.toLocaleString('pt-PT', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }) + '€';
+}
+
 // Função para limpar campos
 function limparCampos() {
     // Limpar campos de entrada
@@ -926,19 +1178,28 @@ function limparCampos() {
     // Limpar tabela
     limparTabela();
     
-    // Limpar gráfico - CORREÇÃO: destruir completamente o gráfico anterior
+    // Limpar gráficos - CORREÇÃO: destruir completamente os gráficos anteriores
     if (chartInstance) {
         chartInstance.destroy();
         chartInstance = null;
     }
     
-    // Limpar legenda do gráfico
+    if (comparacaoChartInstance) {
+        comparacaoChartInstance.destroy();
+        comparacaoChartInstance = null;
+    }
+    
+    // Limpar legendas dos gráficos
     chartLegend.innerHTML = '';
+    if (comparacaoLegend) {
+        comparacaoLegend.innerHTML = '';
+    }
     
     // OCULTAR SEÇÕES na ordem correta
     desempenhoSection.style.display = 'none';
     resultadoSection.style.display = 'none';
     graficoSection.style.display = 'none';
+    comparacaoSection.style.display = 'none'; // NOVA SEÇÃO
     
     // Limpar resultados
     resultadosCalculados = [];
@@ -988,18 +1249,6 @@ function limparTabela() {
     const celulaVazia = novaLinha.insertCell(0);
     celulaVazia.colSpan = 4;
     celulaVazia.innerHTML = '<i class="fas fa-info-circle"></i><span>Insira os preços e clique em Calcular</span>';
-}
-
-// Função para formatar valores monetários
-function formatarMoeda(valor, comSinal = false) {
-    const sinal = comSinal ? (valor > 0 ? '+' : '') : '';
-    const valorAbsoluto = Math.abs(valor);
-    
-    // Formatar com separador de milhares e 2 casas decimais
-    return sinal + '€ ' + valorAbsoluto.toLocaleString('pt-PT', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
 }
 
 // Prevenir comportamento padrão de toque longo

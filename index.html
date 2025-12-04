@@ -21,14 +21,12 @@
             <div class="login-logo">
                 <i class="fas fa-chart-line"></i>
                 <h1>Portfolio Calculator</h1>
-            </div>
-            
+            </div>            
             <div class="login-form">
                 <div class="login-header">
                     <h2><i class="fas fa-lock"></i> Acesso Restrito</h2>
                     <p>Esta área é reservada para clientes autorizados</p>
-                </div>
-                
+                </div>                
                 <div class="input-group">
                     <div class="input-icon">
                         <i class="fas fa-key"></i>
@@ -37,8 +35,7 @@
                     <button id="toggle-password" class="toggle-password-btn">
                         <i class="fas fa-eye"></i>
                     </button>
-                </div>
-                
+                </div>                
                 <button id="login-btn" class="login-btn">
                     <i class="fas fa-sign-in-alt"></i> Entrar
                 </button>
@@ -46,63 +43,55 @@
                 <div class="login-footer">
                     <p><i class="fas fa-shield-alt"></i> Os seus dados estão protegidos</p>
                 </div>
-            </div>
-            
+            </div>            
             <div class="login-error" id="login-error">
                 <i class="fas fa-exclamation-triangle"></i>
                 <span>Palavra-passe incorreta. Tente novamente.</span>
             </div>
         </div>
     </div>
-
     <!-- Conteúdo Principal (inicialmente oculto) -->
     <div id="main-content" class="container" style="display: none;">
-        <!-- ALTERADO: Nova estrutura do header com botões fora da área do título -->
         <header>
             <div class="header-top">
-                <!-- Botões do Header-top (modo escuro e sair) -->
                 <div class="header-top-buttons">
-                    <!-- Botão Modo Escuro (fora da área do título) -->
                     <button id="theme-toggle" class="theme-toggle-btn" title="Alternar modo claro/escuro">
                         <i class="fas fa-moon"></i>
                     </button>
-                    <!-- Botão Sair (fora da área do título) -->
                     <button id="logout-header-btn" class="logout-header-btn" title="Sair do sistema">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
-            </div>
-            
+            </div>            
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-chart-line"></i>
-                    <!-- ALTERADO: Título centralizado -->
                     <h1>Calculadora de Portefólio</h1>
                 </div>
-                <!-- ALTERADO: Subtítulo centralizado -->
                 <p class="subtitle">Insira os preços atuais das suas ações para calcular o desempenho do seu portefólio</p>
             </div>
         </header>
-
         <main>
-            <!-- Seção Preços Atuais (mantida no topo) -->
             <section class="card precos-card">
                 <div class="card-header">
                     <h2><i class="fas fa-coins"></i> Preços Atuais</h2>
                     <div class="investment-summary hidden" id="investment-summary">
-                        <p><strong>Total Investido:</strong> <span id="total-investido">€39,939.53</span></p>
+                        <p><strong>Total Investido:</strong> <span id="total-investido">39,939.53€</span></p>
                     </div>
-                </div>
-                
+                </div>                
                 <div class="acoes-container">
                     <div class="acoes-inputs">
                         <!-- Ação 1: BCP S&P 500 -->
                         <div class="acao-item">
                             <div class="acao-header">
-                                <label for="sp-price" class="acao-label">BCP S&P 500:</label>
+                                <label for="sp-price" class="acao-label">
+                                    <a href="https://live.euronext.com/en/product/structured-products/PTBITHYM0080-XMLI" target="_blank" rel="noopener noreferrer" class="acao-nome-link">
+                                        BCP S&P 500:
+                                    </a>
+                                </label>
                                 <div class="investment-value hidden">
                                     <span class="investment-tag">Investido:</span>
-                                    <span class="investment-amount">€7,957.36</span>
+                                    <span class="investment-amount">7,957.36€</span>
                                 </div>
                             </div>
                             <div class="input-wrapper">
@@ -111,15 +100,18 @@
                                 </div>
                                 <input type="text" id="sp-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 57.662" class="preco-input">
                             </div>
-                        </div>
-                        
+                        </div>                        
                         <!-- Ação 2: BCP Ouro -->
                         <div class="acao-item">
                             <div class="acao-header">
-                                <label for="ouro-price" class="acao-label">BCP Ouro:</label>
+                                <label for="ouro-price" class="acao-label">
+                                    <a href="https://live.euronext.com/en/product/structured-products/PTBCPAYM0053-XMLI" target="_blank" rel="noopener noreferrer" class="acao-nome-link">
+                                        BCP Ouro:
+                                    </a>
+                                </label>
                                 <div class="investment-value hidden">
                                     <span class="investment-tag">Investido:</span>
-                                    <span class="investment-amount">€7,982.18</span>
+                                    <span class="investment-amount">7,982.18€</span>
                                 </div>
                             </div>
                             <div class="input-wrapper">
@@ -128,15 +120,18 @@
                                 </div>
                                 <input type="text" id="ouro-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 234.77" class="preco-input">
                             </div>
-                        </div>
-                        
+                        </div>                        
                         <!-- Ação 3: Janus Henderson -->
                         <div class="acao-item">
                             <div class="acao-header">
-                                <label for="janus-price" class="acao-label">Janus Henderson Global Tech and Innovation A2:</label>
+                                <label for="janus-price" class="acao-label">
+                                    <a href="https://markets.ft.com/data/funds/tearsheet/summary?s=IE0002167009:EUR" target="_blank" rel="noopener noreferrer" class="acao-nome-link">
+                                        Janus Henderson Global Tech and Innovation A2:
+                                    </a>
+                                </label>
                                 <div class="investment-value hidden">
                                     <span class="investment-tag">Investido:</span>
-                                    <span class="investment-amount">€7,999.99</span>
+                                    <span class="investment-amount">7,999.99€</span>
                                 </div>
                             </div>
                             <div class="input-wrapper">
@@ -145,15 +140,18 @@
                                 </div>
                                 <input type="text" id="janus-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 26.1" class="preco-input">
                             </div>
-                        </div>
-                        
+                        </div>                        
                         <!-- Ação 4: JP Morgan -->
                         <div class="acao-item">
                             <div class="acao-header">
-                                <label for="jpmorgan-price" class="acao-label">JP Morgan US Select Equity Fund A:</label>
+                                <label for="jpmorgan-price" class="acao-label">
+                                    <a href="https://pt.investing.com/funds/lu0218171717" target="_blank" rel="noopener noreferrer" class="acao-nome-link">
+                                        JP Morgan US Select Equity Fund A:
+                                    </a>
+                                </label>
                                 <div class="investment-value hidden">
                                     <span class="investment-tag">Investido:</span>
-                                    <span class="investment-amount">€8,000.00</span>
+                                    <span class="investment-amount">8,000.00€</span>
                                 </div>
                             </div>
                             <div class="input-wrapper">
@@ -162,15 +160,18 @@
                                 </div>
                                 <input type="text" id="jpmorgan-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 482.8" class="preco-input">
                             </div>
-                        </div>
-                        
+                        </div>                        
                         <!-- Ação 5: IMGA -->
                         <div class="acao-item">
                             <div class="acao-header">
-                                <label for="imga-price" class="acao-label">IMGA Ações América A:</label>
+                                <label for="imga-price" class="acao-label">
+                                    <a href="https://ind.millenniumbcp.pt/pt/Particulares/Investimentos/Pages/FundsDetail.aspx?Isi=PTYAGALM0005" target="_blank" rel="noopener noreferrer" class="acao-nome-link">
+                                        IMGA Ações América A:
+                                    </a>
+                                </label>
                                 <div class="investment-value hidden">
                                     <span class="investment-tag">Investido:</span>
-                                    <span class="investment-amount">€8,000.00</span>
+                                    <span class="investment-amount">8,000.00€</span>
                                 </div>
                             </div>
                             <div class="input-wrapper">
@@ -180,10 +181,7 @@
                                 <input type="text" id="imga-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 12.4971" class="preco-input">
                             </div>
                         </div>
-                        
-                        <!-- Botão Mostrar Investimentos REMOVIDO DAQUI -->
-                    </div>
-                    
+                    </div>                    
                     <div class="acoes-botoes">
                         <div class="botoes-container">
                             <button id="calcular-btn" class="btn btn-primary">
@@ -200,8 +198,6 @@
                     </div>
                 </div>
             </section>
-            
-            <!-- ALTERADO: Nova ordem das seções -->
             <!-- 1. Desempenho por Ação -->
             <section class="card desempenho-card" id="desempenho-section" style="display: none;">
                 <div class="card-header">
@@ -230,8 +226,7 @@
                         </tbody>
                     </table>
                 </div>
-            </section>
-            
+            </section>            
             <!-- 2. Resumo do Portefólio -->
             <section class="card resultado-card" id="resultado-section" style="display: none;">
                 <div class="card-header">
@@ -245,19 +240,42 @@
                         <p>Insira os preços atuais e clique em Calcular</p>
                     </div>
                 </div>
-            </section>
-            
+            </section>            
             <!-- 3. Distribuição do Portefólio -->
             <section class="card grafico-card" id="grafico-section" style="display: none;">
                 <div class="card-header">
                     <h2><i class="fas fa-chart-pie"></i> Distribuição do Portefólio</h2>
-                    <!-- REMOVIDO: Botão Mostrar Percentagens -->
                 </div>
                 <div class="graph-container">
                     <div class="chart-wrapper">
                         <canvas id="portfolio-chart"></canvas>
                     </div>
                     <div class="chart-legend" id="chart-legend"></div>
+                </div>
+            </section>
+            <!-- 4. Comparação de Excedente por Ação -->
+            <section class="card comparacao-card" id="comparacao-section" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fas fa-balance-scale"></i> Lucro por Ação</h2>
+                    <div class="table-stats" id="comparacao-stats">
+                        <span>Diferença Total: <span id="diferenca-total">0.00€</span></span>
+                    </div>
+                </div>
+                <div class="graph-container">
+                    <div class="chart-wrapper">
+                        <canvas id="comparacao-chart"></canvas>
+                    </div>
+                    <div class="chart-legend" id="comparacao-legend"></div>
+                </div>
+                <div class="comparacao-info">
+                    <div class="info-item">
+                        <div class="info-color" style="background-color: #10b981"></div>
+                        <span class="info-label">Acima do investido (lucro)</span>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-color" style="background-color: #ef4444"></div>
+                        <span class="info-label">Abaixo do investido (prejuízo)</span>
+                    </div>
                 </div>
             </section>
         </main>
@@ -270,11 +288,9 @@
                         <i class="fas fa-arrow-up"></i> 
                         <span class="footer-link-text">Voltar ao Topo</span>
                     </a>
-                    <!-- Botão Mostrar Valores Investidos (apenas ícone) -->
                     <a href="#" id="toggle-investment" class="footer-link" title="Mostrar/ocultar valores investidos">
                         <i class="fas fa-eye"></i>
                     </a>
-                    <!-- O botão de logout no footer será adicionado aqui via JavaScript -->
                 </div>
             </div>
         </footer>
