@@ -702,7 +702,7 @@ function criarGrafico() {
                         label: function(context) {
                             const value = context.raw || 0;
                             const percentage = arredondarPercentagemParaCima((value / total) * 100);
-                            return `${formatarMoeda(value)} (${percentage.toFixed(2)}%)`;
+                            return `${formatarMoeda(value)} (${formatarPercentagem(percentage)})`;
                         }
                     },
                     titleFont: {
@@ -752,7 +752,7 @@ function atualizarLegenda(labels, valores, porcentagens, colors) {
                     <span class="legend-name">${label}</span>
                 </a>
                 <span class="legend-value">
-                    ${formatarMoeda(valor)} (${porcentagem.toFixed(2)}%)
+                    ${formatarMoeda(valor)} (${formatarPercentagem(porcentagem)})
                 </span>
             `;
         } else {
@@ -760,7 +760,7 @@ function atualizarLegenda(labels, valores, porcentagens, colors) {
                 <div class="legend-color" style="background-color: ${colors[index]}"></div>
                 <span class="legend-name">${label}</span>
                 <span class="legend-value">
-                    ${formatarMoeda(valor)} (${porcentagem.toFixed(2)}%)
+                    ${formatarMoeda(valor)} (${formatarPercentagem(porcentagem)})
                 </span>
             `;
         }
@@ -769,15 +769,11 @@ function atualizarLegenda(labels, valores, porcentagens, colors) {
     });
 }
 
-// NOVA FUNÇÃO: Criar Gráfico de Comparação (Diferença vs Investido)
+// NOVA FUNÇÃO: Criar Gráfico de Comparação (Diferença vs Investido) - SEM LEGENDA
 function criarGraficoComparacao() {
     if (resultadosCalculados.length === 0) {
-        comparacaoSection.style.display = 'none';
         return;
     }
-    
-    // Mostrar seção do gráfico
-    comparacaoSection.style.display = 'block';
     
     // Preparar dados para o gráfico
     const labels = resultadosCalculados.map(r => r.nomeCurto);
@@ -788,14 +784,6 @@ function criarGraficoComparacao() {
     const diferencas = valoresAtuais.map((valorAtual, index) => {
         return valorAtual - valoresInvestidos[index];
     });
-    
-    // Calcular a diferença total
-    const totalInvestido = valoresInvestidos.reduce((a, b) => a + b, 0);
-    const totalAtual = valoresAtuais.reduce((a, b) => a + b, 0);
-    const diferencaTotal = totalAtual - totalInvestido;
-    
-    // Atualizar estatísticas
-    diferencaTotalSpan.textContent = formatarMoeda(diferencaTotal, true);
     
     // Configurar cores baseadas na diferença
     const cores = diferencas.map(diferenca => 
@@ -883,7 +871,7 @@ function criarGraficoComparacao() {
                             return [
                                 `Investido: ${formatarMoeda(investido)}`,
                                 `Atual: ${formatarMoeda(atual)}`,
-                                `Excedente: ${diferenca >= 0 ? '+' : ''}${formatarMoeda(Math.abs(diferenca))} (${diferenca >= 0 ? '+' : ''}${percentagem.toFixed(2)}%)`
+                                `Excedente: ${diferenca >= 0 ? '+' : ''}${formatarMoeda(Math.abs(diferenca))} (${diferenca >= 0 ? '+' : ''}${formatarPercentagem(percentagem, true)})`
                             ];
                         }
                     }
@@ -894,53 +882,6 @@ function criarGraficoComparacao() {
     
     // Criar gráfico
     comparacaoChartInstance = new Chart(comparacaoChartCanvas, config);
-    
-    // Atualizar legenda do gráfico de comparação
-    atualizarLegendaComparacao(labels, diferencas);
-    
-    // Scroll para gráfico de comparação em mobile
-    if (isMobile) {
-        setTimeout(() => {
-            scrollToElement(comparacaoSection);
-        }, 100);
-    }
-}
-
-// Função para atualizar a legenda do gráfico de comparação
-function atualizarLegendaComparacao(labels, diferencas) {
-    if (!comparacaoLegend) return;
-    
-    comparacaoLegend.innerHTML = '';
-    
-    labels.forEach((label, index) => {
-        const diferenca = diferencas[index];
-        const linkAcao = linksAcoes[label];
-        
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        
-        if (linkAcao) {
-            legendItem.innerHTML = `
-                <div class="legend-color" style="background-color: ${diferenca >= 0 ? '#10b981' : '#ef4444'}"></div>
-                <a href="${linkAcao}" target="_blank" rel="noopener noreferrer" class="legend-link">
-                    <span class="legend-name">${label}</span>
-                </a>
-                <span class="legend-value">
-                    ${diferenca >= 0 ? '+' : ''}${formatarMoeda(Math.abs(diferenca))}
-                </span>
-            `;
-        } else {
-            legendItem.innerHTML = `
-                <div class="legend-color" style="background-color: ${diferenca >= 0 ? '#10b981' : '#ef4444'}"></div>
-                <span class="legend-name">${label}</span>
-                <span class="legend-value">
-                    ${diferenca >= 0 ? '+' : ''}${formatarMoeda(Math.abs(diferenca))}
-                </span>
-            `;
-        }
-        
-        comparacaoLegend.appendChild(legendItem);
-    });
 }
 
 // Função para calcular o portfólio
@@ -1004,11 +945,10 @@ function calcularPortfolio() {
     
     if (acoesValidas === 0) {
         mostrarErro("Por favor, insira pelo menos um preço atual válido");
-        // OCULTAR TODAS AS SEÇÕES (na ordem correta)
+        // OCULTAR SEÇÕES (exceto resumo)
+        resultadoSection.style.display = 'block'; // Mostrar seção de resumo mesmo sem dados
         desempenhoSection.style.display = 'none';
-        resultadoSection.style.display = 'none';
         graficoSection.style.display = 'none';
-        comparacaoSection.style.display = 'none'; // NOVA SEÇÃO
         return;
     }
     
@@ -1024,13 +964,13 @@ function calcularPortfolio() {
     // Mostrar resultado consolidado SIMPLIFICADO
     mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal);
     
-    // MOSTRAR SEÇÕES NA NOVA ORDEM após cálculo:
-    // 1. Desempenho por Ação (tabela)
-    desempenhoSection.style.display = 'block';
-    // 2. Resumo do Portefólio (resultado consolidado)
+    // MOSTRAR SEÇÕES NA ORDEM CORRETA:
+    // 1. Resumo do Portefólio (depois dos inputs)
     resultadoSection.style.display = 'block';
-    // 3. Distribuição do Portefólio (gráfico)
-    // 4. Comparação: Investido vs Atual (gráfico de barras)
+    // 2. Desempenho por Ação (tabela + gráfico de comparação)
+    desempenhoSection.style.display = 'block';
+    // 3. Distribuição do Portefólio (gráfico de pizza)
+    graficoSection.style.display = 'block';
     
     // CORREÇÃO: Destruir os gráficos anteriores antes de criar novos
     if (chartInstance) {
@@ -1045,12 +985,12 @@ function calcularPortfolio() {
     
     // Criar ou atualizar gráficos
     criarGrafico();
-    criarGraficoComparacao(); // NOVO GRÁFICO
+    criarGraficoComparacao(); // Gráfico de barras (sem legenda)
     
-    // Scroll para a PRIMEIRA seção de resultados (Desempenho por Ação) em mobile
+    // Scroll para a seção de resumo em mobile
     if (isMobile && acoesValidas > 0) {
         setTimeout(() => {
-            scrollToElement(desempenhoSection);
+            scrollToElement(resultadoSection);
         }, 100);
     }
 }
@@ -1070,7 +1010,7 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     // Formatar valores
     const valorAtualFormatado = formatarMoeda(valorAtual);
     const lucroFormatado = formatarMoeda(lucro, true);
-    const percentagemFormatada = percentagem.toFixed(2) + '%';
+    const percentagemFormatada = formatarPercentagem(percentagem, true);
     
     // Adicionar células (MELHORIA: nome com link)
     const celulaAcao = novaLinha.insertCell(0);
@@ -1121,7 +1061,7 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
     // Formatar valores monetários
     const totalAtualFormatado = formatarMoeda(totalAtual);
     const lucroTotalFormatado = formatarMoeda(lucroTotal, true);
-    const percentagemTotalFormatada = percentagemTotal.toFixed(3) + '%';
+    const percentagemTotalFormatada = formatarPercentagem(percentagemTotal, true);
     
     // Criar conteúdo HTML SIMPLIFICADO
     const resultadoHTML = `
@@ -1135,7 +1075,12 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
                 <p>
                     <i class="fas fa-chart-line"></i>
                     <span>Resultado:</span>
-                    <strong>${lucroTotalFormatado} (${percentagemTotalFormatada})</strong>
+                    <strong>${lucroTotalFormatado}</strong>
+                </p>
+                <p>
+                    <i class="fas fa-percentage"></i>
+                    <span>Rentabilidade:</span>
+                    <strong>${percentagemTotalFormatada}</strong>
                 </p>
             </div>
         </div>
@@ -1191,15 +1136,11 @@ function limparCampos() {
     
     // Limpar legendas dos gráficos
     chartLegend.innerHTML = '';
-    if (comparacaoLegend) {
-        comparacaoLegend.innerHTML = '';
-    }
     
-    // OCULTAR SEÇÕES na ordem correta
+    // OCULTAR SEÇÕES na nova ordem
+    resultadoSection.style.display = 'block'; // Mostrar seção de resumo
     desempenhoSection.style.display = 'none';
-    resultadoSection.style.display = 'none';
     graficoSection.style.display = 'none';
-    comparacaoSection.style.display = 'none'; // NOVA SEÇÃO
     
     // Limpar resultados
     resultadosCalculados = [];
@@ -1301,3 +1242,17 @@ window.addEventListener('load', function() {
         }
     }, 500);
 });
+// Função para formatar percentagens com vírgula (12,3% em vez de 12.3%)
+function formatarPercentagem(valor, comSinal = false) {
+    const sinal = comSinal ? (valor > 0 ? '+' : '') : '';
+    const valorArredondado = arredondarPercentagemParaCima(Math.abs(valor));
+    
+    // Formatar com vírgula como separador decimal e símbolo % no final
+    const valorFormatado = valorArredondado.toLocaleString('pt-PT', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 2
+    }) + '%';
+    
+    // Garantir que tenha vírgula em vez de ponto
+    return sinal + valorFormatado.replace('.', ',');
+}

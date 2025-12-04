@@ -72,6 +72,7 @@
             </div>
         </header>
         <main>
+            <!-- 1. Preços Atuais -->
             <section class="card precos-card">
                 <div class="card-header">
                     <h2><i class="fas fa-coins"></i> Preços Atuais</h2>
@@ -198,7 +199,23 @@
                     </div>
                 </div>
             </section>
-            <!-- 1. Desempenho por Ação -->
+            
+            <!-- 2. Resumo do Portefólio (DEPOIS dos preços) -->
+            <section class="card resultado-card" id="resultado-section" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-pie"></i> Resumo do Portefólio</h2>
+                </div>
+                <div id="resultado-consolidado" class="resultado-consolidado">
+                    <div class="estado-inicial">
+                        <div class="estado-icon">
+                            <i class="fas fa-arrow-circle-right"></i>
+                        </div>
+                        <p>Insira os preços atuais e clique em Calcular</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 3. Desempenho por Ação (UNIFICADA: tabela + gráfico de comparação) -->
             <section class="card desempenho-card" id="desempenho-section" style="display: none;">
                 <div class="card-header">
                     <h2><i class="fas fa-table"></i> Desempenho por Ação</h2>
@@ -226,22 +243,17 @@
                         </tbody>
                     </table>
                 </div>
-            </section>            
-            <!-- 2. Resumo do Portefólio -->
-            <section class="card resultado-card" id="resultado-section" style="display: none;">
-                <div class="card-header">
-                    <h2><i class="fas fa-chart-pie"></i> Resumo do Portefólio</h2>
-                </div>
-                <div id="resultado-consolidado" class="resultado-consolidado">
-                    <div class="estado-inicial">
-                        <div class="estado-icon">
-                            <i class="fas fa-arrow-circle-right"></i>
-                        </div>
-                        <p>Insira os preços atuais e clique em Calcular</p>
+                
+                <!-- Gráfico de comparação (sem legenda) -->
+                <div class="graph-container" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+                    <div class="chart-wrapper" style="height: 300px;">
+                        <canvas id="comparacao-chart"></canvas>
                     </div>
+                    <!-- Legenda removida conforme solicitado -->
                 </div>
-            </section>            
-            <!-- 3. Distribuição do Portefólio -->
+            </section>
+            
+            <!-- 4. Distribuição do Portefólio -->
             <section class="card grafico-card" id="grafico-section" style="display: none;">
                 <div class="card-header">
                     <h2><i class="fas fa-chart-pie"></i> Distribuição do Portefólio</h2>
@@ -251,31 +263,6 @@
                         <canvas id="portfolio-chart"></canvas>
                     </div>
                     <div class="chart-legend" id="chart-legend"></div>
-                </div>
-            </section>
-            <!-- 4. Comparação de Excedente por Ação -->
-            <section class="card comparacao-card" id="comparacao-section" style="display: none;">
-                <div class="card-header">
-                    <h2><i class="fas fa-balance-scale"></i> Lucro por Ação</h2>
-                    <div class="table-stats" id="comparacao-stats">
-                        <span>Diferença Total: <span id="diferenca-total">0.00€</span></span>
-                    </div>
-                </div>
-                <div class="graph-container">
-                    <div class="chart-wrapper">
-                        <canvas id="comparacao-chart"></canvas>
-                    </div>
-                    <div class="chart-legend" id="comparacao-legend"></div>
-                </div>
-                <div class="comparacao-info">
-                    <div class="info-item">
-                        <div class="info-color" style="background-color: #10b981"></div>
-                        <span class="info-label">Acima do investido (lucro)</span>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-color" style="background-color: #ef4444"></div>
-                        <span class="info-label">Abaixo do investido (prejuízo)</span>
-                    </div>
                 </div>
             </section>
         </main>
