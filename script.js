@@ -89,6 +89,9 @@ const comparacaoChartCanvas = document.getElementById('comparacao-chart');
 const comparacaoLegend = document.getElementById('comparacao-legend');
 const diferencaTotalSpan = document.getElementById('diferenca-total');
 
+// NOVA REFERÊNCIA PARA O BOTÃO DE TEMA NO FOOTER
+const themeToggleFooterBtn = document.getElementById('theme-toggle-footer');
+
 // Estado da aplicação
 let mostrarInvestimento = false;
 let resultadosCalculados = [];
@@ -541,6 +544,20 @@ function toggleMostrarInvestimento() {
     }
 }
 
+// Função para atualizar os ícones de tema em ambos os botões
+function atualizarIconesTema() {
+    const iconHeader = themeToggleBtn.querySelector('i');
+    const iconFooter = themeToggleFooterBtn.querySelector('i');
+    
+    if (isDarkMode) {
+        iconHeader.className = 'fas fa-sun';
+        iconFooter.className = 'fas fa-sun';
+    } else {
+        iconHeader.className = 'fas fa-moon';
+        iconFooter.className = 'fas fa-moon';
+    }
+}
+
 // Configurar Modo Escuro
 function configurarModoEscuro() {
     // Verificar preferência salva
@@ -553,8 +570,17 @@ function configurarModoEscuro() {
         desativarModoEscuro();
     }
     
-    // Configurar botão de toggle
-    themeToggleBtn.addEventListener('click', toggleModoEscuro);
+    // Configurar botão de toggle no header
+    themeToggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleModoEscuro();
+    });
+    
+    // Configurar botão de toggle no footer
+    themeToggleFooterBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleModoEscuro();
+    });
 }
 
 // Ativar Modo Escuro
@@ -562,9 +588,8 @@ function ativarModoEscuro() {
     document.body.classList.add('dark-mode');
     isDarkMode = true;
     
-    // Atualizar ícone do botão
-    const icon = themeToggleBtn.querySelector('i');
-    icon.className = 'fas fa-sun';
+    // Atualizar ícones dos botões de tema (header e footer)
+    atualizarIconesTema();
     
     // Salvar preferência
     localStorage.setItem(THEME_KEY, 'dark');
@@ -583,9 +608,8 @@ function desativarModoEscuro() {
     document.body.classList.remove('dark-mode');
     isDarkMode = false;
     
-    // Atualizar ícone do botão
-    const icon = themeToggleBtn.querySelector('i');
-    icon.className = 'fas fa-moon';
+    // Atualizar ícones dos botões de tema (header e footer)
+    atualizarIconesTema();
     
     // Salvar preferência
     localStorage.setItem(THEME_KEY, 'light');
@@ -1222,23 +1246,24 @@ window.addEventListener('load', function() {
     setTimeout(() => {
         const footerLinks = document.querySelector('.footer-links');
         if (footerLinks && !document.getElementById('logout-footer-btn')) {
-            // Criar botão de logout para o footer
+            // Criar botão de logout para o footer (apenas ícone)
             const logoutBtn = document.createElement('a');
             logoutBtn.id = 'logout-footer-btn';
             logoutBtn.className = 'footer-link';
             logoutBtn.href = '#';
-            logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> <span class="footer-link-text">Sair</span>';
+            logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
             logoutBtn.title = 'Sair (Ctrl+Alt+L)';
             logoutBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 logout();
             });
             
-            // Adicionar após o botão de mostrar investimentos
+            // Adicionar após o último botão (que agora é o de tema)
             footerLinks.appendChild(logoutBtn);
         }
     }, 500);
 });
+
 // Função para formatar percentagens com vírgula (12,3% em vez de 12.3%)
 function formatarPercentagem(valor, comSinal = false) {
     const sinal = comSinal ? (valor > 0 ? '+' : '') : '';

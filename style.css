@@ -1283,7 +1283,7 @@ td {
     font-weight: 700;
 }
 
-/* Footer */
+/* Footer - MODIFICADO: Apenas ícones */
 footer {
     background: var(--footer-bg);
     color: white;
@@ -1331,16 +1331,16 @@ footer::before {
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    justify-content: center;
     transition: var(--transition);
     background: rgba(255, 255, 255, 0.1);
-    padding: 0.8rem 1.2rem;
-    border-radius: 50px;
+    padding: 0.8rem;
+    border-radius: 50%;
     font-weight: 600;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    font-size: clamp(0.9rem, 2vw, 1rem);
-    white-space: nowrap;
+    width: 48px;
+    height: 48px;
     min-height: 48px;
 }
 
@@ -1365,8 +1365,9 @@ footer::before {
     border-color: var(--primary);
 }
 
-.footer-link-text {
-    display: inline;
+.footer-link i {
+    margin: 0;
+    font-size: 1.2rem;
 }
 
 /* Mobile Keyboard Hint */
@@ -1852,8 +1853,14 @@ footer::before {
     }
     
     .footer-link {
-        padding: 0.7rem 1rem;
+        width: 44px;
+        height: 44px;
         min-height: 44px;
+        padding: 0.7rem;
+    }
+    
+    .footer-link i {
+        font-size: 1.1rem;
     }
     
     #toggle-investment {
@@ -1973,9 +1980,14 @@ footer::before {
     }
     
     .footer-link {
-        padding: 0.6rem 0.9rem;
-        font-size: 0.9rem;
+        width: 42px;
+        height: 42px;
         min-height: 42px;
+        padding: 0.6rem;
+    }
+    
+    .footer-link i {
+        font-size: 1rem;
     }
     
     #toggle-investment {
@@ -2079,9 +2091,14 @@ footer::before {
     }
     
     .footer-link {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.85rem;
+        width: 40px;
+        height: 40px;
         min-height: 40px;
+        padding: 0.5rem;
+    }
+    
+    .footer-link i {
+        font-size: 0.9rem;
     }
     
     #toggle-investment {
@@ -2195,117 +2212,6 @@ body.dark-mode .comparacao-card .chart-wrapper::before {
 }
 
 /* AJUSTES PARA MOBILE - RESPOSTA À SUA PERGUNTA */
-
-/* Melhorar o resumo do portefólio no mobile */
-@media (max-width: 768px) {
-    /* Resumo do Portefólio - Layout melhorado para valores longos */
-    .resultado-detalhes p {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        text-align: center;
-    }
-    
-    .resultado-detalhes i {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-    
-    .resultado-detalhes span,
-    .resultado-detalhes strong {
-        text-align: center;
-        width: 100%;
-        min-width: auto;
-        white-space: normal;
-        word-break: break-word;
-        overflow-wrap: break-word;
-        line-height: 1.3;
-    }
-    
-    .resultado-detalhes strong {
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-top: 0.2rem;
-        padding: 0.5rem;
-        background: rgba(45, 106, 227, 0.1);
-        border-radius: 10px;
-        width: 90%;
-        max-width: 90%;
-    }
-    
-    /* Ajustar valores muito longos */
-    .resultado-detalhes strong {
-        font-size: clamp(1.1rem, 4vw, 1.3rem);
-        letter-spacing: 0.5px;
-    }
-    
-    /* Melhorar espaçamento */
-    .resultado-detalhes {
-        gap: 1rem;
-    }
-    
-    .resultado-detalhes p {
-        margin-bottom: 1rem;
-    }
-    
-    /* Ajustar tamanho da fonte em telas muito pequenas */
-    @media (max-width: 360px) {
-        .resultado-detalhes strong {
-            font-size: 1.1rem;
-            padding: 0.4rem;
-        }
-        
-        .resultado-detalhes i {
-            font-size: 1.3rem;
-        }
-    }
-}
-
-/* Remover legenda do gráfico de comparação */
-#comparacao-legend {
-    display: none;
-}
-
-/* Ajustar o gráfico de comparação dentro da seção de desempenho */
-.desempenho-card .graph-container {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-color);
-}
-
-/* Remover a seção de comparação_info (agora integrada) */
-.comparacao-info {
-    display: none;
-}
-
-/* Ajustar a ordem das seções */
-main {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Ordem das seções em mobile */
-@media (max-width: 768px) {
-    .resultado-card {
-        order: 2;
-    }
-    
-    .precos-card {
-        order: 1;
-    }
-    
-    .desempenho-card {
-        order: 3;
-    }
-    
-    .grafico-card {
-        order: 4;
-    }
-}
-/* NOVOS ESTILOS PARA MOBILE - RESPOSTA À SUA PERGUNTA */
 
 /* Melhorar o resumo do portefólio no mobile */
 @media (max-width: 768px) {
@@ -2446,5 +2352,42 @@ main {
     
     .resultado-card {
         margin-top: 0.5rem;
+    }
+}
+
+/* Estilo para os botões do footer em mobile */
+@media (max-width: 768px) {
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+    
+    .footer-link {
+        flex: 0 0 auto;
+    }
+    
+    /* Ajustar tamanho dos ícones nos botões do footer */
+    .footer-link i {
+        font-size: 1rem;
+    }
+    
+    /* Ocultar texto nos botões do footer em mobile */
+    .footer-link-text {
+        display: none;
+    }
+    
+    /* Mostrar texto apenas em hover/active para desktop */
+    @media (hover: hover) {
+        .footer-link:hover .footer-link-text {
+            display: inline;
+        }
+    }
+}
+
+/* Ajustar para telas maiores */
+@media (min-width: 769px) {
+    .footer-link-text {
+        display: none;
     }
 }

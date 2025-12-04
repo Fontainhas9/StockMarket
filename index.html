@@ -55,10 +55,10 @@
         <header>
             <div class="header-top">
                 <div class="header-top-buttons">
-                    <button id="theme-toggle" class="theme-toggle-btn" title="Alternar modo claro/escuro">
+                    <button id="theme-toggle" class="theme-toggle-btn" title="Alternar modo claro/escuro" type="button">
                         <i class="fas fa-moon"></i>
                     </button>
-                    <button id="logout-header-btn" class="logout-header-btn" title="Sair do sistema">
+                    <button id="logout-header-btn" class="logout-header-btn" title="Sair do sistema" type="button">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
@@ -270,15 +270,18 @@
         <footer>
             <div class="footer-content">
                 <p>Portfolio Calculator &copy; 2025</p>
-                <div class="footer-links">
-                    <a href="#" id="back-to-top" class="footer-link">
-                        <i class="fas fa-arrow-up"></i> 
-                        <span class="footer-link-text">Voltar ao Topo</span>
-                    </a>
-                    <a href="#" id="toggle-investment" class="footer-link" title="Mostrar/ocultar valores investidos">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                </div>
+                <!-- No footer, dentro do .footer-links -->
+                    <div class="footer-links">
+                        <a href="#" id="back-to-top" class="footer-link" title="Voltar ao topo">
+                            <i class="fas fa-arrow-up"></i>
+                        </a>
+                        <a href="#" id="toggle-investment" class="footer-link" title="Mostrar/ocultar valores investidos">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="#" id="theme-toggle-footer" class="footer-link" title="Alternar modo claro/escuro">
+                            <i class="fas fa-moon"></i>
+                        </a>
+                    </div>
             </div>
         </footer>
     </div>
