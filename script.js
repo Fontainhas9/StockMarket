@@ -959,7 +959,7 @@ function calcularPortfolio() {
     const percentagemTotal = arredondarPercentagemParaCima(percentagemTotalBruto);
     
     // Atualizar estatísticas
-    statsAcoes.textContent = `${acoesValidas}/5 ações calculadas`;
+    statsAcoes.textContent = `${acoesValidas}/5 ações`;
     
     // Mostrar resultado consolidado SIMPLIFICADO
     mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal);
