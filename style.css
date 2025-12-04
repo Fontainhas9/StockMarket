@@ -2290,11 +2290,11 @@ main {
 /* Ordem das seções em mobile */
 @media (max-width: 768px) {
     .resultado-card {
-        order: 1;
+        order: 2;
     }
     
     .precos-card {
-        order: 2;
+        order: 1;
     }
     
     .desempenho-card {
