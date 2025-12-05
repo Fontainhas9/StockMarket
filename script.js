@@ -6,7 +6,7 @@ const acoes = [
         investido: 7957.36, 
         precoCompra: 57.662, 
         icon: 'fa-chart-bar',
-        nomeCurto: 'SP500'
+        nomeCurto: 'S&P 500'
     },
     { 
         id: 'ouro', 
@@ -30,7 +30,7 @@ const acoes = [
         investido: 8000.00, 
         precoCompra: 482.8, 
         icon: 'fa-landmark',
-        nomeCurto: 'JPMorgan'
+        nomeCurto: 'JP Morgan'
     },
     { 
         id: 'imga', 
@@ -42,16 +42,14 @@ const acoes = [
     }
 ];
 
-// Links para os sites das ações
 const linksAcoes = {
     'IMGA': 'https://ind.millenniumbcp.pt/pt/Particulares/Investimentos/Pages/FundsDetail.aspx?Isi=PTYAGALM0005',
     'Janus': 'https://markets.ft.com/data/funds/tearsheet/summary?s=IE0002167009:EUR',
     'JPMorgan': 'https://pt.investing.com/funds/lu0218171717',
     'Ouro': 'https://live.euronext.com/en/product/structured-products/PTBCPAYM0053-XMLI',
-    'SP500': 'https://live.euronext.com/en/product/structured-products/PTBITHYM0080-XMLI'
+    'S&P 500': 'https://live.euronext.com/en/product/structured-products/PTBITHYM0080-XMLI'
 };
 
-// Referências aos elementos DOM
 const loginScreen = document.getElementById('login-screen');
 const mainContent = document.getElementById('main-content');
 const passwordInput = document.getElementById('password-input');
@@ -83,46 +81,42 @@ const chartLegend = document.getElementById('chart-legend');
 const desempenhoSection = document.getElementById('desempenho-section');
 const resultadoSection = document.getElementById('resultado-section');
 
-// NOVAS REFERÊNCIAS PARA A SEÇÃO DE COMPARAÇÃO
 const comparacaoSection = document.getElementById('comparacao-section');
 const comparacaoChartCanvas = document.getElementById('comparacao-chart');
 const comparacaoLegend = document.getElementById('comparacao-legend');
 const diferencaTotalSpan = document.getElementById('diferenca-total');
 
-// NOVA REFERÊNCIA PARA O BOTÃO DE TEMA NO FOOTER
 const themeToggleFooterBtn = document.getElementById('theme-toggle-footer');
 
-// Estado da aplicação
 let mostrarInvestimento = false;
 let resultadosCalculados = [];
 let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let lastScrollTop = 0;
 let chartInstance = null;
-let comparacaoChartInstance = null; // NOVA INSTÂNCIA DO GRÁFICO DE COMPARAÇÃO
+let comparacaoChartInstance = null;
 let isDarkMode = false;
 
-// Configuração da palavra-passe
 const CORRECT_PASSWORD = "Fontainhas#9"; 
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
 const THEME_KEY = 'portfolio_calculator_theme';
 
-// Função para arredondar para 2 casas decimais para cima
-function arredondarParaCima(valor) {
-    return Math.ceil(valor * 100) / 100;
+function arredondar(valor) {
+    return Math.round(valor * 100) / 100;
 }
 
-// Função para arredondar percentagem para 2 casas decimais para cima
-function arredondarPercentagemParaCima(valor) {
-    return Math.ceil(valor * 100) / 100;
+function arredondarPercentagem(valor) {
+    return Math.round(valor * 1000) / 1000; // 3 casas decimais
 }
 
-// Verificar se o usuário já está autenticado
+function arredondarPercentagemGrafico(valor) {
+    return Math.round(valor * 100) / 100; // 2 casas decimais para gráficos
+}
+
 function checkAuthentication() {
     try {
         const authData = sessionStorage.getItem(AUTH_KEY);
         const authTimestamp = sessionStorage.getItem(AUTH_TIMESTAMP_KEY);
-        
         if (authData && authTimestamp) {
             return true;
         }
@@ -132,59 +126,48 @@ function checkAuthentication() {
     return false;
 }
 
-// Mostrar conteúdo principal
 function showMainContent() {
     loginScreen.style.display = 'none';
     mainContent.style.display = 'block';
     document.body.style.background = 'linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%)';
     
-    // Ajustar altura em dispositivos móveis
     if (isMobile) {
         document.body.style.minHeight = '100vh';
         document.body.style.minHeight = '-webkit-fill-available';
     }
     
-    // Inicializar a calculadora
     initCalculator();
 }
 
-// Fazer logout
 function logout() {
     sessionStorage.removeItem(AUTH_KEY);
     sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
     location.reload();
 }
 
-// Configurar sistema de login
 function setupLoginSystem() {
-    // Focar no campo de senha
     passwordInput.focus();
     
-    // Mostrar/ocultar senha
     togglePasswordBtn.addEventListener('click', function() {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);
         this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
     });
     
-    // Login com Enter
     passwordInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             loginBtn.click();
         }
     });
     
-    // Botão de login
     loginBtn.addEventListener('click', function() {
         const password = passwordInput.value.trim();
         
         if (password === CORRECT_PASSWORD) {
-            // Autenticação bem-sucedida
             const currentTime = new Date().getTime();
             sessionStorage.setItem(AUTH_KEY, 'true');
             sessionStorage.setItem(AUTH_TIMESTAMP_KEY, currentTime.toString());
             
-            // Animação de sucesso
             loginBtn.innerHTML = '<i class="fas fa-check"></i> Autenticado!';
             loginBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
             
@@ -192,12 +175,10 @@ function setupLoginSystem() {
                 showMainContent();
             }, 800);
         } else {
-            // Senha incorreta
             loginError.style.display = 'flex';
             passwordInput.value = '';
             passwordInput.focus();
             
-            // Animar o botão de erro
             loginBtn.innerHTML = '<i class="fas fa-times"></i> Erro!';
             loginBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
             
@@ -209,7 +190,6 @@ function setupLoginSystem() {
         }
     });
     
-    // Limpar erro ao digitar
     passwordInput.addEventListener('input', function() {
         if (loginError.style.display !== 'none') {
             loginError.style.display = 'none';
@@ -217,19 +197,16 @@ function setupLoginSystem() {
     });
 }
 
-// Inicializar a aplicação
 function init() {
     setupLoginSystem();
     
     loginScreen.style.display = 'flex';
     mainContent.style.display = 'none';
     
-    // Limpar qualquer sessão anterior (para garantir)
     sessionStorage.removeItem(AUTH_KEY);
     sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
 }
 
-// Inicializar a calculadora (após login)
 function initCalculator() {
     configurarEventListeners();
     configurarNavegacaoTeclado();
@@ -240,13 +217,11 @@ function initCalculator() {
     configurarModoEscuro();
     configurarGrafico();
     
-    // Configurar o botão de mostrar investimentos (agora no footer)
     toggleInvestmentBtn.addEventListener('click', function(e) {
         e.preventDefault();
         toggleMostrarInvestimento();
     });
     
-    // Configurar o botão de sair no header
     const logoutHeaderBtn = document.getElementById('logout-header-btn');
     if (logoutHeaderBtn) {
         logoutHeaderBtn.addEventListener('click', function(e) {
@@ -255,31 +230,23 @@ function initCalculator() {
         });
     }
     
-    // Focar no primeiro campo
     setTimeout(() => {
         inputsPrecos.sp.focus();
     }, 300);
 }
 
-// Detectar dispositivo e ajustar comportamento
 function detectarDispositivo() {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    
-    // Verificar se é mobile
     isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
     
-    // Adicionar classe CSS para mobile
     if (isMobile) {
         document.body.classList.add('is-mobile');
-        
-        // Mostrar dica de teclado móvel
         setTimeout(() => {
             showMobileKeyboardHint();
         }, 2000);
     }
 }
 
-// Mostrar dica de teclado móvel
 function showMobileKeyboardHint() {
     if (isMobile && !sessionStorage.getItem('keyboardHintShown')) {
         mobileKeyboardHint.classList.add('show');
@@ -291,23 +258,17 @@ function showMobileKeyboardHint() {
     }
 }
 
-// Função para formatar números com vírgula para ponto
 function formatarNumeroParaCalculo(valor) {
     if (!valor || valor === '') return null;
     
-    // Substituir vírgula por ponto
     let valorFormatado = valor.toString().replace(',', '.');
-    
-    // Remover caracteres não numéricos exceto ponto e números
     valorFormatado = valorFormatado.replace(/[^\d.]/g, '');
     
-    // Remover múltiplos pontos (manter apenas o primeiro)
     const partes = valorFormatado.split('.');
     if (partes.length > 2) {
         valorFormatado = partes[0] + '.' + partes.slice(1).join('');
     }
     
-    // Limitar a 4 casas decimais para os valores inseridos
     if (valorFormatado.includes('.')) {
         const partesDecimais = valorFormatado.split('.');
         if (partesDecimais[1].length > 4) {
@@ -318,7 +279,6 @@ function formatarNumeroParaCalculo(valor) {
     return parseFloat(valorFormatado);
 }
 
-// Configurar event listeners
 function configurarEventListeners() {
     calcularBtn.addEventListener('click', calcularPortfolio);
     calcularBtn.addEventListener('touchstart', function(e) {
@@ -342,9 +302,7 @@ function configurarEventListeners() {
         limparCampos();
     });
     
-    // Eventos para inputs - melhorar experiência mobile e decimal
     Object.values(inputsPrecos).forEach((input, index, arr) => {
-        // Para desktop: navegação com Enter
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -356,26 +314,20 @@ function configurarEventListeners() {
             }
         });
         
-        // Para mobile: mostrar botão de ação quando focado
         input.addEventListener('focus', () => {
             if (isMobile) {
                 scrollToElement(input);
             }
         });
         
-        // Validação em tempo real para números decimais
         input.addEventListener('input', (e) => {
             let value = e.target.value;
-            
-            // Permitir apenas números, ponto e vírgula
             value = value.replace(/[^\d,.]/g, '');
             
-            // Garantir que só haja um separador decimal
             const commaCount = (value.match(/,/g) || []).length;
             const dotCount = (value.match(/\./g) || []).length;
             
             if (commaCount + dotCount > 1) {
-                // Se houver múltiplos separadores, manter apenas o primeiro
                 const firstSeparatorIndex = Math.min(
                     value.indexOf(','), 
                     value.indexOf('.')
@@ -384,7 +336,6 @@ function configurarEventListeners() {
                        value.substring(firstSeparatorIndex + 1).replace(/[,.]/g, '');
             }
             
-            // Limitar a 4 casas decimais para os valores inseridos
             if (value.includes(',') || value.includes('.')) {
                 const separator = value.includes(',') ? ',' : '.';
                 const parts = value.split(separator);
@@ -396,13 +347,11 @@ function configurarEventListeners() {
             e.target.value = value;
         });
         
-        // Para iOS: garantir que o teclado numérico com decimal apareça
         if (navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
             input.setAttribute('pattern', '[0-9]*[.,]?[0-9]*');
         }
     });
     
-    // Prevenir zoom em inputs em iOS
     document.addEventListener('touchstart', function(e) {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             document.body.style.zoom = "100%";
@@ -410,33 +359,27 @@ function configurarEventListeners() {
     }, { passive: true });
 }
 
-// Configurar navegação por teclado - MELHORIA PARA MOBILE
 function configurarNavegacaoTeclado() {
     document.addEventListener('keydown', (e) => {
-        // Ctrl+Enter ou Cmd+Enter para calcular
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
             calcularPortfolio();
         }
         
-        // Escape para limpar
         if (e.key === 'Escape') {
             limparCampos();
         }
         
-        // Alt+I para mostrar/ocultar investimento
         if (e.key === 'i' && e.altKey) {
             e.preventDefault();
             toggleMostrarInvestimento();
         }
         
-        // Alt+T para alternar tema
         if (e.key === 't' && e.altKey) {
             e.preventDefault();
             toggleModoEscuro();
         }
         
-        // Ctrl+Alt+L para logout (atalho secreto)
         if (e.key === 'l' && e.ctrlKey && e.altKey) {
             e.preventDefault();
             logout();
@@ -444,7 +387,6 @@ function configurarNavegacaoTeclado() {
     });
 }
 
-// Configurar scroll para o topo
 function configurarScrollToTop() {
     backToTopBtn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -454,7 +396,6 @@ function configurarScrollToTop() {
         });
     });
     
-    // Mostrar/ocultar botão baseado no scroll
     window.addEventListener('scroll', function() {
         const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
         
@@ -472,26 +413,18 @@ function configurarScrollToTop() {
     }, { passive: true });
 }
 
-// Configurar foco em mobile - MELHORIA PARA TECLADO
 function configurarFocusMobile() {
     if (isMobile) {
-        // Adicionar botões de navegação virtual para mobile
         const inputs = Object.values(inputsPrecos);
         
         inputs.forEach((input, index) => {
-            // Configurar enterkeyhint para melhor navegação no teclado móvel
             if (index < inputs.length - 1) {
-                // Para todos exceto o último: "next" (ou "próximo")
                 input.setAttribute('enterkeyhint', 'next');
             } else {
-                // Para o último: "go" (ou "concluir") para calcular
                 input.setAttribute('enterkeyhint', 'go');
             }
             
-            // Garantir que o teclado numérico com decimal apareça
             input.setAttribute('inputmode', 'decimal');
-            
-            // Melhorar a experiência do teclado
             input.setAttribute('autocomplete', 'off');
             input.setAttribute('autocorrect', 'off');
             input.setAttribute('spellcheck', 'false');
@@ -499,7 +432,6 @@ function configurarFocusMobile() {
     }
 }
 
-// Scroll para elemento em mobile
 function scrollToElement(element) {
     if (isMobile) {
         const elementRect = element.getBoundingClientRect();
@@ -513,7 +445,6 @@ function scrollToElement(element) {
     }
 }
 
-// Calcular e mostrar total investido
 function calcularTotalInvestido() {
     const totalInvestido = acoes.reduce((total, acao) => total + acao.investido, 0);
     document.getElementById('total-investido').textContent = totalInvestido.toLocaleString('pt-PT', {
@@ -522,7 +453,6 @@ function calcularTotalInvestido() {
     }) + '€';
 }
 
-// Alternar mostrar/ocultar valores investidos (agora no footer)
 function toggleMostrarInvestimento() {
     mostrarInvestimento = !mostrarInvestimento;
     
@@ -544,7 +474,6 @@ function toggleMostrarInvestimento() {
     }
 }
 
-// Função para atualizar os ícones de tema em ambos os botões
 function atualizarIconesTema() {
     const iconHeader = themeToggleBtn.querySelector('i');
     const iconFooter = themeToggleFooterBtn.querySelector('i');
@@ -558,9 +487,7 @@ function atualizarIconesTema() {
     }
 }
 
-// Configurar Modo Escuro
 function configurarModoEscuro() {
-    // Verificar preferência salva
     const savedTheme = localStorage.getItem(THEME_KEY);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
@@ -570,31 +497,23 @@ function configurarModoEscuro() {
         desativarModoEscuro();
     }
     
-    // Configurar botão de toggle no header
     themeToggleBtn.addEventListener('click', function(e) {
         e.preventDefault();
         toggleModoEscuro();
     });
     
-    // Configurar botão de toggle no footer
     themeToggleFooterBtn.addEventListener('click', function(e) {
         e.preventDefault();
         toggleModoEscuro();
     });
 }
 
-// Ativar Modo Escuro
 function ativarModoEscuro() {
     document.body.classList.add('dark-mode');
     isDarkMode = true;
-    
-    // Atualizar ícones dos botões de tema (header e footer)
     atualizarIconesTema();
-    
-    // Salvar preferência
     localStorage.setItem(THEME_KEY, 'dark');
     
-    // Atualizar gráficos se existirem
     if (chartInstance) {
         atualizarGrafico();
     }
@@ -603,18 +522,12 @@ function ativarModoEscuro() {
     }
 }
 
-// Desativar Modo Escuro
 function desativarModoEscuro() {
     document.body.classList.remove('dark-mode');
     isDarkMode = false;
-    
-    // Atualizar ícones dos botões de tema (header e footer)
     atualizarIconesTema();
-    
-    // Salvar preferência
     localStorage.setItem(THEME_KEY, 'light');
     
-    // Atualizar gráficos se existirem
     if (chartInstance) {
         atualizarGrafico();
     }
@@ -623,7 +536,6 @@ function desativarModoEscuro() {
     }
 }
 
-// Alternar Modo Escuro
 function toggleModoEscuro() {
     if (isDarkMode) {
         desativarModoEscuro();
@@ -632,70 +544,50 @@ function toggleModoEscuro() {
     }
 }
 
-// Configurar Gráfico (SIMPLIFICADA - botão removido)
 function configurarGrafico() {
-    // Botão de mostrar percentagens REMOVIDO
-    // Apenas manter a configuração básica do gráfico
 }
 
-// Atualizar Gráfico
 function atualizarGrafico() {
     if (!chartInstance || resultadosCalculados.length === 0) return;
-    
-    // Destruir gráfico anterior
     chartInstance.destroy();
-    
-    // Criar novo gráfico com os dados atualizados
     criarGrafico();
 }
 
-// NOVA FUNÇÃO: Atualizar Gráfico de Comparação
 function atualizarGraficoComparacao() {
     if (!comparacaoChartInstance || resultadosCalculados.length === 0) return;
-    
-    // Destruir gráfico anterior
     comparacaoChartInstance.destroy();
-    
-    // Criar novo gráfico com os dados atualizados
     criarGraficoComparacao();
 }
 
-// Criar Gráfico (SIMPLIFICADA)
 function criarGrafico() {
     if (resultadosCalculados.length === 0) {
         graficoSection.style.display = 'none';
         return;
     }
     
-    // Mostrar seção do gráfico
     graficoSection.style.display = 'block';
     
-    // Preparar dados para o gráfico
     const labels = resultadosCalculados.map(r => r.nomeCurto);
     const valores = resultadosCalculados.map(r => r.valorAtual);
     const total = valores.reduce((sum, val) => sum + val, 0);
-    // ALTERADO: Agora sempre mostra valores (€) e as percentagens são calculadas apenas para a legenda
-    const porcentagens = valores.map(val => arredondarPercentagemParaCima(((val / total) * 100)));
+    const porcentagens = valores.map(val => arredondarPercentagemGrafico(((val / total) * 100)));
     
-    // Cores para o gráfico
     const colors = [
-        '#2d6ae3', // Azul
-        '#7e3af2', // Roxo
-        '#0ea5e9', // Azul claro
-        '#10b981', // Verde
-        '#f59e0b'  // Laranja
+        '#2d6ae3',
+        '#7e3af2',
+        '#0ea5e9',
+        '#10b981',
+        '#f59e0b'
     ];
     
-    // Configuração do gráfico baseada no modo escuro
     const textColor = isDarkMode ? '#f1f5f9' : '#1f2937';
     
-    // Configurações do gráfico de pizza - SEMPRE MOSTRA VALORES (€)
     const config = {
         type: 'pie',
         data: {
             labels: labels,
             datasets: [{
-                data: valores, // SEMPRE mostra valores em €
+                data: valores,
                 backgroundColor: colors,
                 borderColor: isDarkMode ? '#1e293b' : '#ffffff',
                 borderWidth: 2,
@@ -719,14 +611,13 @@ function criarGrafico() {
                 },
                 tooltip: {
                     callbacks: {
-                        // MELHORIA: Remover duplicação do nome no tooltip
                         title: function(context) {
                             return context[0].label || '';
                         },
                         label: function(context) {
                             const value = context.raw || 0;
-                            const percentage = arredondarPercentagemParaCima((value / total) * 100);
-                            return `${formatarMoeda(value)} (${formatarPercentagem(percentage)})`;
+                            const percentage = arredondarPercentagemGrafico((value / total) * 100);
+                            return `${formatarMoeda(value)} (${formatarPercentagemGrafico(percentage)})`;
                         }
                     },
                     titleFont: {
@@ -740,13 +631,9 @@ function criarGrafico() {
         }
     };
     
-    // Criar gráfico
     chartInstance = new Chart(chartCanvas, config);
-    
-    // Atualizar legenda - SEMPRE mostra valores e percentagens COM LINKS
     atualizarLegenda(labels, valores, porcentagens, colors);
     
-    // Scroll para gráfico em mobile
     if (isMobile) {
         setTimeout(() => {
             scrollToElement(graficoSection);
@@ -754,21 +641,17 @@ function criarGrafico() {
     }
 }
 
-// Atualizar Legenda (SIMPLIFICADA - sempre mostra valores e percentagens com LINKS)
 function atualizarLegenda(labels, valores, porcentagens, colors) {
     chartLegend.innerHTML = '';
     
     labels.forEach((label, index) => {
         const valor = valores[index];
         const porcentagem = porcentagens[index];
-        
-        // Obter o link para esta ação
         const linkAcao = linksAcoes[label];
         
         const legendItem = document.createElement('div');
         legendItem.className = 'legend-item';
         
-        // SEMPRE mostra o valor e a percentagem na legenda COM LINK
         if (linkAcao) {
             legendItem.innerHTML = `
                 <div class="legend-color" style="background-color: ${colors[index]}"></div>
@@ -776,7 +659,7 @@ function atualizarLegenda(labels, valores, porcentagens, colors) {
                     <span class="legend-name">${label}</span>
                 </a>
                 <span class="legend-value">
-                    ${formatarMoeda(valor)} (${formatarPercentagem(porcentagem)})
+                    ${formatarMoeda(valor)} (${formatarPercentagemGrafico(porcentagem)})
                 </span>
             `;
         } else {
@@ -784,7 +667,7 @@ function atualizarLegenda(labels, valores, porcentagens, colors) {
                 <div class="legend-color" style="background-color: ${colors[index]}"></div>
                 <span class="legend-name">${label}</span>
                 <span class="legend-value">
-                    ${formatarMoeda(valor)} (${formatarPercentagem(porcentagem)})
+                    ${formatarMoeda(valor)} (${formatarPercentagemGrafico(porcentagem)})
                 </span>
             `;
         }
@@ -793,38 +676,32 @@ function atualizarLegenda(labels, valores, porcentagens, colors) {
     });
 }
 
-// NOVA FUNÇÃO: Criar Gráfico de Comparação (Diferença vs Investido) - SEM LEGENDA
 function criarGraficoComparacao() {
     if (resultadosCalculados.length === 0) {
         return;
     }
     
-    // Preparar dados para o gráfico
     const labels = resultadosCalculados.map(r => r.nomeCurto);
     const valoresInvestidos = resultadosCalculados.map(r => r.investido);
     const valoresAtuais = resultadosCalculados.map(r => r.valorAtual);
     
-    // Calcular a diferença (excedente) para cada ação
     const diferencas = valoresAtuais.map((valorAtual, index) => {
         return valorAtual - valoresInvestidos[index];
     });
     
-    // Configurar cores baseadas na diferença
     const cores = diferencas.map(diferenca => 
-        diferenca >= 0 ? '#10b981' : '#ef4444' // Verde para positivo, vermelho para negativo
+        diferenca >= 0 ? '#10b981' : '#ef4444'
     );
     
-    // Configuração do gráfico baseada no modo escuro
     const textColor = isDarkMode ? '#f1f5f9' : '#1f2937';
     const gridColor = isDarkMode ? 'rgba(241, 245, 249, 0.1)' : 'rgba(0, 0, 0, 0.1)';
     
-    // Configurações do gráfico de barras - MOSTRA APENAS A DIFERENÇA
     const config = {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Excedente (€)',
+                label: 'Lucro/Prejuízo (€)',
                 data: diferencas,
                 backgroundColor: cores,
                 borderColor: diferencas.map(diferenca => 
@@ -868,7 +745,8 @@ function criarGraficoComparacao() {
                             size: 12
                         },
                         callback: function(value) {
-                            return (value >= 0 ? '+' : '') + arredondarParaCima(value).toLocaleString('pt-PT', { minimumFractionDigits: 0 }) + '€';
+                            const label = value >= 0 ? '+' : '';
+                            return label + arredondar(value).toLocaleString('pt-PT', { minimumFractionDigits: 0 }) + '€';
                         }
                     }
                 }
@@ -890,12 +768,14 @@ function criarGraficoComparacao() {
                             const index = context.dataIndex;
                             const investido = valoresInvestidos[index];
                             const atual = valoresAtuais[index];
-                            const percentagem = arredondarPercentagemParaCima((diferenca / investido) * 100);
+                            const percentagem = arredondarPercentagem((diferenca / investido) * 100);
+                            
+                            const tipo = diferenca >= 0 ? 'Lucro' : 'Prejuízo';
                             
                             return [
                                 `Investido: ${formatarMoeda(investido)}`,
                                 `Atual: ${formatarMoeda(atual)}`,
-                                `Excedente: ${diferenca >= 0 ? '+' : ''}${formatarMoeda(Math.abs(diferenca))} (${diferenca >= 0 ? '+' : ''}${formatarPercentagem(percentagem, true)})`
+                                `${tipo}: ${formatarMoeda(diferenca, true)} (${formatarPercentagem(percentagem, true)})`
                             ];
                         }
                     }
@@ -904,13 +784,10 @@ function criarGraficoComparacao() {
         }
     };
     
-    // Criar gráfico
     comparacaoChartInstance = new Chart(comparacaoChartCanvas, config);
 }
 
-// Função para calcular o portfólio
 function calcularPortfolio() {
-    // Limpar resultados anteriores
     resultadosCalculados = [];
     limparTabela();
     
@@ -919,27 +796,21 @@ function calcularPortfolio() {
     let acoesValidas = 0;
     let acoesComLucro = 0;
     
-    // Calcular cada ação
     acoes.forEach(acao => {
         const input = inputsPrecos[acao.id];
         const valorInput = input.value.trim();
-        
-        // Converter o valor para número (suporta vírgula e ponto)
         const precoAtual = formatarNumeroParaCalculo(valorInput);
         
         if (valorInput !== '' && !isNaN(precoAtual) && precoAtual >= 0) {
-            // Calcular resultados com alta precisão inicial
             const numeroAcoes = acao.investido / acao.precoCompra;
             const valorAtualBruto = numeroAcoes * precoAtual;
             const lucroBruto = valorAtualBruto - acao.investido;
             const percentagemBruto = (lucroBruto / acao.investido) * 100;
             
-            // Arredondar resultados para 2 casas decimais para cima
-            const valorAtual = arredondarParaCima(valorAtualBruto);
-            const lucro = arredondarParaCima(lucroBruto);
-            const percentagem = arredondarPercentagemParaCima(percentagemBruto);
+            const valorAtual = arredondar(valorAtualBruto);
+            const lucro = arredondar(lucroBruto);
+            const percentagem = arredondarPercentagem(percentagemBruto);
             
-            // Armazenar resultados
             resultadosCalculados.push({
                 nome: acao.nome,
                 nomeCurto: acao.nomeCurto,
@@ -952,48 +823,39 @@ function calcularPortfolio() {
                 percentagem: percentagem
             });
             
-            // Contar ações com lucro
             if (lucro > 0) {
                 acoesComLucro++;
             }
             
-            // Atualizar totais
             totalInvestido += acao.investido;
             totalAtual += valorAtual;
             acoesValidas++;
             
-            // Adicionar à tabela
             adicionarNaTabela(acao.nomeCurto, valorAtual, lucro, percentagem, acao.icon);
         }
     });
     
     if (acoesValidas === 0) {
         mostrarErro("Por favor, insira pelo menos um preço atual válido");
-        // CORREÇÃO: OCULTAR TODAS AS SEÇÕES (incluindo resumo)
         resultadoSection.style.display = 'none';
         desempenhoSection.style.display = 'none';
         graficoSection.style.display = 'none';
         return;
     }
     
-    // Calcular totais consolidados com arredondamento para cima
     const lucroTotalBruto = totalAtual - totalInvestido;
-    const lucroTotal = arredondarParaCima(lucroTotalBruto);
+    const lucroTotal = arredondar(lucroTotalBruto);
     const percentagemTotalBruto = totalInvestido > 0 ? (lucroTotal / totalInvestido) * 100 : 0;
-    const percentagemTotal = arredondarPercentagemParaCima(percentagemTotalBruto);
+    const percentagemTotal = arredondarPercentagem(percentagemTotalBruto);
     
-    // Atualizar estatísticas
     statsAcoes.textContent = `${acoesValidas}/5 ações`;
     
-    // Mostrar resultado consolidado SIMPLIFICADO
     mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal);
     
-    // MOSTRAR SEÇÕES APENAS SE HOUVER DADOS VÁLIDOS:
     resultadoSection.style.display = 'block';
     desempenhoSection.style.display = 'block';
     graficoSection.style.display = 'block';
     
-    // Destruir os gráficos anteriores antes de criar novos
     if (chartInstance) {
         chartInstance.destroy();
         chartInstance = null;
@@ -1004,11 +866,9 @@ function calcularPortfolio() {
         comparacaoChartInstance = null;
     }
     
-    // Criar ou atualizar gráficos
     criarGrafico();
     criarGraficoComparacao();
     
-    // Scroll para a seção de resumo em mobile
     if (isMobile && acoesValidas > 0) {
         setTimeout(() => {
             scrollToElement(resultadoSection);
@@ -1016,24 +876,19 @@ function calcularPortfolio() {
     }
 }
 
-// Função para adicionar linha na tabela (MELHORIA: nome com link)
 function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
-    // Remover linha vazia se existir
     const emptyRow = tabelaResultados.querySelector('.empty-row');
     if (emptyRow) {
         emptyRow.remove();
     }
     
-    // Criar nova linha
     const novaLinha = tabelaResultados.insertRow();
     novaLinha.className = 'resultado-linha';
     
-    // Formatar valores
     const valorAtualFormatado = formatarMoeda(valorAtual);
     const lucroFormatado = formatarMoeda(lucro, true);
     const percentagemFormatada = formatarPercentagem(percentagem, true);
     
-    // Adicionar células (MELHORIA: nome com link)
     const celulaAcao = novaLinha.insertCell(0);
     const link = document.createElement('a');
     link.href = linksAcoes[nome];
@@ -1056,7 +911,6 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     celulaPercentagem.textContent = percentagemFormatada;
     celulaPercentagem.className = 'percentagem-cell';
     
-    // Aplicar estilos baseados no resultado
     if (lucro > 0) {
         celulaLucro.classList.add('lucro-positivo');
         celulaPercentagem.classList.add('lucro-positivo');
@@ -1066,9 +920,7 @@ function adicionarNaTabela(nome, valorAtual, lucro, percentagem, iconClass) {
     }
 }
 
-// Função para mostrar resultado consolidado SIMPLIFICADO
 function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percentagemTotal) {
-    // Determinar cor baseado no resultado
     let cor;
     
     if (lucroTotal > 0) {
@@ -1079,12 +931,10 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
         cor = 'resultado-estavel';
     }
     
-    // Formatar valores monetários
     const totalAtualFormatado = formatarMoeda(totalAtual);
     const lucroTotalFormatado = formatarMoeda(lucroTotal, true);
     const percentagemTotalFormatada = formatarPercentagem(percentagemTotal, true);
     
-    // Criar conteúdo HTML SIMPLIFICADO
     const resultadoHTML = `
         <div class="resultado-info ${cor}">
             <div class="resultado-detalhes">
@@ -1111,7 +961,6 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
     resultadoConsolidado.classList.add('has-result');
 }
 
-// Função para mostrar erro
 function mostrarErro(mensagem) {
     resultadoConsolidado.innerHTML = `
         <div class="resultado-info resultado-negativo">
@@ -1122,29 +971,47 @@ function mostrarErro(mensagem) {
     statsAcoes.textContent = '0/5 ações calculadas';
 }
 
-// Função para formatar valores monetários (ALTERADA: símbolo € no final)
 function formatarMoeda(valor, comSinal = false) {
-    const sinal = comSinal ? (valor > 0 ? '+' : '') : '';
-    const valorArredondado = arredondarParaCima(Math.abs(valor));
+    const sinal = comSinal ? (valor > 0 ? '+' : valor < 0 ? '-' : '') : '';
+    const valorArredondado = arredondar(Math.abs(valor));
     
-    // Formatar com separador de milhares e 2 casas decimais, símbolo € no final
     return sinal + valorArredondado.toLocaleString('pt-PT', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }) + '€';
 }
 
-// Função para limpar campos
+function formatarPercentagem(valor, comSinal = false) {
+    const sinal = comSinal ? (valor > 0 ? '+' : valor < 0 ? '-' : '') : '';
+    const valorArredondado = arredondarPercentagem(Math.abs(valor));
+    
+    const valorFormatado = valorArredondado.toLocaleString('pt-PT', {
+        minimumFractionDigits: 3,
+        maximumFractionDigits: 3
+    }) + '%';
+    
+    return sinal + valorFormatado.replace('.', ',');
+}
+
+function formatarPercentagemGrafico(valor, comSinal = false) {
+    const sinal = comSinal ? (valor > 0 ? '+' : valor < 0 ? '-' : '') : '';
+    const valorArredondado = arredondarPercentagemGrafico(Math.abs(valor));
+    
+    const valorFormatado = valorArredondado.toLocaleString('pt-PT', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }) + '%';
+    
+    return sinal + valorFormatado.replace('.', ',');
+}
+
 function limparCampos() {
-    // Limpar campos de entrada
     Object.values(inputsPrecos).forEach(input => {
         input.value = '';
     });
     
-    // Limpar tabela
     limparTabela();
     
-    // Limpar gráficos
     if (chartInstance) {
         chartInstance.destroy();
         chartInstance = null;
@@ -1155,18 +1022,14 @@ function limparCampos() {
         comparacaoChartInstance = null;
     }
     
-    // Limpar legendas dos gráficos
     chartLegend.innerHTML = '';
     
-    // CORREÇÃO: OCULTAR TODAS AS SEÇÕES DE RESULTADO
-    resultadoSection.style.display = 'none'; // ← ALTERADO DE 'block' PARA 'none'
+    resultadoSection.style.display = 'none';
     desempenhoSection.style.display = 'none';
     graficoSection.style.display = 'none';
     
-    // Limpar resultados
     resultadosCalculados = [];
     
-    // Restaurar estado inicial do resultado consolidado
     resultadoConsolidado.innerHTML = `
         <div class="estado-inicial">
             <div class="estado-icon">
@@ -1179,12 +1042,10 @@ function limparCampos() {
     resultadoConsolidado.classList.remove('has-result');
     statsAcoes.textContent = '0/5 ações calculadas';
     
-    // Esconder valores investidos se estiverem visíveis
     if (mostrarInvestimento) {
         toggleMostrarInvestimento();
     }
     
-    // Scroll para topo em mobile
     if (isMobile) {
         setTimeout(() => {
             window.scrollTo({
@@ -1194,18 +1055,14 @@ function limparCampos() {
         }, 100);
     }
     
-    // Focar no primeiro campo
     inputsPrecos.sp.focus();
 }
 
-// Função para limpar tabela
 function limparTabela() {
-    // Remover todas as linhas exceto a linha vazia
     while (tabelaResultados.rows.length > 0) {
         tabelaResultados.deleteRow(0);
     }
     
-    // Adicionar linha vazia novamente
     const novaLinha = tabelaResultados.insertRow();
     novaLinha.className = 'empty-row';
     const celulaVazia = novaLinha.insertCell(0);
@@ -1213,7 +1070,6 @@ function limparTabela() {
     celulaVazia.innerHTML = '<i class="fas fa-info-circle"></i><span>Insira os preços e clique em Calcular</span>';
 }
 
-// Prevenir comportamento padrão de toque longo
 document.addEventListener('touchstart', function(e) {
     if (e.touches.length > 1) {
         e.preventDefault();
@@ -1226,7 +1082,6 @@ document.addEventListener('touchmove', function(e) {
     }
 }, { passive: false });
 
-// Suporte para PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js').then(function(registration) {
@@ -1237,16 +1092,12 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Inicializar a aplicação quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', init);
 
-// Adicionar botão de logout no footer (após o botão de mostrar investimentos)
 window.addEventListener('load', function() {
-    // Esperar o footer ser carregado
     setTimeout(() => {
         const footerLinks = document.querySelector('.footer-links');
         if (footerLinks && !document.getElementById('logout-footer-btn')) {
-            // Criar botão de logout para o footer (apenas ícone)
             const logoutBtn = document.createElement('a');
             logoutBtn.id = 'logout-footer-btn';
             logoutBtn.className = 'footer-link';
@@ -1258,23 +1109,7 @@ window.addEventListener('load', function() {
                 logout();
             });
             
-            // Adicionar após o último botão (que agora é o de tema)
             footerLinks.appendChild(logoutBtn);
         }
     }, 500);
 });
-
-// Função para formatar percentagens com vírgula (12,3% em vez de 12.3%)
-function formatarPercentagem(valor, comSinal = false) {
-    const sinal = comSinal ? (valor > 0 ? '+' : '') : '';
-    const valorArredondado = arredondarPercentagemParaCima(Math.abs(valor));
-    
-    // Formatar com vírgula como separador decimal e símbolo % no final
-    const valorFormatado = valorArredondado.toLocaleString('pt-PT', {
-        minimumFractionDigits: 1,
-        maximumFractionDigits: 2
-    }) + '%';
-    
-    // Garantir que tenha vírgula em vez de ponto
-    return sinal + valorFormatado.replace('.', ',');
-}
