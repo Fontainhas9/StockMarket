@@ -572,13 +572,13 @@ function criarGrafico() {
     const total = valores.reduce((sum, val) => sum + val, 0);
     const porcentagens = valores.map(val => arredondarPercentagemGrafico(((val / total) * 100)));
     
-    const colors = [
-        '#2d6ae3',
-        '#7e3af2',
-        '#0ea5e9',
-        '#10b981',
-        '#f59e0b'
-    ];
+const colors = [
+    '#2d6ae3', // azul principal
+    '#7e3af2', // roxo
+    '#0ea5e9', // azul success
+    '#10b981', // verde esmeralda
+    '#eab308'  // amarelo suave (melhor que laranja no escuro)
+];
     
     const textColor = isDarkMode ? '#f1f5f9' : '#1f2937';
     
