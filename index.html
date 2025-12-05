@@ -4,13 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Portfolio Calculator</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <!-- CSS dividido -->
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="components.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="themes.css">
+    <link rel="stylesheet" href="utilities.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="theme-color" content="#2d6ae3">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- SEO melhorado -->
+    <meta name="description" content="Calculadora de portfólio de investimentos para acompanhamento de ações e fundos">
+    <meta name="keywords" content="investimentos, ações, portfólio, calculadora, finanças, BCP, S&P 500, ouro, Janus Henderson, JP Morgan, IMGA">
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -50,6 +60,10 @@
             </div>
         </div>
     </div>
+    
+    <!-- Sistema de Notificações -->
+    <div id="notification-container" class="notification-container"></div>
+    
     <!-- Conteúdo Principal (inicialmente oculto) -->
     <div id="main-content" class="container" style="display: none;">
         <header>
@@ -99,8 +113,12 @@
                                 <div class="input-icon">
                                     <i class="fas fa-chart-bar"></i>
                                 </div>
-                                <input type="text" id="sp-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 57.662" class="preco-input">
+                                <input type="text" id="sp-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" 
+                                       placeholder="Ex: 57.662" class="preco-input"
+                                       aria-label="Preço atual do BCP S&P 500"
+                                       aria-describedby="sp-help">
                             </div>
+                            <div id="sp-help" class="visually-hidden">Insira o preço atual em euros. Use ponto ou vírgula como separador decimal.</div>
                         </div>                        
                         <!-- Ação 2: BCP Ouro -->
                         <div class="acao-item">
@@ -119,7 +137,9 @@
                                 <div class="input-icon">
                                     <i class="fas fa-gem"></i>
                                 </div>
-                                <input type="text" id="ouro-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 234.77" class="preco-input">
+                                <input type="text" id="ouro-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" 
+                                       placeholder="Ex: 234.77" class="preco-input"
+                                       aria-label="Preço atual do BCP Ouro">
                             </div>
                         </div>                        
                         <!-- Ação 3: Janus Henderson -->
@@ -139,7 +159,9 @@
                                 <div class="input-icon">
                                     <i class="fas fa-university"></i>
                                 </div>
-                                <input type="text" id="janus-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 26.1" class="preco-input">
+                                <input type="text" id="janus-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" 
+                                       placeholder="Ex: 26.1" class="preco-input"
+                                       aria-label="Preço atual do Janus Henderson">
                             </div>
                         </div>                        
                         <!-- Ação 4: JP Morgan -->
@@ -159,7 +181,9 @@
                                 <div class="input-icon">
                                     <i class="fas fa-landmark"></i>
                                 </div>
-                                <input type="text" id="jpmorgan-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 482.8" class="preco-input">
+                                <input type="text" id="jpmorgan-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" 
+                                       placeholder="Ex: 482.8" class="preco-input"
+                                       aria-label="Preço atual do JP Morgan">
                             </div>
                         </div>                        
                         <!-- Ação 5: IMGA -->
@@ -179,7 +203,9 @@
                                 <div class="input-icon">
                                     <i class="fas fa-industry"></i>
                                 </div>
-                                <input type="text" id="imga-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" placeholder="Ex: 12.4971" class="preco-input">
+                                <input type="text" id="imga-price" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal" 
+                                       placeholder="Ex: 12.4971" class="preco-input"
+                                       aria-label="Preço atual do IMGA">
                             </div>
                         </div>
                     </div>                    
@@ -270,18 +296,21 @@
         <footer>
             <div class="footer-content">
                 <p>Portfolio Calculator &copy; 2025</p>
-                <!-- No footer, dentro do .footer-links -->
-                    <div class="footer-links">
-                        <a href="#" id="back-to-top" class="footer-link" title="Voltar ao topo">
-                            <i class="fas fa-arrow-up"></i>
-                        </a>
-                        <a href="#" id="toggle-investment" class="footer-link" title="Mostrar/ocultar valores investidos">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="#" id="theme-toggle-footer" class="footer-link" title="Alternar modo claro/escuro">
-                            <i class="fas fa-moon"></i>
-                        </a>
-                    </div>
+                <div class="footer-links">
+                    <a href="#" id="back-to-top" class="footer-link" title="Voltar ao topo">
+                        <i class="fas fa-arrow-up"></i>
+                    </a>
+                    <a href="#" id="toggle-investment" class="footer-link" title="Mostrar/ocultar valores investidos">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="#" id="theme-toggle-footer" class="footer-link" title="Alternar modo claro/escuro">
+                        <i class="fas fa-moon"></i>
+                    </a>
+                    <!-- Botão de logout adicionado no HTML -->
+                    <a href="#" id="logout-footer-btn" class="footer-link" title="Sair do sistema (Ctrl+Alt+L)">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
             </div>
         </footer>
     </div>

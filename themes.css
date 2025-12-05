@@ -1,0 +1,130 @@
+/* Modo claro (valores padrão) */
+:root {
+    --bg-primary: #f0f4ff;
+    --bg-container: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: rgba(229, 231, 235, 0.8);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --scrollbar-track: #f1f5f9;
+    --header-bg: linear-gradient(135deg, #2d6ae3 0%, #7e3af2 100%);
+    --footer-bg: linear-gradient(135deg, var(--darker) 0%, #000000 100%);
+}
+
+/* Modo escuro */
+body.dark-mode {
+    --bg-primary: #0f172a;
+    --bg-container: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    --bg-card: #1e293b;
+    --bg-input: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: rgba(71, 85, 105, 0.8);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --scrollbar-track: #334155;
+    --header-bg: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 100%);
+    --footer-bg: linear-gradient(135deg, #020617 0%, #000000 100%);
+}
+
+/* CORREÇÃO: Fundo do investment-summary no modo escuro */
+body.dark-mode .investment-summary {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.9) 100%) !important;
+    border: 1px solid rgba(45, 106, 227, 0.3) !important;
+    color: var(--text-primary) !important;
+}
+
+/* CORREÇÃO: Texto dentro do investment-summary no modo escuro */
+body.dark-mode .investment-summary p {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .investment-summary p strong {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .investment-summary p span {
+    color: var(--primary-light) !important;
+}
+
+/* Resto das regras existentes... */
+body.dark-mode .acao-item {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+body.dark-mode .acao-item:hover {
+    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+}
+
+body.dark-mode .acao-nome-link {
+    color: var(--text-primary);
+}
+
+body.dark-mode .acao-nome-link:hover {
+    color: var(--primary-light);
+}
+
+body.dark-mode .investment-value {
+    background: #334155;
+    border: 1px solid #475569;
+}
+
+body.dark-mode .preco-input {
+    border: 2px solid #475569;
+}
+
+body.dark-mode .legend-item {
+    background: rgba(45, 106, 227, 0.1);
+}
+
+body.dark-mode .resultado-consolidado {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 3px dashed #475569;
+}
+
+body.dark-mode .resultado-consolidado.has-result {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    box-shadow: inset 0 0 50px rgba(45, 106, 227, 0.1);
+}
+
+body.dark-mode .resultado-detalhes p {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+body.dark-mode .resultado-detalhes p:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .table-container {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .acao-link .acao-nome {
+    color: var(--text-primary);
+}
+
+/* Linha de referência zero no gráfico de comparação */
+.comparacao-card .chart-wrapper {
+    position: relative;
+}
+
+.comparacao-card .chart-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background-color: var(--text-primary);
+    opacity: 0.2;
+    transform: translateY(-50%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+body.dark-mode .comparacao-card .chart-wrapper::before {
+    opacity: 0.3;
+}

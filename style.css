@@ -691,6 +691,22 @@ body.dark-mode .investment-value {
     border: 1px solid #475569;
 }
 
+/* Ajuste para o resumo de investimento no modo escuro */
+body.dark-mode .investment-summary {
+    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+    border: 1px solid rgba(45, 106, 227, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    color: #f1f5f9;
+}
+
+body.dark-mode .investment-summary p {
+    color: #f1f5f9;
+}
+
+body.dark-mode .investment-summary strong {
+    color: #ffffff;
+}
+
 @keyframes slideIn {
     from { opacity: 0; transform: translateX(-20px) scale(0.95); }
     to { opacity: 1; transform: translateX(0) scale(1); }

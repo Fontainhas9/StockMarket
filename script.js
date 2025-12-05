@@ -50,6 +50,10 @@ const linksAcoes = {
     'S&P 500': 'https://live.euronext.com/en/product/structured-products/PTBITHYM0080-XMLI'
 };
 
+// Sistema de segurança simplificado (sem hash)
+const CORRECT_PASSWORD = "Fontainhas#9";
+
+// Elementos DOM
 const loginScreen = document.getElementById('login-screen');
 const mainContent = document.getElementById('main-content');
 const passwordInput = document.getElementById('password-input');
@@ -75,19 +79,20 @@ const statsAcoes = document.getElementById('stats-acoes');
 const backToTopBtn = document.getElementById('back-to-top');
 const mobileKeyboardHint = document.querySelector('.mobile-keyboard-hint');
 const themeToggleBtn = document.getElementById('theme-toggle');
+const themeToggleFooterBtn = document.getElementById('theme-toggle-footer');
 const graficoSection = document.getElementById('grafico-section');
 const chartCanvas = document.getElementById('portfolio-chart');
 const chartLegend = document.getElementById('chart-legend');
 const desempenhoSection = document.getElementById('desempenho-section');
 const resultadoSection = document.getElementById('resultado-section');
-
-const comparacaoSection = document.getElementById('comparacao-section');
 const comparacaoChartCanvas = document.getElementById('comparacao-chart');
-const comparacaoLegend = document.getElementById('comparacao-legend');
-const diferencaTotalSpan = document.getElementById('diferenca-total');
+const notificationContainer = document.getElementById('notification-container');
 
-const themeToggleFooterBtn = document.getElementById('theme-toggle-footer');
+// Botões de logout (agora estão no HTML)
+const logoutHeaderBtn = document.getElementById('logout-header-btn');
+const logoutFooterBtn = document.getElementById('logout-footer-btn');
 
+// Variáveis de estado
 let mostrarInvestimento = false;
 let resultadosCalculados = [];
 let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -96,11 +101,14 @@ let chartInstance = null;
 let comparacaoChartInstance = null;
 let isDarkMode = false;
 
-const CORRECT_PASSWORD = "Fontainhas#9"; 
+// Chaves de armazenamento
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
 const THEME_KEY = 'portfolio_calculator_theme';
+const SAVED_PRICES_KEY = 'portfolio_saved_prices';
+const KEYBOARD_HINT_SHOWN = 'keyboardHintShown';
 
+// Funções de utilidade
 function arredondar(valor) {
     return Math.round(valor * 100) / 100;
 }
@@ -113,12 +121,73 @@ function arredondarPercentagemGrafico(valor) {
     return Math.round(valor * 100) / 100; // 2 casas decimais para gráficos
 }
 
+// Sistema de notificações
+function mostrarNotificacao(mensagem, tipo = 'info', duracao = 5000) {
+    const notificacao = document.createElement('div');
+    notificacao.className = `notificacao ${tipo}`;
+    
+    const icon = tipo === 'erro' ? 'exclamation-circle' : 
+                tipo === 'sucesso' ? 'check-circle' : 
+                tipo === 'aviso' ? 'exclamation-triangle' : 'info-circle';
+    
+    notificacao.innerHTML = `
+        <i class="fas fa-${icon}"></i>
+        <div class="notificacao-conteudo">
+            <div class="notificacao-titulo">${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</div>
+            <div class="notificacao-mensagem">${mensagem}</div>
+        </div>
+        <button class="notificacao-fechar"><i class="fas fa-times"></i></button>
+    `;
+    
+    notificationContainer.appendChild(notificacao);
+    
+    // Animar entrada
+    setTimeout(() => notificacao.classList.add('show'), 10);
+    
+    // Fechar ao clicar no botão
+    notificacao.querySelector('.notificacao-fechar').addEventListener('click', () => {
+        fecharNotificacao(notificacao);
+    });
+    
+    // Fechar automaticamente
+    if (duracao > 0) {
+        setTimeout(() => {
+            if (notificacao.parentNode) {
+                fecharNotificacao(notificacao);
+            }
+        }, duracao);
+    }
+    
+    return notificacao;
+}
+
+function fecharNotificacao(notificacao) {
+    notificacao.classList.remove('show');
+    setTimeout(() => {
+        if (notificacao.parentNode) {
+            notificacao.remove();
+        }
+    }, 300);
+}
+
+// Sistema de autenticação
 function checkAuthentication() {
     try {
         const authData = sessionStorage.getItem(AUTH_KEY);
         const authTimestamp = sessionStorage.getItem(AUTH_TIMESTAMP_KEY);
+        
         if (authData && authTimestamp) {
-            return true;
+            const currentTime = new Date().getTime();
+            const sessionAge = currentTime - parseInt(authTimestamp);
+            const sessionMaxAge = 8 * 60 * 60 * 1000; // 8 horas
+            
+            if (sessionAge < sessionMaxAge) {
+                return true;
+            } else {
+                // Sessão expirada
+                sessionStorage.removeItem(AUTH_KEY);
+                sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
+            }
         }
     } catch (error) {
         console.error('Erro ao verificar autenticação:', error);
@@ -142,7 +211,23 @@ function showMainContent() {
 function logout() {
     sessionStorage.removeItem(AUTH_KEY);
     sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
-    location.reload();
+    localStorage.removeItem(SAVED_PRICES_KEY);
+    
+    mostrarNotificacao('Sessão terminada com sucesso', 'sucesso', 3000);
+    
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// Função simplificada de verificação de senha
+async function verificarPassword(password) {
+    // Para debug: mostra a senha inserida (apenas para desenvolvimento)
+    console.log('Senha inserida:', password);
+    console.log('Senha esperada:', CORRECT_PASSWORD);
+    
+    // Comparação direta (sem hash)
+    return password === CORRECT_PASSWORD;
 }
 
 function setupLoginSystem() {
@@ -160,33 +245,51 @@ function setupLoginSystem() {
         }
     });
     
-    loginBtn.addEventListener('click', function() {
+    loginBtn.addEventListener('click', async function() {
         const password = passwordInput.value.trim();
         
-        if (password === CORRECT_PASSWORD) {
-            const currentTime = new Date().getTime();
-            sessionStorage.setItem(AUTH_KEY, 'true');
-            sessionStorage.setItem(AUTH_TIMESTAMP_KEY, currentTime.toString());
+        if (!password) {
+            mostrarNotificacao('Por favor, insira a palavra-passe', 'erro', 3000);
+            return;
+        }
+        
+        try {
+            const isValid = await verificarPassword(password);
             
-            loginBtn.innerHTML = '<i class="fas fa-check"></i> Autenticado!';
-            loginBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-            
-            setTimeout(() => {
-                showMainContent();
-            }, 800);
-        } else {
-            loginError.style.display = 'flex';
-            passwordInput.value = '';
-            passwordInput.focus();
-            
-            loginBtn.innerHTML = '<i class="fas fa-times"></i> Erro!';
-            loginBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-            
-            setTimeout(() => {
-                loginError.style.display = 'none';
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
-                loginBtn.style.background = 'var(--gradient-primary)';
-            }, 2000);
+            if (isValid) {
+                const currentTime = new Date().getTime();
+                sessionStorage.setItem(AUTH_KEY, 'true');
+                sessionStorage.setItem(AUTH_TIMESTAMP_KEY, currentTime.toString());
+                
+                loginBtn.innerHTML = '<i class="fas fa-check"></i> Autenticado!';
+                loginBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                loginBtn.disabled = true;
+                
+                mostrarNotificacao('Autenticação bem-sucedida!', 'sucesso', 2000);
+                
+                setTimeout(() => {
+                    showMainContent();
+                }, 1000);
+            } else {
+                loginError.style.display = 'flex';
+                passwordInput.value = '';
+                passwordInput.focus();
+                
+                loginBtn.innerHTML = '<i class="fas fa-times"></i> Erro!';
+                loginBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                
+                mostrarNotificacao('Palavra-passe incorreta', 'erro', 3000);
+                
+                setTimeout(() => {
+                    loginError.style.display = 'none';
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+                    loginBtn.style.background = 'var(--gradient-primary)';
+                    loginBtn.disabled = false;
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Erro na autenticação:', error);
+            mostrarNotificacao('Erro na autenticação. Tente novamente.', 'erro', 3000);
         }
     });
     
@@ -200,11 +303,12 @@ function setupLoginSystem() {
 function init() {
     setupLoginSystem();
     
-    loginScreen.style.display = 'flex';
-    mainContent.style.display = 'none';
-    
-    sessionStorage.removeItem(AUTH_KEY);
-    sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
+    if (checkAuthentication()) {
+        showMainContent();
+    } else {
+        loginScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+    }
 }
 
 function initCalculator() {
@@ -216,15 +320,24 @@ function initCalculator() {
     configurarFocusMobile();
     configurarModoEscuro();
     configurarGrafico();
+    carregarPrecosSalvos();
     
+    // Event listeners para botões
     toggleInvestmentBtn.addEventListener('click', function(e) {
         e.preventDefault();
         toggleMostrarInvestimento();
     });
     
-    const logoutHeaderBtn = document.getElementById('logout-header-btn');
+    // Event listeners para logout
     if (logoutHeaderBtn) {
         logoutHeaderBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    }
+    
+    if (logoutFooterBtn) {
+        logoutFooterBtn.addEventListener('click', function(e) {
             e.preventDefault();
             logout();
         });
@@ -248,14 +361,61 @@ function detectarDispositivo() {
 }
 
 function showMobileKeyboardHint() {
-    if (isMobile && !sessionStorage.getItem('keyboardHintShown')) {
+    if (isMobile && !localStorage.getItem(KEYBOARD_HINT_SHOWN)) {
         mobileKeyboardHint.classList.add('show');
         
         setTimeout(() => {
             mobileKeyboardHint.classList.remove('show');
-            sessionStorage.setItem('keyboardHintShown', 'true');
+            localStorage.setItem(KEYBOARD_HINT_SHOWN, 'true');
         }, 5000);
     }
+}
+
+// Persistência de preços
+function salvarPrecos() {
+    const precos = {};
+    Object.keys(inputsPrecos).forEach(key => {
+        if (inputsPrecos[key].value) {
+            precos[key] = inputsPrecos[key].value;
+        }
+    });
+    localStorage.setItem(SAVED_PRICES_KEY, JSON.stringify(precos));
+}
+
+function carregarPrecosSalvos() {
+    try {
+        const precosSalvos = JSON.parse(localStorage.getItem(SAVED_PRICES_KEY) || '{}');
+        Object.keys(precosSalvos).forEach(key => {
+            if (inputsPrecos[key] && precosSalvos[key]) {
+                inputsPrecos[key].value = precosSalvos[key];
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao carregar preços salvos:', error);
+    }
+}
+
+// Validação de entrada
+function validarPreco(valor, nomeCampo = '') {
+    if (!valor || valor.trim() === '') {
+        return { valido: false, erro: `${nomeCampo ? nomeCampo + ': ' : ''}Campo obrigatório` };
+    }
+    
+    const num = formatarNumeroParaCalculo(valor);
+    
+    if (isNaN(num)) {
+        return { valido: false, erro: `${nomeCampo ? nomeCampo + ': ' : ''}Valor inválido` };
+    }
+    
+    if (num < 0) {
+        return { valido: false, erro: `${nomeCampo ? nomeCampo + ': ' : ''}Valor não pode ser negativo` };
+    }
+    
+    if (num > 1000000) {
+        return { valido: false, erro: `${nomeCampo ? nomeCampo + ': ' : ''}Valor muito alto` };
+    }
+    
+    return { valido: true, valor: num };
 }
 
 function formatarNumeroParaCalculo(valor) {
@@ -345,6 +505,9 @@ function configurarEventListeners() {
             }
             
             e.target.value = value;
+            
+            // Salvar automaticamente
+            salvarPrecos();
         });
         
         if (navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
@@ -384,6 +547,8 @@ function configurarNavegacaoTeclado() {
             e.preventDefault();
             logout();
         }
+        
+        // REMOVIDO: Atalho para exportação (Ctrl+E)
     });
 }
 
@@ -465,12 +630,14 @@ function toggleMostrarInvestimento() {
         icon.classList.remove('fa-eye');
         icon.classList.add('fa-eye-slash');
         toggleInvestmentBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+        mostrarNotificacao('Valores investidos visíveis', 'sucesso', 2000);
     } else {
         investmentValues.forEach(el => el.classList.add('hidden'));
         investmentSummary.classList.add('hidden');
         icon.classList.remove('fa-eye-slash');
         icon.classList.add('fa-eye');
         toggleInvestmentBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+        mostrarNotificacao('Valores investidos ocultos', 'info', 2000);
     }
 }
 
@@ -520,6 +687,8 @@ function ativarModoEscuro() {
     if (comparacaoChartInstance) {
         atualizarGraficoComparacao();
     }
+    
+    mostrarNotificacao('Modo escuro ativado', 'sucesso', 2000);
 }
 
 function desativarModoEscuro() {
@@ -534,6 +703,8 @@ function desativarModoEscuro() {
     if (comparacaoChartInstance) {
         atualizarGraficoComparacao();
     }
+    
+    mostrarNotificacao('Modo claro ativado', 'sucesso', 2000);
 }
 
 function toggleModoEscuro() {
@@ -545,6 +716,7 @@ function toggleModoEscuro() {
 }
 
 function configurarGrafico() {
+    // Inicialização vazia, os gráficos serão criados quando necessário
 }
 
 function atualizarGrafico() {
@@ -572,13 +744,13 @@ function criarGrafico() {
     const total = valores.reduce((sum, val) => sum + val, 0);
     const porcentagens = valores.map(val => arredondarPercentagemGrafico(((val / total) * 100)));
     
-const colors = [
-    '#2d6ae3', // azul principal
-    '#7e3af2', // roxo
-    '#0ea5e9', // azul success
-    '#10b981', // verde esmeralda
-    '#eab308'  // amarelo suave (melhor que laranja no escuro)
-];
+    const colors = [
+        '#2d6ae3',
+        '#7e3af2',
+        '#0ea5e9',
+        '#10b981',
+        '#f59e0b'
+    ];
     
     const textColor = isDarkMode ? '#f1f5f9' : '#1f2937';
     
@@ -795,13 +967,24 @@ function calcularPortfolio() {
     let totalAtual = 0;
     let acoesValidas = 0;
     let acoesComLucro = 0;
+    let erros = [];
     
     acoes.forEach(acao => {
         const input = inputsPrecos[acao.id];
         const valorInput = input.value.trim();
-        const precoAtual = formatarNumeroParaCalculo(valorInput);
         
-        if (valorInput !== '' && !isNaN(precoAtual) && precoAtual >= 0) {
+        if (valorInput !== '') {
+            const validacao = validarPreco(valorInput, acao.nomeCurto);
+            
+            if (!validacao.valido) {
+                erros.push(validacao.erro);
+                input.style.borderColor = 'var(--danger)';
+                return;
+            }
+            
+            input.style.borderColor = '';
+            const precoAtual = validacao.valor;
+            
             const numeroAcoes = acao.investido / acao.precoCompra;
             const valorAtualBruto = numeroAcoes * precoAtual;
             const lucroBruto = valorAtualBruto - acao.investido;
@@ -835,8 +1018,16 @@ function calcularPortfolio() {
         }
     });
     
+    if (erros.length > 0) {
+        erros.forEach(erro => {
+            mostrarNotificacao(erro, 'erro', 5000);
+        });
+    }
+    
     if (acoesValidas === 0) {
-        mostrarErro("Por favor, insira pelo menos um preço atual válido");
+        if (erros.length === 0) {
+            mostrarNotificacao("Por favor, insira pelo menos um preço atual válido", 'aviso', 4000);
+        }
         resultadoSection.style.display = 'none';
         desempenhoSection.style.display = 'none';
         graficoSection.style.display = 'none';
@@ -868,6 +1059,18 @@ function calcularPortfolio() {
     
     criarGrafico();
     criarGraficoComparacao();
+    
+    // Salvar preços após cálculo bem-sucedido
+    salvarPrecos();
+    
+    // Mostrar notificação de sucesso
+    const mensagem = acoesComLucro === acoesValidas ? 
+        'Excelente! Todas as ações estão em lucro!' :
+        acoesComLucro > 0 ? 
+            `${acoesComLucro} de ${acoesValidas} ações estão em lucro` :
+            'Todas as ações estão em prejuízo';
+    
+    mostrarNotificacao(mensagem, acoesComLucro === acoesValidas ? 'sucesso' : acoesComLucro > 0 ? 'info' : 'aviso', 4000);
     
     if (isMobile && acoesValidas > 0) {
         setTimeout(() => {
@@ -961,16 +1164,6 @@ function mostrarResultadoConsolidadoSimplificado(totalAtual, lucroTotal, percent
     resultadoConsolidado.classList.add('has-result');
 }
 
-function mostrarErro(mensagem) {
-    resultadoConsolidado.innerHTML = `
-        <div class="resultado-info resultado-negativo">
-            <div class="resultado-titulo">${mensagem}</div>
-        </div>
-    `;
-    resultadoConsolidado.classList.add('has-result');
-    statsAcoes.textContent = '0/5 ações calculadas';
-}
-
 function formatarMoeda(valor, comSinal = false) {
     const sinal = comSinal ? (valor > 0 ? '+' : valor < 0 ? '-' : '') : '';
     const valorArredondado = arredondar(Math.abs(valor));
@@ -1005,9 +1198,12 @@ function formatarPercentagemGrafico(valor, comSinal = false) {
     return sinal + valorFormatado.replace('.', ',');
 }
 
+// REMOVIDA: Função exportarParaCSV() e todas as suas referências
+
 function limparCampos() {
     Object.values(inputsPrecos).forEach(input => {
         input.value = '';
+        input.style.borderColor = '';
     });
     
     limparTabela();
@@ -1042,6 +1238,9 @@ function limparCampos() {
     resultadoConsolidado.classList.remove('has-result');
     statsAcoes.textContent = '0/5 ações calculadas';
     
+    // Limpar preços salvos
+    localStorage.removeItem(SAVED_PRICES_KEY);
+    
     if (mostrarInvestimento) {
         toggleMostrarInvestimento();
     }
@@ -1056,6 +1255,7 @@ function limparCampos() {
     }
     
     inputsPrecos.sp.focus();
+    mostrarNotificacao('Campos limpos', 'info', 2000);
 }
 
 function limparTabela() {
@@ -1070,6 +1270,7 @@ function limparTabela() {
     celulaVazia.innerHTML = '<i class="fas fa-info-circle"></i><span>Insira os preços e clique em Calcular</span>';
 }
 
+// Prevenir zoom em mobile
 document.addEventListener('touchstart', function(e) {
     if (e.touches.length > 1) {
         e.preventDefault();
@@ -1082,6 +1283,7 @@ document.addEventListener('touchmove', function(e) {
     }
 }, { passive: false });
 
+// Service Worker para PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js').then(function(registration) {
@@ -1092,24 +1294,5 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// Inicializar a aplicação
 document.addEventListener('DOMContentLoaded', init);
-
-window.addEventListener('load', function() {
-    setTimeout(() => {
-        const footerLinks = document.querySelector('.footer-links');
-        if (footerLinks && !document.getElementById('logout-footer-btn')) {
-            const logoutBtn = document.createElement('a');
-            logoutBtn.id = 'logout-footer-btn';
-            logoutBtn.className = 'footer-link';
-            logoutBtn.href = '#';
-            logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
-            logoutBtn.title = 'Sair (Ctrl+Alt+L)';
-            logoutBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                logout();
-            });
-            
-            footerLinks.appendChild(logoutBtn);
-        }
-    }, 500);
-});

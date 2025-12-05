@@ -1,0 +1,721 @@
+/* Tela de Login */
+.login-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-login);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.login-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    padding: 3rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: var(--box-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideUp 0.6s ease-out;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.login-logo i {
+    font-size: 4rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.login-logo h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.2rem;
+    color: var(--dark);
+    font-weight: 700;
+}
+
+.login-form {
+    margin-bottom: 2rem;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8rem;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.login-header p {
+    color: var(--gray);
+    font-size: 1.1rem;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--gray);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    transition: var(--transition);
+}
+
+.toggle-password-btn:hover {
+    color: var(--primary);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 1.5rem;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    transition: var(--transition);
+    box-shadow: 0 10px 30px rgba(45, 106, 227, 0.3);
+}
+
+.login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(45, 106, 227, 0.4);
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-light);
+}
+
+.login-footer p {
+    color: var(--gray);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.login-footer i {
+    color: var(--primary);
+}
+
+.login-error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 1.2rem 1.5rem;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: shake 0.5s ease-in-out;
+    display: none;
+}
+
+.login-error i {
+    font-size: 1.5rem;
+}
+
+.login-error span {
+    font-weight: 500;
+}
+
+/* Container Principal */
+.container {
+    max-width: 1400px;
+    width: 100%;
+    background: var(--bg-container);
+    border-radius: var(--border-radius);
+    box-shadow: 0 20px 60px var(--shadow-color);
+    overflow: hidden;
+    margin: 20px auto;
+    position: relative;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* Garantir que o conteúdo principal ocupe altura disponível */
+#main-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+/* Header */
+header {
+    background: var(--header-bg);
+    color: white;
+    padding: 2.5rem 3rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.5s ease;
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+}
+
+/* ALTERADO: Nova estrutura para centralizar título e posicionar botões fora */
+.header-top {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
+    align-items: center;
+}
+
+.header-content {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.logo i {
+    font-size: 2.8rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1rem;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: pulse 2s infinite;
+}
+
+/* ALTERADO: Título centralizado */
+header h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
+    text-align: center;
+}
+
+.subtitle {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    opacity: 0.9;
+    max-width: 100vw;
+    position: relative;
+    z-index: 2;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+/* Botões do Header-top (modo escuro e sair) */
+.header-top-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.theme-toggle-btn, .logout-header-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.8rem;
+    border-radius: 50%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.theme-toggle-btn:hover, .logout-header-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.logout-header-btn:hover {
+    transform: translateY(-2px) rotate(-5deg);
+}
+
+/* Tooltip para os botões */
+.theme-toggle-btn::after, .logout-header-btn::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+}
+
+.theme-toggle-btn:hover::after, .logout-header-btn:hover::after {
+    opacity: 1;
+}
+
+/* Ações Inputs - Layout melhorado */
+.acoes-container {
+    display: flex;
+    gap: 4rem;
+    margin-bottom: 1.5rem;
+    align-items: stretch;
+    min-height: 500px;
+}
+
+.acoes-inputs {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.acao-item {
+    margin-bottom: 1.8rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 18px;
+    border-left: 6px solid var(--primary);
+    transition: var(--transition);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.acao-item:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    transform: translateX(8px) translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+}
+
+.acao-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle at top right, rgba(45, 106, 227, 0.1) 0%, transparent 70%);
+    border-radius: 0 18px 0 0;
+}
+
+.acao-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* NOVO: Estilo para os links dos nomes das ações */
+.acao-label {
+    display: block; /* Para permitir que o link ocupe toda a área */
+}
+
+.acao-nome-link {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 200px;
+    line-height: 1.4;
+    word-break: break-word;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-block; /* Para funcionar como um bloco inline */
+}
+
+.acao-nome-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.investment-value {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--gray-light);
+    animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+.investment-tag {
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: color 0.5s ease;
+}
+
+.investment-amount {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: clamp(1rem, 2vw, 1.1rem);
+}
+
+.investment-summary {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e0eeff 100%);
+    padding: 1rem 1.8rem;
+    border-radius: 15px;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    border: 1px solid rgba(45, 106, 227, 0.2);
+    box-shadow: 0 4px 15px rgba(45, 106, 227, 0.1);
+    flex-shrink: 0;
+}
+
+.investment-summary p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: var(--text-primary);
+    flex-wrap: wrap;
+}
+
+.table-stats {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 50px;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(45, 106, 227, 0.3);
+    flex-shrink: 0;
+}
+
+/* Botões - Centralizados verticalmente */
+.acoes-botoes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 280px;
+    padding: 2rem 0;
+}
+
+.botoes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    width: 100%;
+    max-width: 280px;
+    position: sticky;
+    top: 2rem;
+}
+
+/* Resultado Consolidado */
+.resultado-consolidado {
+    padding: 3rem;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px dashed #cbd5e1;
+    transition: var(--transition);
+}
+
+.resultado-consolidado.has-result {
+    border-style: solid;
+    border-color: transparent;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: inset 0 0 50px rgba(45, 106, 227, 0.05);
+}
+
+.estado-inicial {
+    text-align: center;
+    color: var(--text-secondary);
+    transition: color 0.5s ease;
+}
+
+.estado-icon {
+    font-size: clamp(3rem, 8vw, 4rem);
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    opacity: 0.7;
+    animation: float 3s ease-in-out infinite;
+}
+
+.estado-inicial p {
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
+    max-width: 400px;
+    margin: 0 auto;
+    font-weight: 500;
+}
+
+.resultado-info {
+    text-align: center;
+    width: 100%;
+    animation: slideDown 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.resultado-titulo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ALTERADO: Layout do resultado-detalhes para alinhamento vertical consistente */
+.resultado-detalhes {
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+    line-height: 1.6;
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ALTERADO: Cada linha com layout de grid para alinhamento consistente */
+.resultado-detalhes p {
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    padding: clamp(1rem, 3vw, 1.2rem) clamp(1.5rem, 4vw, 2rem);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+    text-align: left;
+}
+
+.resultado-detalhes p:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+/* ALTERADO: Ícones alinhados à esquerda */
+.resultado-detalhes i {
+    color: var(--primary);
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    flex-shrink: 0;
+    text-align: left;
+    min-width: 40px;
+}
+
+/* ALTERADO: Rótulos (span) alinhados à esquerda */
+.resultado-detalhes span {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    transition: color 0.5s ease;
+}
+
+/* ALTERADO: Valores (strong) alinhados à direita */
+.resultado-detalhes strong {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    text-align: right;
+    min-width: 200px; /* Garante espaço mínimo para os valores */
+    white-space: nowrap;
+    transition: color 0.5s ease;
+}
+
+/* Footer - MODIFICADO: Apenas ícones */
+footer {
+    background: var(--footer-bg);
+    color: white;
+    padding: 2.5rem 3rem;
+    margin-top: 3rem;
+    position: relative;
+    overflow: hidden;
+    padding-bottom: calc(2.5rem + var(--safe-area-inset-bottom));
+    transition: background 0.5s ease;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.footer-content p {
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    opacity: 0.8;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.footer-link {
+    color: #d1d5db;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.8rem;
+    border-radius: 50%;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+}
+
+/* Botão Mostrar Investimentos no footer (apenas ícone) */
+#toggle-investment {
+    padding: 0.8rem;
+    width: 48px;
+    height: 48px;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+#toggle-investment .footer-link-text {
+    display: none;
+}
+
+.footer-link:hover {
+    color: white;
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary);
+}
+
+.footer-link i {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+/* Mobile Keyboard Hint */
+.mobile-keyboard-hint {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--gradient-primary);
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    padding-bottom: calc(1rem + var(--safe-area-inset-bottom));
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.mobile-keyboard-hint.show {
+    transform: translateY(0);
+}

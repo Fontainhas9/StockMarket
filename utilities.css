@@ -1,0 +1,901 @@
+/* Utilitários gerais */
+.hidden {
+    display: none !important;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.empty-row td {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 4rem;
+    font-style: italic;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    transition: color 0.5s ease;
+}
+
+.empty-row i {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    margin-bottom: 1rem;
+    display: block;
+    color: var(--primary);
+}
+
+.resultado-positivo strong {
+    color: #10b981 !important;
+}
+
+.resultado-negativo strong {
+    color: #ef4444 !important;
+}
+
+.resultado-estavel strong {
+    color: var(--primary) !important;
+}
+
+/* RESPONSIVIDADE */
+
+/* Para ecrãs entre 1200px e 1400px (laptops grandes) */
+@media (max-width: 1400px) {
+    .container {
+        max-width: 95%;
+        margin: 15px auto;
+    }
+    
+    .card {
+        margin: 1.5rem;
+        padding: 2rem;
+    }
+    
+    .acoes-container {
+        gap: 3rem;
+    }
+}
+
+/* Para ecrãs entre 992px e 1200px (laptops pequenos e tablets grandes) */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 98%;
+        margin: 10px auto;
+        border-radius: 16px;
+    }
+    
+    .card {
+        margin: 1.25rem;
+        padding: 1.75rem;
+    }
+    
+    .acoes-container {
+        flex-direction: column;
+        gap: 2rem;
+        min-height: auto;
+    }
+    
+    .acoes-botoes {
+        min-width: 100%;
+        padding: 1.5rem 0 0 0;
+        margin-top: 0;
+    }
+    
+    .botoes-container {
+        flex-direction: row;
+        max-width: 100%;
+        position: static;
+        gap: 1rem;
+    }
+    
+    .btn {
+        flex: 1;
+        min-height: 70px;
+        justify-content: center;
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .btn-shortcut {
+        display: none;
+    }
+    
+    header {
+        padding: 2rem 2.5rem;
+    }
+    
+    .header-top {
+        margin-bottom: 1rem;
+    }
+    
+    .subtitle {
+        font-size: 1.05rem;
+        max-width: 90%;
+        margin: 0.5rem auto 0;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .card-header h2 {
+        min-width: 100%;
+    }
+    
+    .investment-summary, .table-stats {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .acao-item {
+        padding: 1.5rem;
+    }
+    
+    .acao-nome-link {
+        font-size: 1.1rem;
+        min-width: 180px;
+    }
+    
+    .chart-wrapper {
+        height: 350px;
+    }
+    
+    .resultado-consolidado {
+        padding: 2rem;
+    }
+    
+    footer {
+        padding: 2rem 2.5rem;
+    }
+}
+
+/* Para ecrãs entre 768px e 992px (tablets e laptops muito pequenos) */
+@media (max-width: 992px) {
+    .container {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+    }
+    
+    body {
+        padding: 0;
+        background: var(--bg-primary);
+    }
+    
+    .card {
+        margin: 1rem 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        padding: 1.5rem;
+        box-shadow: none;
+    }
+    
+    header {
+        border-radius: 0;
+        padding: 1.75rem 1.5rem !important;
+    }
+    
+    footer {
+        border-radius: 0;
+        padding: 1.75rem 1.5rem !important;
+    }
+    
+    .acoes-container {
+        gap: 1.5rem;
+    }
+    
+    .acao-item {
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .acao-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .acao-nome-link {
+        min-width: 100%;
+        font-size: 1rem;
+    }
+    
+    .investment-value {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .botoes-container {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        min-height: 65px;
+        padding: 1.1rem;
+    }
+    
+    .chart-wrapper {
+        height: 320px;
+    }
+    
+    .table-container {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
+    .login-container {
+        padding: 2rem;
+        margin: 1rem;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .footer-links {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* CORREÇÕES ESPECÍFICAS PARA DISPOSITIVOS MÓVEIS */
+@media (max-width: 768px) {
+    body {
+        padding: 0 !important;
+        background: var(--bg-primary);
+        min-height: 100vh;
+    }
+    
+    .container {
+        margin: 0 !important;
+        border-radius: 0;
+        box-shadow: none;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .card {
+        margin: 1rem 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 1.5rem 1rem !important;
+    }
+    
+    /* Ajuste do header em mobile */
+    header {
+        border-radius: 0;
+        margin: 0;
+        padding: 1.5rem 1rem !important;
+    }
+    
+    /* Ajuste do footer em mobile */
+    footer {
+        border-radius: 0;
+        margin: 0;
+        padding: 1.5rem 1rem !important;
+    }
+    
+    /* Ajuste da tabela em mobile */
+    .table-container {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
+    /* Ajuste da dica do teclado móvel */
+    .mobile-keyboard-hint {
+        border-radius: 0;
+    }
+    
+    .logo {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .logo i {
+        font-size: 2.5rem;
+        padding: 0.8rem;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+        text-align: center;
+    }
+    
+    .theme-toggle-btn, .logout-header-btn {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .acao-item {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .acao-nome-link {
+        font-size: 1.1rem;
+        min-width: 100%;
+    }
+    
+    .investment-value {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .preco-input {
+        font-size: 1.1rem;
+        min-height: 60px;
+        padding-left: 3.5rem;
+    }
+    
+    .input-icon {
+        left: 1rem;
+        font-size: 1.2rem;
+    }
+    
+    /* Botões em mobile */
+    .acoes-botoes {
+        order: 0;
+        margin-top: 1rem;
+        margin-bottom: 0;
+        padding: 1rem 0 0 0;
+    }
+    
+    .botoes-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .btn {
+        min-height: 70px;
+        font-size: 1.2rem;
+        padding: 1.2rem;
+        width: 100%;
+    }
+    
+    .btn-text {
+        font-size: 1.1rem;
+    }
+    
+    /* Gráfico em mobile */
+    .chart-wrapper {
+        height: 300px;
+    }
+    
+    .chart-legend {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .legend-item {
+        justify-content: space-between;
+    }
+    
+    .resultado-detalhes p {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .resultado-detalhes strong, .resultado-detalhes i {
+        font-size: 1.2rem;
+    }
+    
+    /* CORREÇÃO EXTRA PARA TABELA EM TELEMÓVEIS PEQUENOS */
+    table {
+        min-width: 600px;
+    }
+    
+    .acao-cell {
+        padding-left: 1rem !important;
+        min-width: 150px !important;
+    }
+    
+    .acao-link {
+        gap: 0.5rem;
+    }
+    
+    .acao-link i {
+        font-size: 1rem;
+        min-width: 18px;
+    }
+    
+    .acao-link .acao-nome {
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .footer-links {
+        width: 100%;
+        justify-content: center;
+        flex-direction: row;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .footer-link {
+        width: 44px;
+        height: 44px;
+        min-height: 44px;
+        padding: 0.7rem;
+    }
+    
+    .footer-link i {
+        font-size: 1.1rem;
+    }
+    
+    #toggle-investment {
+        width: 44px;
+        height: 44px;
+        padding: 0.7rem;
+    }
+    
+    .mobile-keyboard-hint {
+        display: block;
+    }
+    
+    .login-container {
+        padding: 1.5rem;
+    }
+    
+    .login-logo i {
+        font-size: 3rem;
+    }
+    
+    .login-logo h1 {
+        font-size: 1.6rem;
+    }
+    
+    .login-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    /* Em mobile, ajustar o layout para melhor uso do espaço */
+    #main-content {
+        min-height: calc(100vh - 20px);
+    }
+    
+    .acoes-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    /* Melhorar a experiência do teclado em mobile */
+    .preco-input {
+        font-size: 16px !important;
+        inputmode: decimal;
+        enterkeyhint: next;
+    }
+    
+    /* Para o último campo, mudar o enterkeyhint para "go" */
+    #imga-price {
+        enterkeyhint: go;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        margin: 0.5rem 0 !important;
+        padding: 1.25rem 1rem !important;
+    }
+    
+    header {
+        padding: 1.25rem 1rem !important;
+    }
+    
+    header h1 {
+        font-size: 1.6rem;
+    }
+    
+    .card-header h2 {
+        font-size: 1.3rem;
+        min-width: 100%;
+    }
+    
+    .acao-item {
+        padding: 1.25rem 1rem;
+    }
+    
+    .acao-nome-link {
+        font-size: 1rem;
+    }
+    
+    .preco-input {
+        font-size: 1rem;
+        padding: 1rem 1rem 1rem 3rem;
+    }
+    
+    .btn {
+        min-height: 65px;
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+    
+    .chart-wrapper {
+        height: 250px;
+    }
+    
+    .resultado-consolidado {
+        padding: 1.5rem;
+    }
+    
+    .estado-icon {
+        font-size: 2.5rem;
+    }
+    
+    .resultado-titulo {
+        font-size: 1.5rem;
+    }
+    
+    .footer-links {
+        gap: 0.8rem;
+    }
+    
+    .footer-link {
+        width: 42px;
+        height: 42px;
+        min-height: 42px;
+        padding: 0.6rem;
+    }
+    
+    .footer-link i {
+        font-size: 1rem;
+    }
+    
+    #toggle-investment {
+        width: 42px;
+        height: 42px;
+        padding: 0.6rem;
+    }
+    
+    .login-container {
+        padding: 1.25rem;
+    }
+    
+    .login-logo h1 {
+        font-size: 1.4rem;
+    }
+    
+    .login-header h2 {
+        font-size: 1.2rem;
+    }
+    
+    .input-group input {
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
+    }
+    
+    .login-btn {
+        padding: 1.2rem;
+        font-size: 1.1rem;
+    }
+    
+    /* CORREÇÃO EXTRA PARA TABELA EM TELEMÓVEIS PEQUENOS */
+    table {
+        min-width: 500px;
+    }
+    
+    .acao-cell {
+        padding-left: 0.8rem !important;
+        min-width: 130px !important;
+    }
+    
+    .acao-link {
+        gap: 0.4rem;
+    }
+    
+    .acao-link i {
+        font-size: 0.9rem;
+        min-width: 16px;
+    }
+    
+    .acao-link .acao-nome {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo i {
+        font-size: 2rem;
+        padding: 0.6rem;
+    }
+    
+    header h1 {
+        font-size: 1.4rem;
+    }
+    
+    .acao-nome-link {
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        min-height: 60px;
+        font-size: 1rem;
+        padding: 0.9rem;
+    }
+    
+    .btn i {
+        font-size: 1rem;
+    }
+    
+    .chart-wrapper {
+        height: 220px;
+    }
+    
+    .acao-cell {
+        min-width: 120px !important;
+    }
+    
+    .acao-link .acao-nome {
+        font-size: 0.85rem;
+    }
+    
+    .footer-links {
+        gap: 0.6rem;
+    }
+    
+    .footer-link {
+        width: 40px;
+        height: 40px;
+        min-height: 40px;
+        padding: 0.5rem;
+    }
+    
+    .footer-link i {
+        font-size: 0.9rem;
+    }
+    
+    #toggle-investment {
+        width: 40px;
+        height: 40px;
+        padding: 0.5rem;
+    }
+}
+
+/* Suporte para modo paisagem em mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .acoes-container {
+        min-height: auto;
+    }
+    
+    .acao-item {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        min-height: 50px;
+        padding: 0.8rem;
+    }
+    
+    .chart-wrapper {
+        height: 200px;
+    }
+    
+    .login-container {
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 1.5rem;
+    }
+}
+
+/* Estilos para inputs focados em mobile - MELHORIA PARA TECLADO */
+@media (max-width: 768px) {
+    /* Garantir que o teclado numérico apareça */
+    input[inputmode="decimal"] {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+}
+
+/* Melhorar a formatação de percentagens */
+.resultado-detalhes strong {
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.3px;
+}
+
+/* Ajustar a ordem das seções */
+main {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ajustar espaçamento para mobile */
+@media (max-width: 768px) {
+    .card {
+        margin: 0.5rem 0;
+    }
+    
+    .resultado-card {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Estilo para os botões do footer em mobile */
+@media (max-width: 768px) {
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+    
+    .footer-link {
+        flex: 0 0 auto;
+    }
+    
+    /* Ajustar tamanho dos ícones nos botões do footer */
+    .footer-link i {
+        font-size: 1rem;
+    }
+    
+    /* Ocultar texto nos botões do footer em mobile */
+    .footer-link-text {
+        display: none;
+    }
+    
+    /* Mostrar texto apenas em hover/active para desktop */
+    @media (hover: hover) {
+        .footer-link:hover .footer-link-text {
+            display: inline;
+        }
+    }
+}
+
+/* Ajustar para telas maiores */
+@media (min-width: 769px) {
+    .footer-link-text {
+        display: none;
+    }
+}
+
+/* Remover legenda do gráfico de comparação */
+#comparacao-legend {
+    display: none;
+}
+
+/* AJUSTES PARA MOBILE - Melhorar o resumo do portefólio no mobile */
+@media (max-width: 768px) {
+    /* Resumo do Portefólio - Layout melhorado para valores longos */
+    .resultado-detalhes p {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding: 0.9rem 1rem;
+        text-align: left;
+        min-height: 70px;
+        flex-wrap: wrap;
+    }
+    
+    .resultado-detalhes i {
+        font-size: 1.2rem;
+        min-width: 28px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    
+    .resultado-detalhes span {
+        font-size: 0.95rem;
+        text-align: left;
+        flex: 1;
+        min-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .resultado-detalhes strong {
+        font-size: 1.05rem;
+        font-weight: 700;
+        text-align: right;
+        flex-shrink: 0;
+        min-width: 140px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background: rgba(45, 106, 227, 0.08);
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+        border: 1px solid rgba(45, 106, 227, 0.15);
+        max-width: 100%;
+    }
+    
+    /* Para valores muito longos em mobile pequeno */
+    @media (max-width: 480px) {
+        .resultado-detalhes p {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.4rem;
+            min-height: auto;
+        }
+        
+        .resultado-detalhes i {
+            align-self: flex-start;
+        }
+        
+        .resultado-detalhes span {
+            width: 100%;
+            min-width: auto;
+        }
+        
+        .resultado-detalhes strong {
+            width: 100%;
+            min-width: auto;
+            text-align: left;
+            font-size: 1rem;
+            padding: 0.6rem;
+            background: rgba(45, 106, 227, 0.1);
+        }
+    }
+    
+    /* Ajustar para iPhone SE ou telas muito pequenas */
+    @media (max-width: 375px) {
+        .resultado-detalhes strong {
+            font-size: 0.95rem;
+            padding: 0.5rem;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            white-space: normal;
+            word-break: break-word;
+        }
+    }
+    
+    /* Ajustar tamanho da fonte em telas muito pequenas */
+    @media (max-width: 360px) {
+        .resultado-detalhes p {
+            padding: 0.8rem;
+        }
+        
+        .resultado-detalhes strong {
+            font-size: 0.9rem;
+            padding: 0.4rem;
+        }
+        
+        .resultado-detalhes i {
+            font-size: 1.1rem;
+        }
+        
+        .resultado-detalhes span {
+            font-size: 0.9rem;
+        }
+    }
+}
