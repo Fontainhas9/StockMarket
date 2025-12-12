@@ -479,3 +479,221 @@ td {
 .notificacao-fechar:hover {
     color: var(--text-primary);
 }
+
+/* Histórico de Portefólio */
+.historico-card {
+    margin-top: 2rem;
+}
+
+.historico-header-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-historico-limpar {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--danger);
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.btn-historico-limpar:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-2px);
+}
+
+.historico-container {
+    margin-top: 1rem;
+}
+
+.historico-vazio {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-secondary);
+    border-radius: 16px;
+    border: 2px dashed var(--border-color);
+    background: rgba(255, 255, 255, 0.3);
+    transition: color 0.5s ease;
+}
+
+body.dark-mode .historico-vazio {
+    background: rgba(30, 41, 59, 0.3);
+}
+
+.historico-vazio i {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    opacity: 0.5;
+}
+
+.historico-vazio p {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.historico-vazio-dica {
+    font-size: 0.9rem !important;
+    opacity: 0.7;
+}
+
+.historico-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.historico-item {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+    animation: slideIn 0.4s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+body.dark-mode .historico-item {
+    background: rgba(30, 41, 59, 0.5);
+}
+
+.historico-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.historico-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--gradient-primary);
+}
+
+.historico-item.positivo::before {
+    background: var(--gradient-success);
+}
+
+.historico-item.negativo::before {
+    background: var(--gradient-danger);
+}
+
+.historico-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.historico-data {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    transition: color 0.5s ease;
+}
+
+.historico-tempo {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: rgba(45, 106, 227, 0.1);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.historico-valores {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .historico-valores {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+}
+
+.historico-valor-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.historico-valor-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: color 0.5s ease;
+}
+
+.historico-valor {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    transition: color 0.5s ease;
+}
+
+.historico-valor.positivo {
+    color: #10b981;
+}
+
+.historico-valor.negativo {
+    color: #ef4444;
+}
+
+.historico-item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.historico-acoes {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    transition: color 0.5s ease;
+}
+
+.historico-acoes span {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.btn-historico-remover {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: var(--transition);
+    opacity: 0.7;
+}
+
+.btn-historico-remover:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.1);
+}

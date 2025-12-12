@@ -151,8 +151,9 @@
         padding: 2rem;
     }
     
-    footer {
-        padding: 2rem 2.5rem;
+    /* Responsividade para histórico */
+    .historico-lista {
+        max-height: 350px;
     }
 }
 
@@ -246,6 +247,16 @@
     .footer-links {
         width: 100%;
         justify-content: center;
+    }
+    
+    /* Responsividade para histórico */
+    .historico-lista {
+        max-height: 300px;
+    }
+    
+    .historico-valores {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
     }
 }
 
@@ -500,6 +511,29 @@
     #imga-price {
         enterkeyhint: go;
     }
+    
+    /* Responsividade para histórico em mobile */
+    .historico-lista {
+        max-height: 300px;
+    }
+    
+    .historico-item {
+        padding: 1.25rem;
+    }
+    
+    .historico-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .historico-data {
+        font-size: 1rem;
+    }
+    
+    .historico-tempo {
+        align-self: flex-start;
+    }
 }
 
 @media (max-width: 480px) {
@@ -550,10 +584,6 @@
     
     .estado-icon {
         font-size: 2.5rem;
-    }
-    
-    .resultado-titulo {
-        font-size: 1.5rem;
     }
     
     .footer-links {
@@ -620,6 +650,15 @@
     
     .acao-link .acao-nome {
         font-size: 0.9rem;
+    }
+    
+    /* Responsividade para histórico em telas pequenas */
+    .historico-lista {
+        max-height: 250px;
+    }
+    
+    .historico-item {
+        padding: 1rem;
     }
 }
 
@@ -714,6 +753,11 @@
         max-height: 90vh;
         overflow-y: auto;
         padding: 1.5rem;
+    }
+    
+    /* Histórico em modo paisagem */
+    .historico-lista {
+        max-height: 200px;
     }
 }
 

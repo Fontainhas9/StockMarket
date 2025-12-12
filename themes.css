@@ -128,3 +128,30 @@ body.dark-mode .acao-link .acao-nome {
 body.dark-mode .comparacao-card .chart-wrapper::before {
     opacity: 0.3;
 }
+
+/* Modo escuro para histórico */
+body.dark-mode .historico-item {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+body.dark-mode .historico-vazio {
+    background: rgba(30, 41, 59, 0.3);
+}
+
+body.dark-mode .btn-historico-limpar {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+body.dark-mode .btn-historico-limpar:hover {
+    background: rgba(239, 68, 68, 0.25);
+}
+
+body.dark-mode .historico-tempo {
+    background: rgba(45, 106, 227, 0.2);
+}
+
+body.dark-mode .btn-historico-remover:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
