@@ -92,12 +92,6 @@ const notificationContainer = document.getElementById('notification-container');
 const logoutHeaderBtn = document.getElementById('logout-header-btn');
 const logoutFooterBtn = document.getElementById('logout-footer-btn');
 
-// Elementos do histórico (novos)
-const historicoSection = document.getElementById('historico-section');
-const historicoVazio = document.getElementById('historico-vazio');
-const historicoLista = document.getElementById('historico-lista');
-const limparHistoricoBtn = document.getElementById('limpar-historico');
-
 // Variáveis de estado
 let mostrarInvestimento = false;
 let resultadosCalculados = [];
@@ -111,9 +105,7 @@ let isDarkMode = false;
 const AUTH_KEY = 'portfolio_calculator_auth';
 const AUTH_TIMESTAMP_KEY = 'portfolio_calculator_auth_timestamp';
 const THEME_KEY = 'portfolio_calculator_theme';
-const SAVED_PRICES_KEY = 'portfolio_saved_prices';
 const KEYBOARD_HINT_SHOWN = 'keyboardHintShown';
-const HISTORICO_KEY = 'portfolio_historico'; // Nova chave para o histórico
 
 // Funções de utilidade
 function arredondar(valor) {
@@ -126,239 +118,6 @@ function arredondarPercentagem(valor) {
 
 function arredondarPercentagemGrafico(valor) {
     return Math.round(valor * 100) / 100; // 2 casas decimais para gráficos
-}
-
-// Funções para o histórico
-function formatarData(data) {
-    const agora = data || new Date();
-    const dia = String(agora.getDate()).padStart(2, '0');
-    const mes = String(agora.getMonth() + 1).padStart(2, '0');
-    const ano = agora.getFullYear();
-    const horas = String(agora.getHours()).padStart(2, '0');
-    const minutos = String(agora.getMinutes()).padStart(2, '0');
-    
-    return {
-        data: `${dia}/${mes}/${ano}`,
-        hora: `${horas}:${minutos}`,
-        timestamp: agora.getTime(),
-        dataCompleta: `${dia}/${mes}/${ano} ${horas}:${minutos}`
-    };
-}
-
-function calcularTempoDecorrido(timestamp) {
-    const agora = new Date().getTime();
-    const diferenca = agora - timestamp;
-    
-    const minutos = Math.floor(diferenca / (1000 * 60));
-    const horas = Math.floor(diferenca / (1000 * 60 * 60));
-    const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
-    
-    if (minutos < 1) return 'Agora mesmo';
-    if (minutos < 60) return `${minutos} min atrás`;
-    if (horas < 24) return `${horas}h atrás`;
-    if (dias === 1) return 'Ontem';
-    return `${dias} dias atrás`;
-}
-
-function salvarHistorico(totalAtual, lucroTotal, percentagemTotal) {
-    try {
-        const { data, hora, timestamp, dataCompleta } = formatarData();
-        const precos = {};
-        
-        // Salvar os preços inseridos
-        Object.keys(inputsPrecos).forEach(key => {
-            if (inputsPrecos[key].value) {
-                const valor = formatarNumeroParaCalculo(inputsPrecos[key].value);
-                precos[key] = valor;
-            }
-        });
-        
-        const historicoItem = {
-            id: `hist_${timestamp}_${Math.random().toString(36).substr(2, 9)}`,
-            data: data,
-            hora: hora,
-            timestamp: timestamp,
-            dataCompleta: dataCompleta,
-            precos: precos,
-            totalAtual: totalAtual,
-            lucroTotal: lucroTotal,
-            percentagemTotal: percentagemTotal,
-            acoesCalculadas: resultadosCalculados.length
-        };
-        
-        let historico = JSON.parse(localStorage.getItem(HISTORICO_KEY)) || [];
-        
-        // Limitar histórico a 50 entradas (remover as mais antigas)
-        historico.unshift(historicoItem); // Adicionar no início
-        if (historico.length > 50) {
-            historico = historico.slice(0, 50);
-        }
-        
-        localStorage.setItem(HISTORICO_KEY, JSON.stringify(historico));
-        
-        // Atualizar exibição do histórico
-        setTimeout(() => {
-            mostrarHistorico();
-        }, 100);
-        
-        return true;
-    } catch (error) {
-        console.error('Erro ao salvar histórico:', error);
-        return false;
-    }
-}
-
-function mostrarHistorico() {
-    try {
-        const historico = JSON.parse(localStorage.getItem(HISTORICO_KEY)) || [];
-        
-        if (historico.length === 0) {
-            historicoVazio.style.display = 'block';
-            historicoLista.style.display = 'none';
-            historicoSection.style.display = 'none';
-            return;
-        }
-        
-        historicoVazio.style.display = 'none';
-        historicoLista.style.display = 'flex';
-        historicoSection.style.display = 'block';
-        
-        // Ordenar por timestamp (mais recente primeiro)
-        historico.sort((a, b) => b.timestamp - a.timestamp);
-        
-        // Limitar a mostrar 20 entradas
-        const historicoMostrar = historico.slice(0, 20);
-        
-        historicoLista.innerHTML = '';
-        
-        historicoMostrar.forEach(item => {
-            const historicoItem = document.createElement('div');
-            historicoItem.className = `historico-item ${item.lucroTotal >= 0 ? 'positivo' : 'negativo'}`;
-            historicoItem.dataset.id = item.id;
-            
-            const tempoDecorrido = calcularTempoDecorrido(item.timestamp);
-            
-            historicoItem.innerHTML = `
-                <div class="historico-item-header">
-                    <div class="historico-data">${item.dataCompleta}</div>
-                    <div class="historico-tempo">${tempoDecorrido}</div>
-                </div>
-                <div class="historico-valores">
-                    <div class="historico-valor-item">
-                        <span class="historico-valor-label">Valor Total</span>
-                        <span class="historico-valor">${formatarMoeda(item.totalAtual)}</span>
-                    </div>
-                    <div class="historico-valor-item">
-                        <span class="historico-valor-label">Resultado</span>
-                        <span class="historico-valor ${item.lucroTotal >= 0 ? 'positivo' : 'negativo'}">
-                            ${formatarMoeda(item.lucroTotal, true)}
-                        </span>
-                    </div>
-                    <div class="historico-valor-item">
-                        <span class="historico-valor-label">Rentabilidade</span>
-                        <span class="historico-valor ${item.lucroTotal >= 0 ? 'positivo' : 'negativo'}">
-                            ${formatarPercentagem(item.percentagemTotal, true)}
-                        </span>
-                    </div>
-                </div>
-                <div class="historico-item-footer">
-                    <div class="historico-acoes">
-                        <span>${item.acoesCalculadas}</span> de 5 ações calculadas
-                    </div>
-                    <button class="btn-historico-remover" title="Remover do histórico">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
-            
-            historicoLista.appendChild(historicoItem);
-        });
-        
-        // Adicionar eventos aos botões de remover
-        document.querySelectorAll('.btn-historico-remover').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const historicoItem = this.closest('.historico-item');
-                const id = historicoItem.dataset.id;
-                removerDoHistorico(id);
-            });
-        });
-        
-        // Adicionar evento de clique para restaurar preços
-        document.querySelectorAll('.historico-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                if (!e.target.closest('.btn-historico-remover')) {
-                    const id = this.dataset.id;
-                    restaurarPrecosDoHistorico(id);
-                }
-            });
-        });
-        
-    } catch (error) {
-        console.error('Erro ao mostrar histórico:', error);
-        historicoVazio.style.display = 'block';
-        historicoLista.style.display = 'none';
-    }
-}
-
-function removerDoHistorico(id) {
-    try {
-        let historico = JSON.parse(localStorage.getItem(HISTORICO_KEY)) || [];
-        historico = historico.filter(item => item.id !== id);
-        localStorage.setItem(HISTORICO_KEY, JSON.stringify(historico));
-        mostrarHistorico();
-        mostrarNotificacao('Entrada removida do histórico', 'sucesso', 3000);
-    } catch (error) {
-        console.error('Erro ao remover do histórico:', error);
-        mostrarNotificacao('Erro ao remover do histórico', 'erro', 3000);
-    }
-}
-
-function restaurarPrecosDoHistorico(id) {
-    try {
-        const historico = JSON.parse(localStorage.getItem(HISTORICO_KEY)) || [];
-        const item = historico.find(item => item.id === id);
-        
-        if (!item) {
-            mostrarNotificacao('Não foi possível restaurar os dados', 'erro', 3000);
-            return;
-        }
-        
-        // Restaurar os preços
-        Object.keys(item.precos).forEach(key => {
-            if (inputsPrecos[key] && item.precos[key]) {
-                // Formatar o número para exibição (virgula como separador decimal)
-                const valorFormatado = item.precos[key].toString().replace('.', ',');
-                inputsPrecos[key].value = valorFormatado;
-            }
-        });
-        
-        // Recalcular automaticamente
-        setTimeout(() => {
-            calcularPortfolio();
-        }, 300);
-        
-        mostrarNotificacao(`Preços de ${item.data} restaurados`, 'sucesso', 3000);
-        
-        // Scroll para os inputs
-        if (isMobile) {
-            setTimeout(() => {
-                scrollToElement(inputsPrecos.sp);
-            }, 500);
-        }
-        
-    } catch (error) {
-        console.error('Erro ao restaurar preços:', error);
-        mostrarNotificacao('Erro ao restaurar preços', 'erro', 3000);
-    }
-}
-
-function limparHistoricoCompleto() {
-    if (confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
-        localStorage.removeItem(HISTORICO_KEY);
-        mostrarHistorico();
-        mostrarNotificacao('Histórico limpo com sucesso', 'sucesso', 3000);
-    }
 }
 
 // Sistema de notificações
@@ -451,7 +210,11 @@ function showMainContent() {
 function logout() {
     sessionStorage.removeItem(AUTH_KEY);
     sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
-    localStorage.removeItem(SAVED_PRICES_KEY);
+    
+    // Limpar campos ao sair
+    Object.values(inputsPrecos).forEach(input => {
+        input.value = '';
+    });
     
     mostrarNotificacao('Sessão terminada com sucesso', 'sucesso', 3000);
     
@@ -552,6 +315,9 @@ function init() {
 }
 
 function initCalculator() {
+    // LIMPAR CAMPOS AO INICIAR SESSÃO
+    limparCamposAoIniciar();
+    
     configurarEventListeners();
     configurarNavegacaoTeclado();
     detectarDispositivo();
@@ -560,7 +326,6 @@ function initCalculator() {
     configurarFocusMobile();
     configurarModoEscuro();
     configurarGrafico();
-    carregarPrecosSalvos();
     
     // Event listeners para botões
     toggleInvestmentBtn.addEventListener('click', function(e) {
@@ -583,19 +348,59 @@ function initCalculator() {
         });
     }
     
-    // Event listener para limpar histórico
-    if (limparHistoricoBtn) {
-        limparHistoricoBtn.addEventListener('click', limparHistoricoCompleto);
-    }
-    
-    // Carregar histórico ao iniciar
-    setTimeout(() => {
-        mostrarHistorico();
-    }, 500);
-    
     setTimeout(() => {
         inputsPrecos.sp.focus();
     }, 300);
+}
+
+function limparCamposAoIniciar() {
+    // Limpar todos os campos de entrada
+    Object.values(inputsPrecos).forEach(input => {
+        input.value = '';
+        input.style.borderColor = '';
+    });
+    
+    // Limpar resultados visuais
+    resultadoSection.style.display = 'none';
+    desempenhoSection.style.display = 'none';
+    graficoSection.style.display = 'none';
+    
+    // Resetar variáveis de estado
+    resultadosCalculados = [];
+    
+    // Limpar tabela
+    limparTabela();
+    
+    // Resetar resultado consolidado
+    resultadoConsolidado.innerHTML = `
+        <div class="estado-inicial">
+            <div class="estado-icon">
+                <i class="fas fa-arrow-circle-right"></i>
+            </div>
+            <p>Insira os preços atuais e clique em Calcular</p>
+        </div>
+    `;
+    resultadoConsolidado.classList.remove('has-result');
+    statsAcoes.textContent = '0/5 ações';
+    
+    // Destruir gráficos se existirem
+    if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+    }
+    
+    if (comparacaoChartInstance) {
+        comparacaoChartInstance.destroy();
+        comparacaoChartInstance = null;
+    }
+    
+    // Limpar legenda do gráfico
+    chartLegend.innerHTML = '';
+    
+    // Resetar mostrar investimento
+    if (mostrarInvestimento) {
+        toggleMostrarInvestimento();
+    }
 }
 
 function detectarDispositivo() {
@@ -618,30 +423,6 @@ function showMobileKeyboardHint() {
             mobileKeyboardHint.classList.remove('show');
             localStorage.setItem(KEYBOARD_HINT_SHOWN, 'true');
         }, 5000);
-    }
-}
-
-// Persistência de preços
-function salvarPrecos() {
-    const precos = {};
-    Object.keys(inputsPrecos).forEach(key => {
-        if (inputsPrecos[key].value) {
-            precos[key] = inputsPrecos[key].value;
-        }
-    });
-    localStorage.setItem(SAVED_PRICES_KEY, JSON.stringify(precos));
-}
-
-function carregarPrecosSalvos() {
-    try {
-        const precosSalvos = JSON.parse(localStorage.getItem(SAVED_PRICES_KEY) || '{}');
-        Object.keys(precosSalvos).forEach(key => {
-            if (inputsPrecos[key] && precosSalvos[key]) {
-                inputsPrecos[key].value = precosSalvos[key];
-            }
-        });
-    } catch (error) {
-        console.error('Erro ao carregar preços salvos:', error);
     }
 }
 
@@ -755,9 +536,6 @@ function configurarEventListeners() {
             }
             
             e.target.value = value;
-            
-            // Salvar automaticamente
-            salvarPrecos();
         });
         
         if (navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
@@ -1279,7 +1057,6 @@ function calcularPortfolio() {
         resultadoSection.style.display = 'none';
         desempenhoSection.style.display = 'none';
         graficoSection.style.display = 'none';
-        historicoSection.style.display = 'none'; // Esconder histórico se não há cálculo
         return;
     }
     
@@ -1308,18 +1085,6 @@ function calcularPortfolio() {
     
     criarGrafico();
     criarGraficoComparacao();
-    
-    // Salvar preços após cálculo bem-sucedido
-    salvarPrecos();
-    
-    // SALVAR NO HISTÓRICO
-    const salvou = salvarHistorico(totalAtual, lucroTotal, percentagemTotal);
-    if (salvou) {
-        // Mostrar notificação adicional de que foi salvo
-        setTimeout(() => {
-            mostrarNotificacao('Dados guardados no histórico', 'sucesso', 2000);
-        }, 1500);
-    }
     
     // Mostrar notificação de sucesso
     const mensagem = acoesComLucro === acoesValidas ? 
@@ -1493,9 +1258,6 @@ function limparCampos() {
     
     resultadoConsolidado.classList.remove('has-result');
     statsAcoes.textContent = '0/5 ações calculadas';
-    
-    // Limitar preços salvos
-    localStorage.removeItem(SAVED_PRICES_KEY);
     
     if (mostrarInvestimento) {
         toggleMostrarInvestimento();
